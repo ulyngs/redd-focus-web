@@ -1,5 +1,6 @@
 * {
     -webkit-user-select: none;
+    user-select: none;
     -webkit-user-drag: none;
     cursor: default;
 }
