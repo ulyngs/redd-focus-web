@@ -4,79 +4,156 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
 
-    <meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
     <link rel="stylesheet" href="../Style.css">
     <script src="../Script.js" defer></script>
 </head>
 <body>
-  <div class="scrollable-content">
-    <img class="platform-mac app-icon" src="../icon-1024.png" alt='ReDD Focus Icon'>
+  <div class="scrollable-content platform-ios">
+    
+    <!-- Header Section -->
+    <header class="app-header platform-ios platform-iphone">
+      <img class="app-logo" src="../icon-512.png" alt="ReDD Focus Icon">
+      <div class="app-header-text">
+        <h1 class="app-title">ReDD Focus</h1>
+        <p class="app-description">Hide distractions on any website</p>
+      </div>
+      <span class="get-started-badge">How-to Guide</span>
+    </header>
+
+    <!-- Steps Container -->
+    <div class="steps-container platform-ios platform-iphone">
+      
+      <!-- Step 1: Turn on extension -->
+      <div class="step step-two-column">
+        <div class="step-header">
+          <div class="step-badge">1</div>
+          <h3 class="step-title">Turn on extension</h3>
+        </div>
         
-        <p>This extension lets you hide distractions on any website, with pre-configured options for YouTube, Facebook, Twitter, Instagram, Linkedin, and Google.com. It's open source and collects zero data - you can find the source code <a href="https://github.com/ulyngs/mindshield-open-source">on GitHub</a>.</p>
-        <h1>To turn it on</h1>
-        <div class="platform-ios platform-iphone">
-            <p>Open Safari and go to a website. Then:</p>
-            <ol>
-                <li>In the toolbar tap the puzzle piece icon -> 'Manage Extensions', and toggle the extension on.<br></li>
-                <li>Tap the extension icon and allow it access</li>
-            </ol>
+        <div class="step-columns">
+          <div class="step-content">
+            <p class="step-instruction">Open Safari, go to youtube.com (or any site), and enable ReDD Focus.</p>
+          </div>
+          
+          <!-- Visual aids for step 1 -->
+          <div class="step-visuals">
+            <img src="../ios-1.png" alt="Safari address bar showing youtube.com" class="step-image">
+            <div class="arrow-down">↓</div>
+            <img src="../ios-2.png" alt="Manage Extensions menu" class="step-image">
+            <div class="arrow-down">↓</div>
+            <img src="../ios-3.png" alt="ReDD Focus extension toggle" class="step-image">
+          </div>
         </div>
-        <div class="row platform-ios platform-iphone">
-            <div class="column">
-                <p>Step 1:</p>
-                <img src="../iPhone_turn_on_one_annotated.jpeg" alt="iPhone screenshot of the Safari app, where the 'Aa' icon in the corner has been tapped." style="width:100%">
-            </div>
-            <div class="column">
-                <p>Step 2:</p>
-                <img src="../iPhone_turn_on_two_anon.jpeg" alt="iPhone screenshot of the Safari app, being asked to allow access." style="width:100%">
-            </div>
+        
+        <!-- Callout box -->
+        <div class="callout-box">
+          <span class="callout-icon">i</span>
+          <p>Can't turn it on? You likely have Screen Time restrictions running. Turn them off in Settings → Screen Time and try again.</p>
         </div>
-        <p class="platform-ios">Tap the button below to open Safari and start using the extension:</p>
-        <button class="platform-ios open-safari" style="margin-bottom: 2em;">Open Safari</button>
-        <div class="platform-ios platform-iphone">
-            <h1>To create home screen icon that opens a platform directly in Safari</h1>
-            <p>Example for Instagram (video demonstration at the bottom):</p>
-            <ol>
-                <li>Open the Shortcuts app on your iPhone</li>
-                <li>Tap + to create a new shortcut </li>
-                <li>Tap the name of your new shortcut (in the top) and rename it to e.g., "Instagram Safari" </li>
-                <li>Search for the “Open URLs” action and tap it</li>
-                <li>Tap URL and and input "instagram.com"</li>
-                <li>Tap the 'Share' icon in the bottom right and select 'Add to Home Screen'</li>
-                <li>Select the icon you want and tap 'Add'</li>
+      </div>
+
+      <!-- Step 2: Grant permissions -->
+      <div class="step step-two-column">
+        <div class="step-header">
+          <div class="step-badge">2</div>
+          <h3 class="step-title">Grant permissions</h3>
+        </div>
+        
+        <div class="step-columns">
+          <div class="step-content">
+            <p class="step-instruction">Allow ReDD Focus to modify websites.</p>
+          </div>
+          
+          <!-- Visual aids for step 2 -->
+          <div class="step-visuals">
+            <img src="../ios-4.png" alt="Manage Extensions screen" class="step-image">
+            <div class="arrow-down">↓</div>
+            <img src="../ios-5.png" alt="Permission dialog for ReDD Focus" class="step-image">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Add more steps here as needed -->
+      <!-- The structure can be repeated for additional steps -->
+
+    </div>
+
+    <!-- Open Safari Button -->
+    <button class="open-safari-btn platform-ios platform-iphone">Open Safari to get started</button>
+
+    <!-- Optional Collapsible Section -->
+    <div class="optional-section platform-ios platform-iphone">
+      <div class="optional-header" id="optional-toggle">
+        <span class="optional-badge">OPTIONAL</span>
+        <h3 class="optional-title">Create home screen shortcuts</h3>
+        <span class="chevron-icon" id="chevron">⌃</span>
+      </div>
+      <div class="optional-content" id="optional-content">
+        <p class="optional-description">Open apps distraction-free in Safari with one tap.</p>
+        
+        <div class="optional-content-inner">
+          <div class="shortcuts-instructions">
+            <p class="example-title">Example for Instagram:</p>
+            <ol class="shortcuts-list">
+              <li>Open the Shortcuts app on your iPhone</li>
+              <li>Tap + to create a new shortcut</li>
+              <li>Tap the name of your new shortcut (in the top) and rename it to e.g., "Instagram Safari"</li>
+              <li>Search for the "Open URLs" action and tap it</li>
+              <li>Tap URL and input "instagram.com"</li>
+              <li>Tap the 'Share' icon in the bottom right and select 'Add to Home Screen'</li>
+              <li>Select the icon you want and tap 'Add'</li>
             </ol>
-            <!-- Video for the iPhone app -->
+          </div>
+          
+          <div class="video-preview-container" id="video-preview">
+            <div class="video-preview-placeholder">
+              <span class="play-icon">▶</span>
+              <p>CLICKABLE VIDEO</p>
+            </div>
+          </div>
+          
+          <div class="video-expanded" id="video-expanded" style="display: none;">
             <video controls width="100%">
-                <source src="../insta_home_screen_small.mp4" type="video/mp4">
-                Your browser does not support the video tag.
+              <source src="../insta_home_screen_small.mp4" type="video/mp4">
+              Your browser does not support the video tag.
             </video>
+          </div>
         </div>
-        
-        <div class="platform-ios platform-ipad">
-            <p class="platform-ios platform-ipad">First open Safari and go to any website. Then:</p>
-            <ol>
-                <li>In the browser address bar, tap the puzzle icon -> 'Manage Extensions', and toggle the extension on.</li>
-                <li>Tap the extension icon and allow access</li>
-            </ol>
+      </div>
+    </div>
+
+    <!-- iPad version (keep existing structure for now, can be updated later) -->
+    <div class="platform-ios platform-ipad">
+      <p class="platform-ios platform-ipad">First open Safari and go to any website. Then:</p>
+      <ol>
+        <li>In the browser address bar, tap the puzzle icon -> 'Manage Extensions', and toggle the extension on.</li>
+        <li>Tap the extension icon and allow access</li>
+      </ol>
+      
+      <div class="row platform-ios platform-ipad">
+        <div class="column">
+          <p>Step 1:</p>
+          <img src="../iPad_turn_on_one_annotated.jpeg" style="width:100%">
         </div>
-        
-        <div class="row platform-ios platform-ipad">
-            <div class="column">
-                <p>Step 1:</p>
-                <img src="../iPad_turn_on_one_annotated.jpeg" style="width:100%">
-            </div>
-            <div class="column">
-                <p>Step 2:</p>
-                <img src="../iPad_turn_on_two_annotated.jpeg" style="width:100%">
-            </div>
+        <div class="column">
+          <p>Step 2:</p>
+          <img src="../iPad_turn_on_two_annotated.jpeg" style="width:100%">
         </div>
-        
-        <p class="platform-mac">To turn it on, first toggle it on in Safari Extensions preferences. Then go to a website, click the extension icon in the toolbar, and allow access.
-        </p>
-        <p class="platform-mac state-on">The 'ReDD Focus' extension is currently on. You can turn it off in Safari Extensions preferences.</p>
-        <p class="platform-mac state-off">The 'ReDD Focus' extension is currently off. You can turn it on in Safari Extensions preferences.</p>
-        <button class="platform-mac open-preferences">Quit and Open Safari Extensions Preferences…</button>
+      </div>
+    </div>
+
+    <!-- macOS version (keep existing) -->
+    <div class="platform-mac">
+      <img class="app-icon" src="../icon-1024.png" alt='ReDD Focus Icon'>
+      <p>This extension lets you hide distractions on any website, with pre-configured options for YouTube, Facebook, Twitter, Instagram, Linkedin, and Google.com. It's open source and collects zero data - you can find the source code <a href="https://github.com/ulyngs/mindshield-open-source">on GitHub</a>.</p>
+      <p>To turn it on, first toggle it on in Safari Extensions preferences. Then go to a website, click the extension icon in the toolbar, and allow access.</p>
+      <p class="state-on">The 'ReDD Focus' extension is currently on. You can turn it off in Safari Extensions preferences.</p>
+      <p class="state-off">The 'ReDD Focus' extension is currently off. You can turn it on in Safari Extensions preferences.</p>
+      <button class="open-preferences">Quit and Open Safari Extensions Preferences…</button>
+    </div>
+
   </div>
 </body>
 </html>

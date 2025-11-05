@@ -9,6 +9,15 @@
     color-scheme: light dark;
 
     --spacing: 20px;
+    --header-bg: #E0F2FE;
+    --primary-blue: #1E40AF;
+    --light-blue: #DBEAFE;
+    --callout-bg: #FEE2E2;
+    --callout-text: #991B1B;
+    --optional-badge: #10B981;
+    --text-dark: #111827;
+    --text-light: #6B7280;
+    --white: #FFFFFF;
 }
 
 h1 {
@@ -23,24 +32,24 @@ html, body {
 }
 
 .scrollable-content {
-    max-height: 100vh; /* Set the maximum height to viewport height */
-    overflow-y: auto;  /* Enable vertical scrolling */
-    padding: 20px;     /* Optional padding */
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 0;
     box-sizing: border-box;
+    background-color: var(--white);
 }
 
 body {
     display: flex;
-    align-items: left;
+    align-items: flex-start;
     justify-content: center;
     flex-direction: column;
-
-    gap: var(--spacing);
-    margin: 0 calc(var(--spacing) * 2);
+    gap: 0;
+    margin: 0;
     height: 100%;
-
     font: -apple-system-short-body;
-    text-align: center;
+    text-align: left;
+    background-color: var(--white);
 }
 
 body:not(.platform-mac, .platform-ios) :is(.platform-mac, .platform-ios) {
@@ -59,15 +68,6 @@ body.platform-ios .platform-mac {
     display: none;
 }
 
-/* More specific rules to override button display properties */
-body.platform-ios button.platform-mac {
-    display: none !important;
-}
-
-body.platform-mac button.platform-ios {
-    display: none !important;
-}
-
 body:not(.state-on, .state-off) :is(.state-on, .state-off) {
     display: none;
 }
@@ -84,66 +84,430 @@ button {
     font-size: 1em;
 }
 
-.ios-illustration-image {
-    margin-top: 10px;
-    max-width: 80vw;
+/* Platform-specific display rules */
+body.platform-ios button.platform-mac {
+    display: none !important;
 }
 
+body.platform-mac button.platform-ios {
+    display: none !important;
+}
 
-.app-icon {
-    height: 150px;
-    margin: 0 0 8px 0;
-    padding: 0;
+/* ============================================
+   iPhone Redesign Styles
+   ============================================ */
+
+/* Header Section */
+.app-header.platform-ios.platform-iphone {
+    background-color: var(--header-bg);
+    padding: 12px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 0;
+    position: relative;
+}
+
+.app-logo {
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
+    flex-shrink: 0;
 }
 
-.app-icon.platform-mac {
-    height: 100px;
+.app-header-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-p, li {
-    font-size: 1.1em;
+.app-header .app-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0 0 2px 0;
+    padding: 0;
+}
+
+.app-header .app-description {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-dark);
     margin: 0;
     padding: 0;
+}
+
+.get-started-badge {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+/* Steps Container */
+.steps-container.platform-ios.platform-iphone {
+    padding: 12px 16px;
+    background-color: var(--white);
+}
+
+.step {
+    margin-bottom: 20px;
+}
+
+/* Two-column layout for steps 1 and 2 */
+.step-two-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.step-columns {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.step-content {
+    flex: 0 0 33.33%;
+    min-width: 0;
+}
+
+.step-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+}
+
+.step-instruction {
+    font-size: 13px;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+}
+
+/* Step Visuals */
+.step-visuals {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 66.67%;
+    min-width: 0;
+}
+
+.step-image {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.arrow-down {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1;
+}
+
+.toggle-off {
+    width: 44px;
+    height: 26px;
+    background-color: #D1D5DB;
+    border-radius: 13px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.toggle-off::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background-color: var(--white);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+}
+
+.warning-icon {
+    font-size: 18px;
+    color: #F59E0B;
+}
+
+.permission-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.permission-btn {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
     text-align: left;
 }
 
+.permission-btn.allow-one-day {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.permission-btn.always-allow,
+.permission-btn.cancel {
+    background-color: #F3F4F6;
+    color: var(--text-dark);
+}
+
+/* Callout Box */
+.callout-box {
+    background-color: var(--callout-bg);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 2px;
+    width: 100%;
+    flex-basis: 100%;
+}
+
+.callout-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--callout-text);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    font-style: normal;
+    flex-shrink: 0;
+}
+
+.callout-box p {
+    font-size: 11px;
+    color: var(--callout-text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+}
+
+/* Open Safari Button */
+.open-safari-btn.platform-ios.platform-iphone {
+    width: calc(100% - 32px);
+    margin: 12px 16px;
+    padding: 12px;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+}
+
+.open-safari-btn.platform-ios.platform-iphone:active {
+    opacity: 0.8;
+}
+
+/* Optional Section */
+.optional-section.platform-ios.platform-iphone {
+    margin: 20px;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--white);
+}
+
+.optional-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.optional-header .optional-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.optional-badge {
+    background-color: var(--optional-badge);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.optional-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    flex: 1;
+}
+
+.chevron-icon {
+    font-size: 20px;
+    color: var(--text-light);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+/* When collapsed, chevron points down (no rotation needed since ⌃ points up by default) */
+.optional-section.collapsed .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.optional-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.optional-section:not(.collapsed) .optional-content {
+    max-height: 2000px;
+}
+
+.optional-description {
+    padding: 0 20px 16px 20px;
+    font-size: 14px;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.optional-content-inner {
+    padding: 0 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.example-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 8px 0;
+}
+
+.shortcuts-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+.shortcuts-list li {
+    margin-bottom: 8px;
+}
+
+.video-preview-container {
+    width: 100%;
+    background-color: #F3F4F6;
+    border-radius: 8px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    min-height: 200px;
+    box-sizing: border-box;
+}
+
+.video-preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.play-icon {
+    font-size: 48px;
+    color: var(--text-dark);
+}
+
+.video-preview-placeholder p {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.video-expanded {
+    width: 100%;
+    margin-top: 16px;
+}
+
+.video-expanded video {
+    width: 100%;
+    border-radius: 8px;
+}
+
+/* ============================================
+   iPad Styles (keep existing structure)
+   ============================================ */
+
 .column {
-  float: left;
-  width: 48%;
+    float: left;
+    width: 48%;
 }
 
-/* Clearfix (clear floats) */
 .row::after {
-  content: "";
-  clear: both;
-  display: table;
+    content: "";
+    clear: both;
+    display: table;
 }
-
-/* iPhone */
-@media only screen and (max-device-width: 428px) {
-    .platform-ipad {
-        display: none;
-    }
-    
-    p, li {
-        font-size: 2em;
-        margin-bottom: 3vw;
-        padding: 0;
-    }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
-    .column img {
-        width: 45vw;
-        padding: 20px;
-    }
-
-}
-
-
 
 @media only screen and (min-device-width: 429px) and (max-device-width: 1024px) {
     .platform-iphone {
@@ -152,13 +516,14 @@ p, li {
     
     .column img {
         width: 43vw;
-        padding: 20px;
+        padding: 20px 20px 20px 0;
     }
     
     p, li {
         font-size: 1.3em;
         margin-bottom: 0.5vw;
         padding: 0;
+        text-align: left;
     }
     
     .app-icon {
@@ -166,83 +531,76 @@ p, li {
     }
 }
 
+/* ============================================
+   macOS Styles (keep existing)
+   ============================================ */
+
+.app-icon.platform-mac {
+    height: 100px;
+    margin: 0 0 8px 0;
+    padding: 0;
+    border-radius: 10px;
+}
+
+.platform-mac {
+    padding: 20px;
+}
+
+.platform-mac p, .platform-mac li {
+    font-size: 1.1em;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
 
 button.platform-mac.open-preferences {
-        display: block;
-        margin: 20px auto;
-        padding: 8px 16px;
-        font-size: 1em;
-        font-weight: 500;
-        font-family: -apple-system, system-ui, sans-serif;
-        border-radius: 6px;
-        border: 1px solid;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        transition: background-color 0.2s ease, border-color 0.2s ease;
-        cursor: pointer;
-    }
+    display: block;
+    margin: 20px auto;
+    padding: 8px 16px;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: -apple-system, system-ui, sans-serif;
+    border-radius: 6px;
+    border: 1px solid;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
 
-    /* Light mode */
-    @media (prefers-color-scheme: light) {
-        button.platform-mac.open-preferences {
-            background-color: #f3f4f6;
-            border-color: #d1d5db;
-            color: #111827;
-        }
-        button.platform-mac.open-preferences:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
-        }
+@media (prefers-color-scheme: light) {
+    button.platform-mac.open-preferences {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        color: #111827;
     }
+    button.platform-mac.open-preferences:hover {
+        background-color: #e5e7eb;
+        border-color: #9ca3af;
+    }
+}
 
-    /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-        button.platform-mac.open-preferences {
-            background-color: #1f2937;
-            border-color: #374151;
-            color: #ffffff;
-        }
-        button.platform-mac.open-preferences:hover {
-            background-color: #374151;
-            border-color: #4b5563;
-        }
+@media (prefers-color-scheme: dark) {
+    button.platform-mac.open-preferences {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #ffffff;
     }
+    button.platform-mac.open-preferences:hover {
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+}
 
-button.platform-ios.open-safari {
-        display: block;
-        margin: 20px auto 40px auto;
-        padding: 10px 18px;
-        font-size: 2em;
-        font-weight: 500;
-        font-family: -apple-system, system-ui, sans-serif;
-        border-radius: 12px;
-        border: 1px solid;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        transition: background-color 0.2s ease, border-color 0.2s ease;
-        cursor: pointer;
-    }
+/* ============================================
+   iPhone Media Query Adjustments
+   ============================================ */
 
-    /* Light mode */
-    @media (prefers-color-scheme: light) {
-        button.platform-ios.open-safari {
-            background-color: #f3f4f6;
-            border-color: #d1d5db;
-            color: #111827;
-        }
-        button.platform-ios.open-safari:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
-        }
+@media only screen and (max-device-width: 428px) {
+    .platform-ipad {
+        display: none;
     }
-
-    /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-        button.platform-ios.open-safari {
-            background-color: #1f2937;
-            border-color: #374151;
-            color: #ffffff;
-        }
-        button.platform-ios.open-safari:hover {
-            background-color: #374151;
-            border-color: #4b5563;
-        }
+    
+    .scrollable-content {
+        padding: 0;
     }
+}

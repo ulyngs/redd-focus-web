@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5CD766482EBBA7210089C56F /* icon-512.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766472EBBA7210089C56F /* icon-512.png */; };
+		5CD766492EBBA7210089C56F /* icon-512.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766472EBBA7210089C56F /* icon-512.png */; };
+		5CD7666E2EBBAC870089C56F /* ios-3.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD7666A2EBBAC870089C56F /* ios-3.png */; };
+		5CD7666F2EBBAC870089C56F /* ios-4.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD7666B2EBBAC870089C56F /* ios-4.png */; };
+		5CD766702EBBAC870089C56F /* ios-1.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766682EBBAC870089C56F /* ios-1.png */; };
+		5CD766712EBBAC870089C56F /* ios-2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766692EBBAC870089C56F /* ios-2.png */; };
+		5CD766732EBBAC870089C56F /* ios-3.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD7666A2EBBAC870089C56F /* ios-3.png */; };
+		5CD766742EBBAC870089C56F /* ios-4.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD7666B2EBBAC870089C56F /* ios-4.png */; };
+		5CD766752EBBAC870089C56F /* ios-1.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766682EBBAC870089C56F /* ios-1.png */; };
+		5CD766762EBBAC870089C56F /* ios-2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766692EBBAC870089C56F /* ios-2.png */; };
+		5CD766782EBBAD0E0089C56F /* ios-5.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766772EBBAD0E0089C56F /* ios-5.png */; };
+		5CD766792EBBAD0E0089C56F /* ios-5.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766772EBBAD0E0089C56F /* ios-5.png */; };
 		71CCE4CB2E4F258A002FE508 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 71CCE4CA2E4F2585002FE508 /* background.js */; };
 		71CCE4CC2E4F258A002FE508 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 71CCE4CA2E4F2585002FE508 /* background.js */; };
 		71CCE4CE2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
@@ -105,6 +117,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5CD766472EBBA7210089C56F /* icon-512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-512.png"; sourceTree = "<group>"; };
+		5CD766682EBBAC870089C56F /* ios-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-1.png"; sourceTree = "<group>"; };
+		5CD766692EBBAC870089C56F /* ios-2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-2.png"; sourceTree = "<group>"; };
+		5CD7666A2EBBAC870089C56F /* ios-3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-3.png"; sourceTree = "<group>"; };
+		5CD7666B2EBBAC870089C56F /* ios-4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-4.png"; sourceTree = "<group>"; };
+		5CD766772EBBAD0E0089C56F /* ios-5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-5.png"; sourceTree = "<group>"; };
 		71CCE4CA2E4F2585002FE508 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
 		71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentVerifier.swift; sourceTree = "<group>"; };
 		D70A5B0B2E51F986008BD286 /* icon-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-1024.png"; sourceTree = "<group>"; };
@@ -205,7 +223,13 @@
 		D769219C2756452C00EB4CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5CD766472EBBA7210089C56F /* icon-512.png */,
 				D70A5B0B2E51F986008BD286 /* icon-1024.png */,
+				5CD766682EBBAC870089C56F /* ios-1.png */,
+				5CD766692EBBAC870089C56F /* ios-2.png */,
+				5CD7666A2EBBAC870089C56F /* ios-3.png */,
+				5CD7666B2EBBAC870089C56F /* ios-4.png */,
+				5CD766772EBBAD0E0089C56F /* ios-5.png */,
 				D769219D2756452C00EB4CEA /* Main.html */,
 				D76921A02756452C00EB4CEA /* Style.css */,
 				D76921A12756452C00EB4CEA /* Script.js */,
@@ -421,6 +445,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				D76E9F06294E487F0067C09D /* iPad_turn_on_one_annotated.jpeg in Resources */,
+				5CD766732EBBAC870089C56F /* ios-3.png in Resources */,
+				5CD766742EBBAC870089C56F /* ios-4.png in Resources */,
+				5CD766752EBBAC870089C56F /* ios-1.png in Resources */,
+				5CD766762EBBAC870089C56F /* ios-2.png in Resources */,
 				D76921BC2756452E00EB4CEA /* LaunchScreen.storyboard in Resources */,
 				D76921E22756452E00EB4CEA /* Main.html in Resources */,
 				D76921E82756452E00EB4CEA /* Script.js in Resources */,
@@ -430,8 +458,10 @@
 				D76921E62756452E00EB4CEA /* Style.css in Resources */,
 				F307B9F62CBA68F40073345A /* insta_home_screen_small.mp4 in Resources */,
 				D70A5B0C2E51F986008BD286 /* icon-1024.png in Resources */,
+				5CD766492EBBA7210089C56F /* icon-512.png in Resources */,
 				D76674E1294E282900F4863B /* iPhone_turn_on_one_annotated.jpeg in Resources */,
 				D76E9F05294E487F0067C09D /* iPad_turn_on_two_annotated.jpeg in Resources */,
+				5CD766782EBBAD0E0089C56F /* ios-5.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,8 +472,14 @@
 				D76921E72756452E00EB4CEA /* Style.css in Resources */,
 				D76921E92756452E00EB4CEA /* Script.js in Resources */,
 				D7607A1D276792B100FB0E82 /* Main.storyboard in Resources */,
+				5CD7666E2EBBAC870089C56F /* ios-3.png in Resources */,
+				5CD7666F2EBBAC870089C56F /* ios-4.png in Resources */,
+				5CD766792EBBAD0E0089C56F /* ios-5.png in Resources */,
+				5CD766702EBBAC870089C56F /* ios-1.png in Resources */,
+				5CD766712EBBAC870089C56F /* ios-2.png in Resources */,
 				D70A5B0D2E51F986008BD286 /* icon-1024.png in Resources */,
 				D76921ED2756452E00EB4CEA /* Assets.xcassets in Resources */,
+				5CD766482EBBA7210089C56F /* icon-512.png in Resources */,
 				D76921E32756452E00EB4CEA /* Main.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
