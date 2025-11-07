@@ -30,7 +30,7 @@ const elementsThatCanBeHidden = [
     // YouTube
     "youtubeSearch", "youtubeSearchPredict", "youtubeRecVids", "youtubeThumbnails", "youtubeNotifications", "youtubeProfileImg",
     "youtubeShorts", "youtubeSubscriptions", "youtubeHistory", "youtubeExplore", "youtubeMore",
-    "youtubeRelated", "youtubeSidebar", "youtubeComments", "youtubeAds", "youtubeViews", "youtubeLikes", "youtubeSubscribers",
+    "youtubeRelated", "youtubeSidebar", "youtubeComments", "youtubeViews", "youtubeLikes", "youtubeSubscribers",
     // X (Twitter)
     "xExplore", "xNotifications", "xTrends", "xFollow", "xTimeline",
     // Facebook
