@@ -984,6 +984,26 @@ button[id$="AddElementButton"].active {
     color: #333;
 }
 
+.edit-dialog-field label .help-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    color: #71717a;
+    text-decoration: none;
+    vertical-align: text-bottom;
+    position: relative;
+    top: -1px;
+    transition: color 0.2s;
+}
+
+.edit-dialog-field label .help-icon:hover {
+    color: #0F172A;
+}
+
+.edit-dialog-field label .help-icon svg {
+    display: block;
+}
+
 .edit-dialog-field input,
 .edit-dialog-field textarea {
     width: 100%;

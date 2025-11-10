@@ -305,7 +305,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     <input type="text" id="element-name" class="shadcn-input" placeholder="e.g., Reels button" value="${name || ''}">
                 </div>
                 <div class="edit-dialog-field">
-                    <label for="element-selector">CSS Selector:</label>
+                    <label for="element-selector">
+                        CSS Selector:
+                        <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics" target="_blank" class="help-icon" title="Learn about CSS selectors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </a>
+                    </label>
                     <textarea id="element-selector" class="shadcn-input" rows="3" placeholder="e.g., div.class-name">${selector}</textarea>
                 </div>
                 <div class="edit-dialog-buttons">
