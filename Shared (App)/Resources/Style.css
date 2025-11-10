@@ -585,6 +585,84 @@ button.platform-mac.open-preferences {
     .app-header.platform-ios.platform-iphone {
         margin-top: 0;
     }
+    
+    /* Font size increases (31% larger) */
+    .app-header .app-title {
+        font-size: 26px;
+    }
+    
+    .app-header .app-description {
+        font-size: 17px;
+    }
+    
+    .get-started-badge {
+        font-size: 16px;
+        padding: 5px 13px;
+    }
+    
+    .step-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+    
+    .step-title {
+        font-size: 21px;
+    }
+    
+    .step-instruction {
+        font-size: 17px;
+    }
+    
+    .arrow-down {
+        font-size: 18px;
+    }
+    
+    .callout-icon {
+        width: 21px;
+        height: 21px;
+        font-size: 13px;
+    }
+    
+    .callout-box p {
+        font-size: 14px;
+    }
+    
+    .open-safari-btn.platform-ios.platform-iphone {
+        font-size: 21px;
+        padding: 16px;
+    }
+    
+    .optional-badge {
+        font-size: 16px;
+        padding: 5px 13px;
+    }
+    
+    .optional-title {
+        font-size: 24px;
+    }
+    
+    .chevron-icon {
+        font-size: 26px;
+    }
+    
+    .optional-description {
+        font-size: 18px;
+    }
+    
+    .example-title {
+        font-size: 21px;
+    }
+    
+    .shortcuts-list {
+        font-size: 18px;
+    }
+    
+    .shortcuts-list li::before {
+        width: 26px;
+        height: 26px;
+        font-size: 16px;
+    }
 }
 
 /* iPad Landscape Orientation */
