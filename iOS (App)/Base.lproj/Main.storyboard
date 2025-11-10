@@ -15,9 +15,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <wkWebView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RDB-ib-igF">
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RDB-ib-igF">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <wkWebViewConfiguration key="configuration">
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
                                     <wkPreferences key="preferences"/>
@@ -25,6 +24,12 @@
                             </wkWebView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <constraints>
+                            <constraint firstItem="RDB-ib-igF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="constraint-leading"/>
+                            <constraint firstItem="RDB-ib-igF" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="constraint-trailing"/>
+                            <constraint firstItem="RDB-ib-igF" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="constraint-top"/>
+                            <constraint firstItem="RDB-ib-igF" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="constraint-bottom"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="webView" destination="RDB-ib-igF" id="avx-RC-qRB"/>
