@@ -917,6 +917,28 @@ button[id$="AddElementButton"].active {
     margin-left: 3px;
 }
 
+.custom-element-buttons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.selector-input {
+    flex-grow: 1;
+    padding: 4px 8px;
+    border: 1px solid #d4d4d8;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: monospace;
+    margin-right: 8px;
+    outline: none;
+}
+
+.selector-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
 /* --- Base Icon Button Style (shadcn-secondary inspired) --- */
 .icon-btn {
     display: inline-flex;
@@ -954,6 +976,30 @@ button[id$="AddElementButton"].active {
 .peek-symbol:hover {
     background-color: #f4f4f5;
     /* A very light gray hover - hsl(240 4.8% 95.9%) */
+}
+
+/* --- Edit Button Hover State --- */
+.edit-symbol:hover {
+    background-color: #dbeafe;
+    /* Light blue hover */
+    border-color: #93c5fd;
+}
+
+.edit-symbol:hover svg {
+    stroke: #2563eb;
+    /* Blue stroke on hover */
+}
+
+/* --- Save Button Hover State --- */
+.save-symbol:hover {
+    background-color: #dcfce7;
+    /* Light green hover */
+    border-color: #86efac;
+}
+
+.save-symbol:hover svg {
+    stroke: #16a34a;
+    /* Green stroke on hover */
 }
 
 /* --- Destructive Hover State (for remove-symbol) --- */

@@ -312,15 +312,81 @@ document.addEventListener('DOMContentLoaded', function () {
                 span.textContent = selector;
                 span.title = selector;
 
-                const button = document.createElement('button');
-                button.className = 'icon-btn remove-symbol';
-                button.innerHTML = `
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.className = 'custom-element-buttons';
+
+                // Edit button
+                const editButton = document.createElement('button');
+                editButton.className = 'icon-btn edit-symbol';
+                editButton.innerHTML = `
+                    <svg width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>`;
+                editButton.title = 'Edit';
+                editButton.addEventListener('click', function () {
+                    // Replace span with input for editing
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'selector-input';
+                    input.value = selector;
+                    
+                    // Replace span with input
+                    div.replaceChild(input, span);
+                    input.focus();
+                    input.select();
+                    
+                    // Change edit button to save button
+                    editButton.innerHTML = `
+                        <svg width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>`;
+                    editButton.title = 'Save';
+                    editButton.className = 'icon-btn save-symbol';
+                    
+                    const saveEdit = function() {
+                        const newSelector = input.value.trim();
+                        if (!newSelector) {
+                            alert('Selector cannot be empty');
+                            return;
+                        }
+                        
+                        const storageKey = `${siteIdentifier}CustomHiddenElements`;
+                        chrome.storage.sync.get(storageKey, function (result) {
+                            let currentSelectors = result[storageKey] || [];
+                            const index = currentSelectors.indexOf(selector);
+                            if (index !== -1) {
+                                currentSelectors[index] = newSelector;
+                                chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
+                                    updateCustomElementsList(siteIdentifier, currentSelectors);
+                                });
+                            }
+                        });
+                    };
+                    
+                    // Save on button click
+                    editButton.onclick = saveEdit;
+                    
+                    // Save on Enter key
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            saveEdit();
+                        } else if (e.key === 'Escape') {
+                            // Cancel editing
+                            updateCustomElementsList(siteIdentifier, selectors);
+                        }
+                    });
+                });
+
+                // Remove button
+                const removeButton = document.createElement('button');
+                removeButton.className = 'icon-btn remove-symbol';
+                removeButton.innerHTML = `
                     <svg width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>`;
-                button.title = 'Remove';
-                button.addEventListener('click', function () {
+                removeButton.title = 'Remove';
+                removeButton.addEventListener('click', function () {
                     const storageKey = `${siteIdentifier}CustomHiddenElements`;
                     chrome.storage.sync.get(storageKey, function (result) {
                         let currentSelectors = result[storageKey] || [];
@@ -330,7 +396,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     });
                 });
-                div.appendChild(button);
+                
+                buttonsContainer.appendChild(editButton);
+                buttonsContainer.appendChild(removeButton);
+                div.appendChild(buttonsContainer);
                 div.appendChild(span);
 
                 container.appendChild(div);
