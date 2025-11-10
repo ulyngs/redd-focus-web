@@ -303,9 +303,7 @@ body.platform-mac button.platform-ios {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    margin-top: 2px;
-    width: 100%;
-    flex-basis: 100%;
+    width: calc(100% - 16px);
 }
 
 .callout-icon {
@@ -329,6 +327,9 @@ body.platform-mac button.platform-ios {
     margin: 0;
     padding: 0;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 /* Open Safari Button */
