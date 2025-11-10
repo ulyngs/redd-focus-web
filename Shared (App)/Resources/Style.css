@@ -185,6 +185,15 @@ body.platform-mac button.platform-ios {
     flex: 0 0 33.33%;
     min-width: 0;
 }
+/* Step Visuals */
+.step-visuals {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 66.67%;
+    min-width: 0;
+}
 
 .step-badge {
     width: 24px;
@@ -214,16 +223,6 @@ body.platform-mac button.platform-ios {
     margin: 0;
     padding: 0;
     line-height: 1.4;
-}
-
-/* Step Visuals */
-.step-visuals {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    flex: 0 0 66.67%;
-    min-width: 0;
 }
 
 .step-image {
@@ -558,5 +557,43 @@ button.platform-mac.open-preferences {
 @media only screen and (max-device-width: 428px) {
     .scrollable-content {
         padding: 0;
+    }
+}
+
+/* ============================================
+   iPad Media Query Adjustments
+   ============================================ */
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .step-content {
+        flex: 0 0 50%;
+    }
+    
+    .step-visuals {
+        flex: 0 0 50%;
+    }
+    
+    body {
+        justify-content: flex-start;
+    }
+    
+    .scrollable-content {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .app-header.platform-ios.platform-iphone {
+        margin-top: 0;
+    }
+}
+
+/* iPad Landscape Orientation */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+    .step-content {
+        flex: 0 0 66.67%;
+    }
+    
+    .step-visuals {
+        flex: 0 0 33.33%;
     }
 }
