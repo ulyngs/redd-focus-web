@@ -38,7 +38,7 @@ const elementsThatCanBeHidden = [
     // LinkedIn
     "linkedinNews", "linkedinNotifications", "linkedinFeed", "linkedinAds",
     // Instagram
-    "instagramFeed", "instagramSearchFeed", "instagramStories", "instagramMutedStories", "instagramExplore", "instagramReels", "instagramSuggestions", "instagramComments",
+    "instagramFeed", "instagramSearchFeed", "instagramStories", "instagramMutedStories", "instagramExplore", "instagramReels", "instagramSuggestedFollows", "instagramComments",
     // WhatsApp
     "whatsappPreview", "whatsappNotificationPrompt",
     // Google
