@@ -6,7 +6,7 @@
 }
 
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
 
     --spacing: 20px;
     --header-bg: #E0F2FE;
