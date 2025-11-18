@@ -143,18 +143,23 @@
             feedbackContainer.style.position = 'fixed';
             feedbackContainer.style.top = '100px';
             feedbackContainer.style.left = '10px';
-            feedbackContainer.style.background = 'rgba(0, 0, 0, 0.8)';
-            feedbackContainer.style.color = 'white';
-            feedbackContainer.style.padding = '10px';
-            feedbackContainer.style.borderRadius = '5px';
+            feedbackContainer.style.background = 'rgba(15, 17, 27, 0.92)';
+            feedbackContainer.style.color = '#e4e4e7';
+            feedbackContainer.style.padding = '10px 14px';
+            feedbackContainer.style.borderRadius = '12px';
+            feedbackContainer.style.border = '1px solid rgba(39, 39, 42, 0.85)';
+            feedbackContainer.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.22)';
             feedbackContainer.style.zIndex = '2147483647';
-            feedbackContainer.style.fontFamily = 'Arial, sans-serif';
-            feedbackContainer.style.fontSize = '18px';
+            feedbackContainer.style.fontFamily = '"Arial", sans-serif';
+            feedbackContainer.style.fontSize = '13px';
             feedbackContainer.style.display = 'flex';
             feedbackContainer.style.alignItems = 'center';
-            feedbackContainer.style.gap = '10px';
+            feedbackContainer.style.gap = '8px';
             feedbackContainer.style.cursor = 'move';
             feedbackContainer.style.userSelect = 'none';
+            feedbackContainer.style.minWidth = '230px';
+            feedbackContainer.style.maxWidth = '320px';
+            feedbackContainer.style.flexWrap = 'nowrap';
             document.body.appendChild(feedbackContainer);
             updateFeedbackMessage('Click element to hide it');
             setupDragEvents();
@@ -204,18 +209,67 @@
         document.addEventListener('touchend', stopDragging);
     }
 
+    function styleFeedbackButton(button, variant = 'primary') {
+        button.style.borderRadius = '9999px';
+        button.style.padding = '4px 12px';
+        button.style.fontSize = '12px';
+        button.style.fontWeight = '600';
+        button.style.lineHeight = '1.4';
+        button.style.borderWidth = '1px';
+        button.style.borderStyle = 'solid';
+        button.style.cursor = 'pointer';
+        button.style.display = 'inline-flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
+        button.style.gap = '4px';
+        button.style.backgroundClip = 'padding-box';
+        button.style.transition = 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease';
+
+        if (variant === 'secondary') {
+            button.style.background = 'rgba(228, 228, 231, 0.06)';
+            button.style.color = '#d4d4d8';
+            button.style.borderColor = 'rgba(63, 63, 70, 0.85)';
+        } else {
+            button.style.background = '#F1F6FE';
+            button.style.color = '#1c2541';
+            button.style.borderColor = '#c7d7fb';
+        }
+
+        button.addEventListener('mouseenter', () => {
+            if (variant === 'secondary') {
+                button.style.background = 'rgba(228, 228, 231, 0.14)';
+            } else {
+                button.style.background = '#e5eeff';
+            }
+        });
+
+        button.addEventListener('mouseleave', () => {
+            if (variant === 'secondary') {
+                button.style.background = 'rgba(228, 228, 231, 0.06)';
+            } else {
+                button.style.background = '#F1F6FE';
+            }
+        });
+    }
+
     function updateFeedbackMessage(message, showUndo = false) {
         if (!feedbackContainer) return;
-        feedbackContainer.innerHTML = `<span>${message}</span>`;
+        feedbackContainer.innerHTML = '';
+
+        const messageSpan = document.createElement('span');
+        messageSpan.textContent = message;
+        messageSpan.style.fontSize = '14px';
+        messageSpan.style.fontWeight = '500';
+        messageSpan.style.flex = '1';
+        messageSpan.style.minWidth = '100px';
+        messageSpan.style.color = '#e4e4e7';
+        messageSpan.style.marginRight = showUndo ? '6px' : '4px';
+        feedbackContainer.appendChild(messageSpan);
+
         if (showUndo) {
             const undoButton = document.createElement('button');
             undoButton.textContent = 'Undo';
-            undoButton.style.background = '#555';
-            undoButton.style.color = 'white';
-            undoButton.style.border = 'none';
-            undoButton.style.padding = '5px 10px';
-            undoButton.style.borderRadius = '3px';
-            undoButton.style.cursor = 'pointer';
+            styleFeedbackButton(undoButton, 'secondary');
             undoButton.addEventListener('click', handleUndo);
             undoButton.addEventListener('touchend', (e) => {
                 e.preventDefault();
@@ -224,14 +278,10 @@
             });
             feedbackContainer.appendChild(undoButton);
         }
+
         const doneButton = document.createElement('button');
         doneButton.textContent = 'Done';
-        doneButton.style.background = '#007bff';
-        doneButton.style.color = 'white';
-        doneButton.style.border = 'none';
-        doneButton.style.padding = '5px 10px';
-        doneButton.style.borderRadius = '3px';
-        doneButton.style.cursor = 'pointer';
+        styleFeedbackButton(doneButton, 'primary');
         doneButton.addEventListener('click', () => stopSelecting(false));
         doneButton.addEventListener('touchend', (e) => {
             e.preventDefault();
