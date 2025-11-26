@@ -161,7 +161,18 @@
             feedbackContainer.style.maxWidth = '320px';
             feedbackContainer.style.flexWrap = 'nowrap';
             document.body.appendChild(feedbackContainer);
-            updateFeedbackMessage('Click element to hide it');
+            // Get initial count if elements are already hidden
+            if (currentSiteIdentifier) {
+                const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
+                chrome.storage.sync.get(customStorageKey, function (result) {
+                    let customSelectors = result[customStorageKey] || [];
+                    if (!Array.isArray(customSelectors)) customSelectors = [];
+                    const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
+                    updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length);
+                });
+            } else {
+                updateFeedbackMessage('Click element to hide it');
+            }
             setupDragEvents();
         }
     }
@@ -252,12 +263,17 @@
         });
     }
 
-    function updateFeedbackMessage(message, showUndo = false) {
+    function updateFeedbackMessage(message, showUndo = false, count = null) {
         if (!feedbackContainer) return;
         feedbackContainer.innerHTML = '';
 
+        let displayMessage = message;
+        if (count !== null && count > 0) {
+            displayMessage = `${count} ${count === 1 ? 'element' : 'elements'} hidden`;
+        }
+
         const messageSpan = document.createElement('span');
-        messageSpan.textContent = message;
+        messageSpan.textContent = displayMessage;
         messageSpan.style.fontSize = '14px';
         messageSpan.style.fontWeight = '500';
         messageSpan.style.flex = '1';
@@ -311,13 +327,13 @@
                     // Reapply merged (persistent + remaining session)
                     const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                     applyCustomElementStyles(currentSiteIdentifier, merged);
-                    updateFeedbackMessage(sessionHiddenSelectors.length > 0 ? 'Element hidden' : 'Click element to hide it', sessionHiddenSelectors.length > 0);
+                    updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length);
                 });
             } else {
                 // Session-only: just reapply merged without touching storage
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
-                updateFeedbackMessage(sessionHiddenSelectors.length > 0 ? 'Element hidden (session only)' : 'Click element to hide it', sessionHiddenSelectors.length > 0);
+                updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length);
             }
         });
     }
@@ -434,7 +450,8 @@
             const rememberEnabled = result[rememberKey] !== false; // default true
             const alreadyHas = customSelectors.includes(selector) || sessionHiddenSelectors.includes(selector);
             if (alreadyHas) {
-                updateFeedbackMessage('Element already hidden');
+                const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
+                updateFeedbackMessage('Element already hidden', false, merged.length);
                 return;
             }
             sessionHiddenSelectors.push(selector);
@@ -448,13 +465,13 @@
                     // Apply merged to ensure immediate effect
                     const merged = Array.from(new Set([...toSave, ...sessionHiddenSelectors]));
                     applyCustomElementStyles(currentSiteIdentifier, merged);
-                    updateFeedbackMessage('Element hidden', true);
+                    updateFeedbackMessage('Element hidden', true, merged.length);
                 });
             } else {
                 // Session only — apply without saving
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
-                updateFeedbackMessage('Element hidden (session only)', true);
+                updateFeedbackMessage('Element hidden (session only)', true, merged.length);
             }
         });
     }
