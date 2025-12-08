@@ -576,12 +576,12 @@ footer {
 footer a,
 footer a:visited {
     color: #9b9fa7;
-    text-decoration: underline;
+    text-decoration: none;
 }
 footer a:hover,
 footer a:visited:hover {
-    text-decoration: none;
-    color: #babdc3;
+    text-decoration: underline;
+    color: #9b9fa7;
 }
 
 .footer-settings {
