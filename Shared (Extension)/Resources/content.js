@@ -268,6 +268,8 @@
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
                 updateFeedbackMessage(sessionHiddenSelectors.length > 0 ? 'Element hidden (session only)' : 'Click element to hide it', sessionHiddenSelectors.length > 0);
+                // Notify popup that session selectors changed
+                chrome.runtime.sendMessage({ type: 'sessionSelectorsChanged', siteIdentifier: currentSiteIdentifier, selectors: merged });
             }
         });
     }
@@ -283,7 +285,7 @@
         document.addEventListener('click', selectElementOnClick, { capture: true });
         document.addEventListener('touchend', selectElementOnTap, { capture: true });
         document.addEventListener('keydown', handleKeydown, { capture: true });
-        
+
         // Update storage to reflect that selection has started
         if (currentSiteIdentifier) {
             chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: true });
@@ -305,7 +307,7 @@
         if (tempStyle) tempStyle.remove();
         feedbackContainer = highlightOverlay = selectorDisplay = currentHighlightedElement = null;
         // Keep sessionHiddenSelectors so session rules persist until refresh
-        
+
         // Update storage to reflect that selection has stopped
         if (currentSiteIdentifier) {
             chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: false });
@@ -405,6 +407,8 @@
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
                 updateFeedbackMessage('Element hidden (session only)', true);
+                // Notify popup that session selectors changed
+                chrome.runtime.sendMessage({ type: 'sessionSelectorsChanged', siteIdentifier: currentSiteIdentifier, selectors: merged });
             }
         });
     }
@@ -437,7 +441,7 @@
     // --- Listen for storage changes to apply settings immediately ---
     let lastAppliedSettings = {};
     let lastAppliedCustomElements = {};
-    
+
     function applySettingsFromStorage() {
         if (!chrome.runtime?.id) // don't run if disconnected
             return;
@@ -449,16 +453,16 @@
                 if (Object.prototype.hasOwnProperty.call(sessionOverrides, platformStatusKey)) {
                     platformIsOn = sessionOverrides[platformStatusKey] !== false;
                 }
-                
+
                 elementsThatCanBeHidden
                     .filter(element => element.startsWith(currentPlatform))
                     .forEach(function (item) {
                         const styleName = item + "Style";
                         const itemStatusKey = item + "Status";
-                        
+
                         // Check if we need to update this element
                         let currentSetting = platformIsOn ? (lastAppliedSettings[item] || "default") : "platformDisabled";
-                        
+
                         // For multi-state elements, we need to get the actual stored value
                         if (platformIsOn && (item === "youtubeThumbnails" || item === "youtubeNotifications")) {
                             chrome.storage.sync.get(itemStatusKey, function (itemResult) {
@@ -467,7 +471,7 @@
                                     statusValue = sessionOverrides[itemStatusKey];
                                 }
                                 let newSetting = statusValue || "On";
-                                
+
                                 if (currentSetting !== newSetting) {
                                     let cssToApply = cssSelectors[item + "Css" + newSetting];
                                     lastAppliedSettings[item] = newSetting;
@@ -480,7 +484,7 @@
                                 storedDefault = sessionOverrides[itemStatusKey];
                             }
                             let newSetting = platformIsOn ? (storedDefault || "On") : "platformDisabled";
-                            
+
                             if (currentSetting !== newSetting) {
                                 if (!platformIsOn) {
                                     // Platform is disabled, show all elements
@@ -494,7 +498,7 @@
                                             statusValue = sessionOverrides[itemStatusKey];
                                         }
                                         let cssToApply;
-                                        
+
                                         if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
                                             let state = statusValue || "On";
                                             cssToApply = cssSelectors[item + "Css" + state];
@@ -515,7 +519,7 @@
                     });
             });
         }
-        
+
         // Also check for custom element changes
         if (currentSiteIdentifier) {
             const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
@@ -531,7 +535,7 @@
                     lastAppliedCustomElements[currentSiteIdentifier] = [...merged];
                 }
             });
-            
+
             // Check for selection state changes
             const selectionKey = `${currentSiteIdentifier}SelectionActive`;
             chrome.storage.sync.get(selectionKey, function (result) {
@@ -544,23 +548,23 @@
             });
         }
     }
-    
+
     // Listen for storage changes to be responsive
-    chrome.storage.onChanged.addListener(function(changes, namespace) {
+    chrome.storage.onChanged.addListener(function (changes, namespace) {
         if (namespace === 'sync') {
             let hasRelevantChanges = false;
-            
+
             // Check platform-specific changes
             if (currentPlatform) {
                 for (let key in changes) {
-                    if (key === `${currentPlatform}Status` || 
+                    if (key === `${currentPlatform}Status` ||
                         (key.endsWith('Status') && elementsThatCanBeHidden.some(elem => elem.startsWith(currentPlatform) && elem + 'Status' === key))) {
                         hasRelevantChanges = true;
                         break;
                     }
                 }
             }
-            
+
             // Check custom element changes
             if (currentSiteIdentifier) {
                 const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
@@ -569,14 +573,14 @@
                     hasRelevantChanges = true;
                 }
             }
-            
+
             if (hasRelevantChanges) {
                 // Apply changes immediately
                 setTimeout(applySettingsFromStorage, 100);
             }
         }
     });
-    
+
     // Also poll every 1 second as a safety net
     setInterval(applySettingsFromStorage, 1000);
 

@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function setupFrictionDelay(siteIdentifier) {
             var frictionToggle = document.getElementById("frictionToggle");
             var frictionCustomisationOptions = document.querySelector('.toggle-group.center-align.friction-customisation');
-            
+
             if (!siteIdentifier) return;
 
             const addFrictionKey = `${siteIdentifier}AddFriction`;
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 frictionCustomisationOptions.style.display = frictionToggle.checked ? "block" : "none";
             });
 
-            
+
             // Auto-save wait time
             document.getElementById("waitTime").addEventListener('input', function () {
                 let waitValue = parseInt(this.value) || 10;
@@ -293,11 +293,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // Create overlay
             const overlay = document.createElement('div');
             overlay.className = 'edit-dialog-overlay';
-            
+
             // Create dialog
             const dialog = document.createElement('div');
             dialog.className = 'edit-dialog';
-            
+
             dialog.innerHTML = `
                 <h3>Edit Custom Element</h3>
                 <div class="edit-dialog-field">
@@ -322,14 +322,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button id="save-edit" class="primary-btn">Save</button>
                 </div>
             `;
-            
+
             overlay.appendChild(dialog);
             document.body.appendChild(overlay);
-            
+
             // Expand popup to accommodate dialog - force a specific height
             document.body.classList.add('modal-open');
             document.body.style.minHeight = '350px';
-            
+
             // Focus name input
             setTimeout(() => {
                 const nameInput = document.getElementById('element-name');
@@ -337,39 +337,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     nameInput.focus();
                 }
             }, 50);
-            
-            const closeDialog = function() {
+
+            const closeDialog = function () {
                 document.body.removeChild(overlay);
                 document.body.classList.remove('modal-open');
                 document.body.style.minHeight = '';
             };
-            
+
             // Handle save
-            document.getElementById('save-edit').addEventListener('click', function() {
+            document.getElementById('save-edit').addEventListener('click', function () {
                 const newName = document.getElementById('element-name').value.trim();
                 const newSelector = document.getElementById('element-selector').value.trim();
-                
+
                 if (!newSelector) {
                     alert('CSS Selector cannot be empty');
                     return;
                 }
-                
+
                 onSave(newName, newSelector);
                 closeDialog();
             });
-            
+
             // Handle cancel
             document.getElementById('cancel-edit').addEventListener('click', closeDialog);
-            
+
             // Handle escape key
-            overlay.addEventListener('keydown', function(e) {
+            overlay.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     closeDialog();
                 }
             });
-            
+
             // Close on overlay click
-            overlay.addEventListener('click', function(e) {
+            overlay.addEventListener('click', function (e) {
                 if (e.target === overlay) {
                     closeDialog();
                 }
@@ -421,11 +421,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     </svg>`;
                 editButton.title = 'Edit';
                 editButton.addEventListener('click', function () {
-                    showEditDialog(siteIdentifier, selector, name, function(newName, newSelector) {
+                    showEditDialog(siteIdentifier, selector, name, function (newName, newSelector) {
                         const storageKey = `${siteIdentifier}CustomHiddenElements`;
                         chrome.storage.sync.get(storageKey, function (result) {
                             let currentSelectors = result[storageKey] || [];
-                            const index = currentSelectors.findIndex(s => 
+                            const index = currentSelectors.findIndex(s =>
                                 (typeof s === 'string' ? s : s.selector) === selector
                             );
                             if (index !== -1) {
@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const storageKey = `${siteIdentifier}CustomHiddenElements`;
                     chrome.storage.sync.get(storageKey, function (result) {
                         let currentSelectors = result[storageKey] || [];
-                        currentSelectors = currentSelectors.filter(s => 
+                        currentSelectors = currentSelectors.filter(s =>
                             (typeof s === 'string' ? s : s.selector) !== selector
                         );
                         chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     });
                 });
-                
+
                 buttonsContainer.appendChild(editButton);
                 buttonsContainer.appendChild(removeButton);
                 div.appendChild(buttonsContainer);
@@ -604,12 +604,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     rememberToggle.checked = rememberSettingsEnabled;
                     updateSaveFooterVisibility();
                     if (!rememberSettingsEnabled) {
-                        // If not remembering, sync UI with current session overrides
+                        // If not remembering, sync UI with current session overrides and session-hidden elements
                         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
                             if (!tabs || !tabs[0]) return;
                             chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
                                 if (response && response.overrides) {
                                     applyOverridesToUI(response.overrides);
+                                }
+                                // Also update custom elements list with session selectors
+                                if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
+                                    updateCustomElementsList(currentSiteIdentifier, response.customSelectors);
                                 }
                             });
                         });
@@ -627,6 +631,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
                                 if (response && response.overrides) {
                                     applyOverridesToUI(response.overrides);
+                                }
+                                // Also update custom elements list with session selectors
+                                if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
+                                    updateCustomElementsList(currentSiteIdentifier, response.customSelectors);
                                 }
                             });
                         });
@@ -753,10 +761,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     trigger.addEventListener('click', () => {
                         const isOpen = item.dataset.state === 'open';
                         item.dataset.state = isOpen ? 'closed' : 'open';
-                        });
+                    });
                 }
             });
-            
+
             // handle the close button
             const closeBtn = document.getElementById('faq-close-btn');
             if (closeBtn) {
@@ -782,9 +790,9 @@ document.addEventListener('DOMContentLoaded', function () {
         setupHelpAndFAQ();
         setupAccordion('#hide-previews', '#how-to-description', '#how-to-arrow-right', '#how-to-arrow-down');
         setupAccordion('#hide-previews-not-mobile', '#how-to-description-not-mobile', '#how-to-arrow-right-not-mobile', '#how-to-arrow-down-not-mobile');
-        
+
         // Listen for storage changes to update UI automatically
-        chrome.storage.onChanged.addListener(function(changes, namespace) {
+        chrome.storage.onChanged.addListener(function (changes, namespace) {
             if (namespace === 'sync' && currentSiteIdentifier) {
                 // Check for custom element changes
                 const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
@@ -792,13 +800,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     const newSelectors = changes[customStorageKey].newValue || [];
                     updateCustomElementsList(currentSiteIdentifier, newSelectors);
                 }
-                
+
                 // Check for selection state changes
                 const selectionKey = `${currentSiteIdentifier}SelectionActive`;
                 if (changes[selectionKey]) {
                     const isActive = changes[selectionKey].newValue === true;
                     isSelectionModeActive = isActive;
-                    
+
                     // Update button state
                     const addButtonId = currentPlatform ? `${currentSiteIdentifier}AddElementButton` : 'genericAddElementButton';
                     const addButton = document.getElementById(addButtonId);
@@ -811,6 +819,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             addButton.textContent = 'Hide custom element';
                         }
                     }
+                }
+            }
+        });
+
+        // Listen for session-only selector changes from content script
+        // This handles the case when auto-save is disabled but elements are being hidden
+        chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+            if (message && message.type === 'sessionSelectorsChanged') {
+                // Only update if the message is for the current site
+                if (currentSiteIdentifier && message.siteIdentifier === currentSiteIdentifier) {
+                    console.log('Session selectors changed, updating list:', message.selectors);
+                    updateCustomElementsList(currentSiteIdentifier, message.selectors || []);
                 }
             }
         });
