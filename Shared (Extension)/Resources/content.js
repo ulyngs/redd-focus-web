@@ -676,13 +676,14 @@
             if (index > -1) {
                 sessionHiddenSelectors.splice(index, 1);
             }
-            // Reapply styles with updated selectors
+            // Reapply styles so element immediately reappears
             const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
             chrome.storage.sync.get(customKey, function (result) {
                 let baseSelectors = result[customKey] || [];
                 if (!Array.isArray(baseSelectors)) baseSelectors = [];
                 const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
+                lastAppliedCustomElements[currentSiteIdentifier] = [...mergedSelectors];
                 sendResponse({ success: true, customSelectors: mergedSelectors });
             });
             return true; // async response
@@ -706,6 +707,20 @@
                 const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
                 sendResponse({ success: true, customSelectors: mergedSelectors });
+            });
+            return true; // async response
+        } else if (message.type === 'reapplyCustomStyles') {
+            // Force immediate reapplication of custom element styles
+            console.log('reapplyCustomStyles message received');
+            const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
+            chrome.storage.sync.get(customKey, function (result) {
+                let baseSelectors = result[customKey] || [];
+                if (!Array.isArray(baseSelectors)) baseSelectors = [];
+                const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
+                console.log('Reapplying styles with selectors:', mergedSelectors);
+                applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
+                lastAppliedCustomElements[currentSiteIdentifier] = [...mergedSelectors];
+                sendResponse({ success: true });
             });
             return true; // async response
         }

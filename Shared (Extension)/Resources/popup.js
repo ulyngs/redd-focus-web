@@ -466,32 +466,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     </svg>`;
                 removeButton.title = 'Remove';
                 removeButton.addEventListener('click', function () {
-                    if (rememberSettingsEnabled) {
-                        // Auto-save is ON: remove from storage
-                        const storageKey = `${siteIdentifier}CustomHiddenElements`;
-                        chrome.storage.sync.get(storageKey, function (result) {
-                            let currentSelectors = result[storageKey] || [];
-                            currentSelectors = currentSelectors.filter(s =>
-                                (typeof s === 'string' ? s : s.selector) !== selector
-                            );
-                            chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
-                                updateCustomElementsList(siteIdentifier, currentSelectors);
-                            });
-                        });
-                    } else {
-                        // Auto-save is OFF: send message to content script to remove from session
-                        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                            if (!tabs || !tabs[0]) return;
-                            chrome.tabs.sendMessage(tabs[0].id, {
-                                type: 'removeSessionSelector',
-                                selector: selector
-                            }, function (response) {
-                                if (response && response.customSelectors) {
+                    // Always send removeSessionSelector to remove from session memory and reapply styles
+                    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                        if (!tabs || !tabs[0]) return;
+                        chrome.tabs.sendMessage(tabs[0].id, {
+                            type: 'removeSessionSelector',
+                            selector: selector
+                        }, function (response) {
+                            if (response && response.customSelectors) {
+                                // If auto-save is ON, also remove from storage
+                                if (rememberSettingsEnabled) {
+                                    const storageKey = `${siteIdentifier}CustomHiddenElements`;
+                                    chrome.storage.sync.get(storageKey, function (result) {
+                                        let currentSelectors = result[storageKey] || [];
+                                        currentSelectors = currentSelectors.filter(s =>
+                                            (typeof s === 'string' ? s : s.selector) !== selector
+                                        );
+                                        chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
+                                            updateCustomElementsList(siteIdentifier, currentSelectors);
+                                        });
+                                    });
+                                } else {
                                     updateCustomElementsList(siteIdentifier, response.customSelectors);
                                 }
-                            });
+                            }
                         });
-                    }
+                    });
                 });
 
                 buttonsContainer.appendChild(editButton);
