@@ -9,5 +9,5 @@ bug fixes and improvements:
 1. Instagram: renamed "instagramSuggestions" as "instagramSuggestedFollows" and fixed functionality
 2. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
 3. YouTube: fixed issue where "Explore" section wasn't being hidden
-4. elements are now hidden when when auto-save is off
+4. element hiding, undo-ing, and renaming now works when when auto-save is off
 
