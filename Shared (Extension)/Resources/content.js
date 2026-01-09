@@ -723,6 +723,11 @@
                 sendResponse({ success: true });
             });
             return true; // async response
+        } else if (message.type === 'clearSessionSelectors') {
+            // Clear session selectors after saving to storage (to prevent duplicates)
+            console.log('Clearing session selectors');
+            sessionHiddenSelectors.length = 0; // Clear the array
+            sendResponse({ success: true });
         }
     });
 

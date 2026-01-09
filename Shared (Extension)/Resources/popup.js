@@ -422,37 +422,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 editButton.title = 'Edit';
                 editButton.addEventListener('click', function () {
                     showEditDialog(siteIdentifier, selector, name, function (newName, newSelector) {
-                        if (rememberSettingsEnabled) {
-                            // Auto-save is ON: update in storage
-                            const storageKey = `${siteIdentifier}CustomHiddenElements`;
-                            chrome.storage.sync.get(storageKey, function (result) {
-                                let currentSelectors = result[storageKey] || [];
-                                const index = currentSelectors.findIndex(s =>
-                                    (typeof s === 'string' ? s : s.selector) === selector
-                                );
-                                if (index !== -1) {
-                                    currentSelectors[index] = { name: newName, selector: newSelector };
-                                    chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
-                                        updateCustomElementsList(siteIdentifier, currentSelectors);
-                                    });
-                                }
-                            });
-                        } else {
-                            // Auto-save is OFF: send message to content script to edit in session
-                            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                                if (!tabs || !tabs[0]) return;
-                                chrome.tabs.sendMessage(tabs[0].id, {
-                                    type: 'editSessionSelector',
-                                    oldSelector: selector,
-                                    newSelector: newSelector,
-                                    newName: newName
-                                }, function (response) {
-                                    if (response && response.customSelectors) {
-                                        updateCustomElementsList(siteIdentifier, response.customSelectors);
+                        // Always edit in BOTH session AND storage (in case data exists in either)
+                        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                            if (!tabs || !tabs[0]) return;
+
+                            // Edit in session memory
+                            chrome.tabs.sendMessage(tabs[0].id, {
+                                type: 'editSessionSelector',
+                                oldSelector: selector,
+                                newSelector: newSelector,
+                                newName: newName
+                            }, function (response) {
+                                // Also edit in storage (regardless of rememberSettingsEnabled)
+                                const storageKey = `${siteIdentifier}CustomHiddenElements`;
+                                chrome.storage.sync.get(storageKey, function (result) {
+                                    let currentSelectors = result[storageKey] || [];
+                                    const index = currentSelectors.findIndex(s =>
+                                        (typeof s === 'string' ? s : s.selector) === selector
+                                    );
+
+                                    if (index !== -1) {
+                                        // Selector was in storage, update it
+                                        currentSelectors[index] = { name: newName, selector: newSelector };
+                                        chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
+                                            // Merge storage with any session selectors
+                                            const sessionSelectors = (response && response.customSelectors) || [];
+                                            const allItems = [...currentSelectors, ...sessionSelectors];
+                                            const uniqueItems = allItems.filter((item, idx) => {
+                                                const sel = typeof item === 'string' ? item : item.selector;
+                                                return allItems.findIndex(i => (typeof i === 'string' ? i : i.selector) === sel) === idx;
+                                            });
+                                            updateCustomElementsList(siteIdentifier, uniqueItems);
+                                        });
+                                    } else {
+                                        // Selector was only in session, use response
+                                        if (response && response.customSelectors) {
+                                            updateCustomElementsList(siteIdentifier, response.customSelectors);
+                                        }
                                     }
                                 });
                             });
-                        }
+                        });
                     });
                 });
 
@@ -466,30 +476,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     </svg>`;
                 removeButton.title = 'Remove';
                 removeButton.addEventListener('click', function () {
-                    // Always send removeSessionSelector to remove from session memory and reapply styles
+                    // Always remove from BOTH session AND storage (in case data exists in either)
                     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
                         if (!tabs || !tabs[0]) return;
-                        chrome.tabs.sendMessage(tabs[0].id, {
-                            type: 'removeSessionSelector',
-                            selector: selector
-                        }, function (response) {
-                            if (response && response.customSelectors) {
-                                // If auto-save is ON, also remove from storage
-                                if (rememberSettingsEnabled) {
-                                    const storageKey = `${siteIdentifier}CustomHiddenElements`;
-                                    chrome.storage.sync.get(storageKey, function (result) {
-                                        let currentSelectors = result[storageKey] || [];
-                                        currentSelectors = currentSelectors.filter(s =>
-                                            (typeof s === 'string' ? s : s.selector) !== selector
-                                        );
-                                        chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
-                                            updateCustomElementsList(siteIdentifier, currentSelectors);
-                                        });
-                                    });
-                                } else {
-                                    updateCustomElementsList(siteIdentifier, response.customSelectors);
-                                }
-                            }
+
+                        // First remove from storage
+                        const storageKey = `${siteIdentifier}CustomHiddenElements`;
+                        chrome.storage.sync.get(storageKey, function (result) {
+                            let currentSelectors = result[storageKey] || [];
+                            currentSelectors = currentSelectors.filter(s =>
+                                (typeof s === 'string' ? s : s.selector) !== selector
+                            );
+
+                            chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
+                                // Then remove from session memory and reapply styles
+                                chrome.tabs.sendMessage(tabs[0].id, {
+                                    type: 'removeSessionSelector',
+                                    selector: selector
+                                }, function (response) {
+                                    // Use the fresh response from content script
+                                    if (response && response.customSelectors) {
+                                        updateCustomElementsList(siteIdentifier, response.customSelectors);
+                                    } else {
+                                        // Fallback to just storage
+                                        updateCustomElementsList(siteIdentifier, currentSelectors);
+                                    }
+                                });
+                            });
                         });
                     });
                 });
@@ -704,6 +717,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                     const obj = {}; obj[customKey] = response.customSelectors; writes.push(chrome.storage.sync.set(obj));
                                 }
                                 Promise.all(writes).then(() => {
+                                    // Clear session selectors since they're now saved to storage
+                                    chrome.tabs.sendMessage(tabs[0].id, { type: 'clearSessionSelectors' });
+
                                     saveBtn.textContent = 'Saved!';
                                     saveBtn.classList.add('is-success');
                                     setTimeout(() => {
