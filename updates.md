@@ -1,6 +1,6 @@
 new features:
 
-1. shadcn-like custom-selector, button, and progressive feedback on hidden elements
+1. redesigned custom-selector, button, and progressive feedback on hidden elements
 2. make google ads highlighting colour more red and account for dark mode on browsers
 3. YouTube: thumbnail styling now includes ads and sponsored posts
 
