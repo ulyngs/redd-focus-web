@@ -29,7 +29,7 @@ const platformHostnames = {
 const elementsThatCanBeHidden = [
     // YouTube
     "youtubeSearch", "youtubeSearchPredict", "youtubeRecVids", "youtubeThumbnails", "youtubeNotifications", "youtubeProfileImg",
-    "youtubeShorts", "youtubeSubscriptions", "youtubeHistory", "youtubeYou", "youtubeExplore", "youtubeMore",
+    "youtubeShorts", "youtubeSubscriptions", "youtubeYou", "youtubeHistory", "youtubeExplore", "youtubeMore",
     "youtubeRelated", /* "youtubeSidebar", */ "youtubeComments", "youtubeViews", "youtubeLikes", "youtubeSubscribers",
     // X (Twitter)
     "xExplore", "xNotifications", "xTrends", "xFollow", "xTimeline",
