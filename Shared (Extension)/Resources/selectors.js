@@ -59,6 +59,8 @@ const cssSelectors = {
     facebookGroupChatsCssOff: 'div[role="complementary"] div[data-visualcompletion="ignore-dynamic"] > div.x1n2onr6:not([role="cell"]) { visibility: hidden !important; }',
     facebookStoriesCssOn: 'div[aria-label="Stories"], #screen-root div[data-mcomponent="MContainer"] > div[data-mcomponent="MContainer"]:has(div[aria-label*="story"]) { display: block !important;}',
     facebookStoriesCssOff: 'div[aria-label="Stories"] { display: none !important; } #screen-root div[data-mcomponent="MContainer"] > div[data-mcomponent="MContainer"]:has(div[aria-label*="story"]) { display: none !important;}',
+    facebookSuggestedFollowsCssOn: '',
+    facebookSuggestedFollowsCssOff: '#screen-root div.m.displayed[data-tracking-duration-id]:has(div.hscroller[data-is-h-scrollable="true"]):has([data-mcomponent="MTransactional"]), div[aria-posinset]:has(div[role="region"][aria-label="People you may know"]) { display: none !important; }',
     facebookSponsoredCssOn: '',
     facebookSponsoredCssOff: 'a[aria-label="Advertiser"] { display: none !important; }',
 
