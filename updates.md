@@ -16,5 +16,6 @@ bug fixes and improvements:
 5. Facebook: rename "Chat" to "Group chats" to mirror functionality and add "Community chats" to it
 6. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
 7. Facebook: fix all mobile functionality
-8. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
+8. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs" if people find this to be too much
+9. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
 
