@@ -118,8 +118,9 @@ const cssSelectors = {
     whatsappNotificationPromptCssOff: 'span[data-testid="chat-butterbar"] { display: none !important; }',
 
     // Google
-    googleBackgroundCssOn: '#tads, #atvcap .ptJHdc.yY236b.c3mZkd, #tads .CnP9N.U3A9Ac.irmCpc,.commercial-unit-mobile-top,.commercial-unit-mobile-top .v7hl4d,.commercial-unit-mobile-bottom .v7hl4d {background-color: transparent !important;}',
-    googleBackgroundCssOff: '#tads, #atvcap .ptJHdc.yY236b.c3mZkd, #tads .CnP9N.U3A9Ac.irmCpc,.commercial-unit-mobile-top,.commercial-unit-mobile-top .v7hl4d,.commercial-unit-mobile-bottom .v7hl4d {padding: 8px !important; border-radius: 6px !important;} @media (prefers-color-scheme: light) { #tads, #atvcap .ptJHdc.yY236b.c3mZkd, #tads .CnP9N.U3A9Ac.irmCpc,.commercial-unit-mobile-top,.commercial-unit-mobile-top .v7hl4d,.commercial-unit-mobile-bottom .v7hl4d {background-color: #F7E0E0 !important;} } @media (prefers-color-scheme: dark) { #tads, #atvcap .ptJHdc.yY236b.c3mZkd, #tads .CnP9N.U3A9Ac.irmCpc,.commercial-unit-mobile-top,.commercial-unit-mobile-top .v7hl4d,.commercial-unit-mobile-bottom .v7hl4d {background-color:rgb(132, 24, 29) !important;} }',
+    googleBackgroundCssOn: '#atvcap .ptJHdc.yY236b.c3mZkd {background-color: transparent !important;}',
+    googleBackgroundCssOff: '#atvcap .ptJHdc.yY236b.c3mZkd {padding: 8px !important; border-radius: 6px !important;} @media (prefers-color-scheme: light) { #atvcap .ptJHdc.yY236b.c3mZkd {background-color: #F7E0E0 !important;} } @media (prefers-color-scheme: dark) { #atvcap .ptJHdc.yY236b.c3mZkd {background-color:rgb(132, 24, 29) !important;} }',
+    // to target section below sponsored products googleBackgroundCssOff: '#atvcap .ptJHdc.yY236b.c3mZkd{padding:8px!important; border-radius:6px!important;} .A6K0A>.baPFxb.kSMK2.wHYlTd.Nt5hrb{padding:8px!important; border-radius:6px!important;} @media (prefers-color-scheme: light){#atvcap .ptJHdc.yY236b.c3mZkd,.A6K0A>.baPFxb.kSMK2.wHYlTd.Nt5hrb{background-color:#F7E0E0!important;}} @media (prefers-color-scheme: dark){#atvcap .ptJHdc.yY236b.c3mZkd,.A6K0A>.baPFxb.kSMK2.wHYlTd.Nt5hrb{background-color:rgb(132,24,29)!important;}}',
     googleAIOverviewCssOn: '',
     googleAIOverviewCssOff: '#eKIzJc { display: none !important; }',
 
