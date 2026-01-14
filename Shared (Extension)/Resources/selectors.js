@@ -89,8 +89,8 @@ const cssSelectors = {
     instagramMutedStoriesCssOff: 'main[role="main"] div[role="menu"] button[role="menuitem"].xbyyjgo { display: none !important; }',
     instagramExploreCssOn: 'a[href="/explore/"] { display: flex !important; }',
     instagramExploreCssOff: 'a[href="/explore/"] { display: none !important; }',
-    instagramReelsCssOn: 'a[href="/reels/"], article:has(a[href*="/reel/"]):has(video), article:has(a[href^="/reels/audio/"]):has(video) { display: flex !important; }',
-    instagramReelsCssOff: 'a[href="/reels/"], article:has(a[href*="/reel/"]):has(video), article:has(a[href^="/reels/audio/"]):has(video) { display: none !important; }',
+    instagramReelsCssOn: 'a[href="/reels/"] { display: flex !important; } article:has(a[href*="/reel/"]):has(video), article:has(a[href^="/reels/audio/"]):has(video) { visibility: visible !important; height: auto !important; overflow: visible !important; margin: revert !important; padding: revert !important; opacity: 1 !important; }',
+    instagramReelsCssOff: 'a[href="/reels/"] { display: none !important; } article:has(a[href*="/reel/"]):has(video), article:has(a[href^="/reels/audio/"]):has(video) { visibility: hidden !important; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; opacity: 0 !important; }',
     // article:has(a[href*="/reel/"]):has(video), article:has(a[href^="/reels/audio/"]):has(video) is the code to hide reels in feed on both mobile and desktop - remove if wanted
     instagramSuggestedFollowsCssOn: 'div.html-div.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw:has(a[href="/explore/people/"]) { display: block !important; }',
     instagramSuggestedFollowsCssOff: 'div.html-div.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw:has(a[href="/explore/people/"]) { display: none !important; }',
