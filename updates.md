@@ -6,16 +6,18 @@ new features:
 4. YouTube: thumbnail styling now includes ads and sponsored posts
 5. Facebook: add ability to hide "People you may know" on the feed
 6. Facebook: add ability to hide "Contacts" on right sidebar on desktop
+7. Instagram: add ability to hide suggested posts
+8. Instagram: add ability to hide notification badges
 
 bug fixes and improvements:
 
 1. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
-2. Instagram: renamed "instagramSuggestions" as "instagramSuggestedFollows" and fixed functionality
-3. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
-4. YouTube: fixed issue where "Explore" section wasn't being hidden
-5. YouTube: removed "Entire right sidebar" as functionality replaced by Cinema mode
-6. Facebook: rename "Chat" to "Group chats" to mirror functionality and add "Community chats" to it
-7. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
-8. Facebook: fix all mobile functionality
+2. fixed mobile functionality of all functionalities
+3. Instagram: renamed "instagramSuggestions" as "instagramSuggestedFollows" and fixed functionality
+4. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
+5. YouTube: fixed issue where "Explore" section wasn't being hidden
+6. YouTube: removed "Entire right sidebar" as functionality replaced by Cinema mode
+7. Facebook: rename "Chat" to "Group chats" to mirror functionality and add "Community chats" to it
+8. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
 9. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs" if people find this to be too much
 

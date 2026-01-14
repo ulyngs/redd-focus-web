@@ -96,6 +96,8 @@ const cssSelectors = {
     instagramSuggestedFollowsCssOff: 'div.html-div.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw:has(a[href="/explore/people/"]) { display: none !important; } main > div:has(h4[style*="lineHeight: 20px"]) { display: none !important; }',
     instagramCommentsCssOn: 'div.html-div.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw.x1xmf6yo.x1uhb9sk.x1plvlek.xryxfnj.x1c4vz4f.x2lah0s.xdt5ytf.xqjyukv.x1qjc9v5.x1oa3qoh.x1nhvcw1:has(a[href*="/comments/"]) {display: block !important;}',
     instagramCommentsCssOff: 'div.html-div.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw.x1xmf6yo.x1uhb9sk.x1plvlek.xryxfnj.x1c4vz4f.x2lah0s.xdt5ytf.xqjyukv.x1qjc9v5.x1oa3qoh.x1nhvcw1:has(a[href*="/comments/"]) {display: none !important;}',
+    instagramNotificationBadgesCssOn: 'div.xmn1u35, div.x14vhib7.x1c9tyrk, div.html-div.x14vhib7 { display: block !important; }',
+    instagramNotificationBadgesCssOff: 'div.xmn1u35, div.x14vhib7.x1c9tyrk, div.html-div.x14vhib7 { display: none !important; }',
 
     // LinkedIn
     linkedinFeedCssOn: '/* needs to be explicitly shown, otherwise not loaded */ div.scaffold-finite-scroll.scaffold-finite-scroll--infinite, div.scaffold-finite-scroll.scaffold-finite-scroll--finite, #feed-container, .feed-container {display: block !important;}',
