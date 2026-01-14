@@ -25,4 +25,5 @@ bug fixes and improvements:
 9. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs" ## can remove if people find this to be too much
 10. LinkedIn: feed is now hidden everywhere except when viewing a specific post
 11. Reddit: "Feed" now only targets home feed and not community/popular feeds
+12. Reddit: rename "Popular communities" to "Best of Reddit" to mirror functionality and hide entire "Best" section in sidebar
 
