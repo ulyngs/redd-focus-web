@@ -597,6 +597,26 @@
                                                 cssToApply = cssSelectors[item + "CssOn"];
                                                 lastAppliedSettings[item] = "visible";
                                             }
+                                        } else if (item === "redditFeed") {
+                                            // Only hide feed on home page, not on subreddits or other pages
+                                            let isHomePage = window.location.pathname === '/' ||
+                                                (window.location.pathname === '/' && window.location.search.includes('feed=home'));
+
+                                            if (statusValue === true) {
+                                                // User wants feed hidden
+                                                if (isHomePage) {
+                                                    cssToApply = cssSelectors[item + "CssOff"];
+                                                    lastAppliedSettings[item] = "hidden";
+                                                } else {
+                                                    // Not on home page, show feed
+                                                    cssToApply = cssSelectors[item + "CssOn"];
+                                                    lastAppliedSettings[item] = "visible";
+                                                }
+                                            } else {
+                                                // User wants feed visible
+                                                cssToApply = cssSelectors[item + "CssOn"];
+                                                lastAppliedSettings[item] = "visible";
+                                            }
                                         } else {
                                             cssToApply = (statusValue === true) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
                                             lastAppliedSettings[item] = statusValue === true ? "hidden" : "visible";
@@ -801,6 +821,26 @@
                                         lastAppliedSettings[item] = "visible";
                                     }
                                 } else {
+                                    cssToApply = cssSelectors[item + "CssOn"];
+                                    lastAppliedSettings[item] = "visible";
+                                }
+                            } else if (item === "redditFeed") {
+                                // Only hide feed on home page, not on subreddits or other pages
+                                let isHomePage = window.location.pathname === '/' ||
+                                    (window.location.pathname === '/' && window.location.search.includes('feed=home'));
+
+                                if (statusValue === true) {
+                                    // User wants feed hidden
+                                    if (isHomePage) {
+                                        cssToApply = cssSelectors[item + "CssOff"];
+                                        lastAppliedSettings[item] = "hidden";
+                                    } else {
+                                        // Not on home page, show feed
+                                        cssToApply = cssSelectors[item + "CssOn"];
+                                        lastAppliedSettings[item] = "visible";
+                                    }
+                                } else {
+                                    // User wants feed visible
                                     cssToApply = cssSelectors[item + "CssOn"];
                                     lastAppliedSettings[item] = "visible";
                                 }

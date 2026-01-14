@@ -14,8 +14,8 @@ new features:
 
 bug fixes and improvements:
 
-1. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
-2. fixed mobile functionality of all relevant functionalities (except Reddit)
+1. fixed functionality of all functionalities (except Reddit so far)
+2. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
 3. Instagram: renamed "instagramSuggestions" as "instagramSuggestedFollows" and fixed functionality
 4. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
 5. YouTube: fixed issue where "Explore" section wasn't being hidden
@@ -24,5 +24,5 @@ bug fixes and improvements:
 8. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
 9. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs" ## can remove if people find this to be too much
 10. LinkedIn: feed is now hidden everywhere except when viewing a specific post
-11. WhatsApp Web: fix message previews and notifications prompt hiding
+11. Reddit: "Feed" now only targets home feed and not community/popular feeds
 
