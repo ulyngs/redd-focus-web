@@ -10,25 +10,32 @@
 
     function createStyleElement(some_style_id, some_css) {
         const elementToHide = some_style_id.replace("Style", "");
-        let domRoot = document.head;
+
+        // Helper function to inject or update a style element in a given root
+        function injectStyle(root, styleId, css) {
+            let styleElement = root.querySelector("#" + styleId);
+            if (!styleElement) {
+                styleElement = document.createElement("style");
+                styleElement.id = styleId;
+                styleElement.textContent = css;
+                root.appendChild(styleElement);
+            } else {
+                if (styleElement.textContent !== css) {
+                    styleElement.textContent = css;
+                }
+            }
+        }
+
+        // Always inject into document.head (for regular DOM elements)
+        injectStyle(document.head, some_style_id, some_css);
+
+        // Additionally inject into shadow root if element is in shadowSelectors
         if (elementToHide in shadowSelectors) {
             const shadowHostSelector = shadowSelectors[elementToHide];
             const shadowHost = document.querySelector(shadowHostSelector);
             if (shadowHost && shadowHost.shadowRoot) {
-                domRoot = shadowHost.shadowRoot;
-            } else {
-                return;
-            }
-        }
-        let styleElement = domRoot.querySelector("#" + some_style_id);
-        if (!styleElement) {
-            styleElement = document.createElement("style");
-            styleElement.id = some_style_id;
-            styleElement.textContent = some_css;
-            domRoot.appendChild(styleElement);
-        } else {
-            if (styleElement.textContent !== some_css) {
-                styleElement.textContent = some_css;
+                // Use a different ID for shadow root to avoid conflicts
+                injectStyle(shadowHost.shadowRoot, some_style_id + "-shadow", some_css);
             }
         }
     }
