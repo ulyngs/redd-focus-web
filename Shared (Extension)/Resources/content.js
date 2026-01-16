@@ -108,6 +108,35 @@
     // Expose session-only selectors so other parts can read/merge
     window.__vfSessionCustomSelectors = sessionHiddenSelectors;
     const highlightStyleId = 'mindshield-highlight-style';
+    let currentTheme = 'light';
+
+    function updateTheme() {
+        chrome.storage.sync.get('themePreference', (result) => {
+            const pref = result.themePreference || 'system';
+            if (pref === 'dark') {
+                currentTheme = 'dark';
+            } else if (pref === 'light') {
+                currentTheme = 'light';
+            } else {
+                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            if (feedbackContainer) {
+                // Refresh colors if already visible
+                const currentMsg = feedbackContainer.querySelector('span')?.textContent || 'Click element to hide it';
+                const hasUndo = !!feedbackContainer.querySelector('button:nth-of-type(1)');
+                const countMatch = currentMsg.match(/(\d+) elements? hidden/);
+                const count = countMatch ? parseInt(countMatch[1]) : null;
+                const isSessionOnly = currentMsg.includes('(session only)');
+                updateFeedbackMessage('Click element to hide it', hasUndo, count, isSessionOnly);
+            }
+        });
+    }
+
+    // Initialize theme
+    updateTheme();
+
+    // Listen for theme changes specifically
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
 
     function createHighlightOverlay() {
         if (!highlightOverlay) {
@@ -128,10 +157,11 @@
         if (!selectorDisplay) {
             selectorDisplay = document.createElement('div');
             selectorDisplay.style.position = 'fixed';
-            selectorDisplay.style.background = 'rgba(0, 0, 0, 0.8)';
-            selectorDisplay.style.color = 'white';
-            selectorDisplay.style.padding = '3px 6px';
-            selectorDisplay.style.borderRadius = '3px';
+            selectorDisplay.style.background = currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.98)' : 'rgba(241, 245, 249, 0.98)';
+            selectorDisplay.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
+            selectorDisplay.style.padding = '4px 8px';
+            selectorDisplay.style.borderRadius = '6px';
+            selectorDisplay.style.border = currentTheme === 'dark' ? '1px solid #334155' : '1px solid #cbd5e1';
             selectorDisplay.style.zIndex = '2147483647';
             selectorDisplay.style.fontSize = '11px';
             selectorDisplay.style.fontFamily = 'monospace';
@@ -140,6 +170,8 @@
             selectorDisplay.style.whiteSpace = 'nowrap';
             selectorDisplay.style.overflow = 'hidden';
             selectorDisplay.style.textOverflow = 'ellipsis';
+            selectorDisplay.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1)';
+            selectorDisplay.style.backdropFilter = 'blur(4px)';
             document.body.appendChild(selectorDisplay);
         }
     }
@@ -151,12 +183,19 @@
             feedbackContainer.style.position = 'fixed';
             feedbackContainer.style.top = '100px';
             feedbackContainer.style.left = '10px';
-            feedbackContainer.style.background = 'rgba(15, 17, 27, 0.92)';
-            feedbackContainer.style.color = '#e4e4e7';
+            // Use theme colors
+            feedbackContainer.style.background = currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.96)' : 'rgba(255, 255, 255, 0.98)';
+            feedbackContainer.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
             feedbackContainer.style.padding = '10px 14px';
             feedbackContainer.style.borderRadius = '12px';
-            feedbackContainer.style.border = '1px solid rgba(39, 39, 42, 0.85)';
-            feedbackContainer.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.22)';
+
+            // Add a vibrant top border to match the theme (Blue for Light, Purple for Dark)
+            const accentColor = currentTheme === 'dark' ? '#818cf8' : '#2196F3';
+            feedbackContainer.style.border = currentTheme === 'dark' ? '1px solid rgba(51, 65, 85, 0.8)' : '1px solid rgba(148, 163, 184, 0.4)';
+            feedbackContainer.style.borderTop = `3px solid ${accentColor}`;
+
+            feedbackContainer.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)';
+            feedbackContainer.style.backdropFilter = 'blur(8px)';
             feedbackContainer.style.zIndex = '2147483647';
             feedbackContainer.style.fontFamily = '"Arial", sans-serif';
             feedbackContainer.style.fontSize = '13px';
@@ -168,6 +207,7 @@
             feedbackContainer.style.minWidth = '230px';
             feedbackContainer.style.maxWidth = '400px';
             feedbackContainer.style.flexWrap = 'nowrap';
+            feedbackContainer.style.transition = 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease';
             document.body.appendChild(feedbackContainer);
             // Get initial count if elements are already hidden
             if (currentSiteIdentifier) {
@@ -244,31 +284,65 @@
         button.style.justifyContent = 'center';
         button.style.gap = '4px';
         button.style.backgroundClip = 'padding-box';
-        button.style.transition = 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease';
+        button.style.transition = 'all 0.15s ease';
 
         if (variant === 'secondary') {
-            button.style.background = 'rgba(228, 228, 231, 0.06)';
-            button.style.color = '#d4d4d8';
-            button.style.borderColor = 'rgba(63, 63, 70, 0.85)';
+            // Mirror the "secondary" style from popup
+            if (currentTheme === 'dark') {
+                button.style.background = 'rgba(241, 245, 249, 0.05)';
+                button.style.color = '#94a3b8';
+                button.style.borderColor = 'rgba(241, 245, 249, 0.1)';
+            } else {
+                button.style.background = 'rgba(15, 23, 42, 0.05)';
+                button.style.color = '#475569';
+                button.style.borderColor = 'rgba(15, 23, 42, 0.1)';
+            }
         } else {
-            button.style.background = '#F1F6FE';
-            button.style.color = '#1c2541';
-            button.style.borderColor = '#c7d7fb';
+            // Primary: Blue in Light, Purple in Dark
+            if (currentTheme === 'dark') {
+                button.style.background = '#818cf8'; // The Purple
+                button.style.color = '#0f172a';     // Dark text on purple
+                button.style.borderColor = '#818cf8';
+            } else {
+                button.style.background = '#2196F3'; // The Blue
+                button.style.color = '#ffffff';
+                button.style.borderColor = '#2196F3';
+            }
         }
 
         button.addEventListener('mouseenter', () => {
             if (variant === 'secondary') {
-                button.style.background = 'rgba(228, 228, 231, 0.14)';
+                if (currentTheme === 'dark') {
+                    button.style.background = 'rgba(241, 245, 249, 0.1)';
+                } else {
+                    button.style.background = 'rgba(15, 23, 42, 0.1)';
+                }
             } else {
-                button.style.background = '#e5eeff';
+                if (currentTheme === 'dark') {
+                    button.style.background = '#6366f1'; // Hover Purple
+                    button.style.borderColor = '#6366f1';
+                } else {
+                    button.style.background = '#1976D2'; // Hover Blue
+                    button.style.borderColor = '#1976D2';
+                }
             }
         });
 
         button.addEventListener('mouseleave', () => {
             if (variant === 'secondary') {
-                button.style.background = 'rgba(228, 228, 231, 0.06)';
+                if (currentTheme === 'dark') {
+                    button.style.background = 'rgba(241, 245, 249, 0.05)';
+                } else {
+                    button.style.background = 'rgba(15, 23, 42, 0.05)';
+                }
             } else {
-                button.style.background = '#F1F6FE';
+                if (currentTheme === 'dark') {
+                    button.style.background = '#818cf8';
+                    button.style.borderColor = '#818cf8';
+                } else {
+                    button.style.background = '#2196F3';
+                    button.style.borderColor = '#2196F3';
+                }
             }
         });
     }
@@ -291,7 +365,7 @@
         messageSpan.style.fontWeight = '500';
         messageSpan.style.flex = '1';
         messageSpan.style.minWidth = '100px';
-        messageSpan.style.color = '#e4e4e7';
+        messageSpan.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
         messageSpan.style.marginRight = showUndo ? '6px' : '4px';
         messageSpan.style.whiteSpace = 'nowrap';
         feedbackContainer.appendChild(messageSpan);
@@ -690,6 +764,10 @@
                 if (changes[customStorageKey] || changes[selectionKey]) {
                     hasRelevantChanges = true;
                 }
+            }
+            // Check for theme changes
+            if (changes['themePreference']) {
+                updateTheme();
             }
 
             if (hasRelevantChanges) {
