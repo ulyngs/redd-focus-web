@@ -5,29 +5,37 @@
     const shadowSelectors = {
         "redditPopular": "left-nav-top-section",
         "redditAll": "left-nav-top-section",
+        "redditChat": "left-nav-top-section",
     };
 
     function createStyleElement(some_style_id, some_css) {
         const elementToHide = some_style_id.replace("Style", "");
-        let domRoot = document.head;
+
+        // Helper function to inject or update a style element in a given root
+        function injectStyle(root, styleId, css) {
+            let styleElement = root.querySelector("#" + styleId);
+            if (!styleElement) {
+                styleElement = document.createElement("style");
+                styleElement.id = styleId;
+                styleElement.textContent = css;
+                root.appendChild(styleElement);
+            } else {
+                if (styleElement.textContent !== css) {
+                    styleElement.textContent = css;
+                }
+            }
+        }
+
+        // Always inject into document.head (for regular DOM elements)
+        injectStyle(document.head, some_style_id, some_css);
+
+        // Additionally inject into shadow root if element is in shadowSelectors
         if (elementToHide in shadowSelectors) {
             const shadowHostSelector = shadowSelectors[elementToHide];
             const shadowHost = document.querySelector(shadowHostSelector);
             if (shadowHost && shadowHost.shadowRoot) {
-                domRoot = shadowHost.shadowRoot;
-            } else {
-                return;
-            }
-        }
-        let styleElement = domRoot.querySelector("#" + some_style_id);
-        if (!styleElement) {
-            styleElement = document.createElement("style");
-            styleElement.id = some_style_id;
-            styleElement.textContent = some_css;
-            domRoot.appendChild(styleElement);
-        } else {
-            if (styleElement.textContent !== some_css) {
-                styleElement.textContent = some_css;
+                // Use a different ID for shadow root to avoid conflicts
+                injectStyle(shadowHost.shadowRoot, some_style_id + "-shadow", some_css);
             }
         }
     }
@@ -143,20 +151,38 @@
             feedbackContainer.style.position = 'fixed';
             feedbackContainer.style.top = '100px';
             feedbackContainer.style.left = '10px';
-            feedbackContainer.style.background = 'rgba(0, 0, 0, 0.8)';
-            feedbackContainer.style.color = 'white';
-            feedbackContainer.style.padding = '10px';
-            feedbackContainer.style.borderRadius = '5px';
+            feedbackContainer.style.background = 'rgba(15, 17, 27, 0.92)';
+            feedbackContainer.style.color = '#e4e4e7';
+            feedbackContainer.style.padding = '10px 14px';
+            feedbackContainer.style.borderRadius = '12px';
+            feedbackContainer.style.border = '1px solid rgba(39, 39, 42, 0.85)';
+            feedbackContainer.style.boxShadow = '0 12px 30px rgba(2, 6, 23, 0.22)';
             feedbackContainer.style.zIndex = '2147483647';
-            feedbackContainer.style.fontFamily = 'Arial, sans-serif';
-            feedbackContainer.style.fontSize = '18px';
+            feedbackContainer.style.fontFamily = '"Arial", sans-serif';
+            feedbackContainer.style.fontSize = '13px';
             feedbackContainer.style.display = 'flex';
             feedbackContainer.style.alignItems = 'center';
-            feedbackContainer.style.gap = '10px';
+            feedbackContainer.style.gap = '8px';
             feedbackContainer.style.cursor = 'move';
             feedbackContainer.style.userSelect = 'none';
+            feedbackContainer.style.minWidth = '230px';
+            feedbackContainer.style.maxWidth = '400px';
+            feedbackContainer.style.flexWrap = 'nowrap';
             document.body.appendChild(feedbackContainer);
-            updateFeedbackMessage('Click element to hide it');
+            // Get initial count if elements are already hidden
+            if (currentSiteIdentifier) {
+                const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
+                const rememberKey = `${currentSiteIdentifier}RememberSettings`;
+                chrome.storage.sync.get([customStorageKey, rememberKey], function (result) {
+                    let customSelectors = result[customStorageKey] || [];
+                    if (!Array.isArray(customSelectors)) customSelectors = [];
+                    const rememberEnabled = result[rememberKey] !== false;
+                    const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
+                    updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length, !rememberEnabled);
+                });
+            } else {
+                updateFeedbackMessage('Click element to hide it');
+            }
             setupDragEvents();
         }
     }
@@ -204,18 +230,76 @@
         document.addEventListener('touchend', stopDragging);
     }
 
-    function updateFeedbackMessage(message, showUndo = false) {
+    function styleFeedbackButton(button, variant = 'primary') {
+        button.style.borderRadius = '9999px';
+        button.style.padding = '4px 12px';
+        button.style.fontSize = '12px';
+        button.style.fontWeight = '600';
+        button.style.lineHeight = '1.4';
+        button.style.borderWidth = '1px';
+        button.style.borderStyle = 'solid';
+        button.style.cursor = 'pointer';
+        button.style.display = 'inline-flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
+        button.style.gap = '4px';
+        button.style.backgroundClip = 'padding-box';
+        button.style.transition = 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease';
+
+        if (variant === 'secondary') {
+            button.style.background = 'rgba(228, 228, 231, 0.06)';
+            button.style.color = '#d4d4d8';
+            button.style.borderColor = 'rgba(63, 63, 70, 0.85)';
+        } else {
+            button.style.background = '#F1F6FE';
+            button.style.color = '#1c2541';
+            button.style.borderColor = '#c7d7fb';
+        }
+
+        button.addEventListener('mouseenter', () => {
+            if (variant === 'secondary') {
+                button.style.background = 'rgba(228, 228, 231, 0.14)';
+            } else {
+                button.style.background = '#e5eeff';
+            }
+        });
+
+        button.addEventListener('mouseleave', () => {
+            if (variant === 'secondary') {
+                button.style.background = 'rgba(228, 228, 231, 0.06)';
+            } else {
+                button.style.background = '#F1F6FE';
+            }
+        });
+    }
+
+    function updateFeedbackMessage(message, showUndo = false, count = null, sessionOnly = false) {
         if (!feedbackContainer) return;
-        feedbackContainer.innerHTML = `<span>${message}</span>`;
+        feedbackContainer.innerHTML = '';
+
+        let displayMessage = message;
+        if (count !== null && count > 0) {
+            displayMessage = `${count} ${count === 1 ? 'element' : 'elements'} hidden`;
+            if (sessionOnly) {
+                displayMessage += ' (session only)';
+            }
+        }
+
+        const messageSpan = document.createElement('span');
+        messageSpan.textContent = displayMessage;
+        messageSpan.style.fontSize = '14px';
+        messageSpan.style.fontWeight = '500';
+        messageSpan.style.flex = '1';
+        messageSpan.style.minWidth = '100px';
+        messageSpan.style.color = '#e4e4e7';
+        messageSpan.style.marginRight = showUndo ? '6px' : '4px';
+        messageSpan.style.whiteSpace = 'nowrap';
+        feedbackContainer.appendChild(messageSpan);
+
         if (showUndo) {
             const undoButton = document.createElement('button');
             undoButton.textContent = 'Undo';
-            undoButton.style.background = '#555';
-            undoButton.style.color = 'white';
-            undoButton.style.border = 'none';
-            undoButton.style.padding = '5px 10px';
-            undoButton.style.borderRadius = '3px';
-            undoButton.style.cursor = 'pointer';
+            styleFeedbackButton(undoButton, 'secondary');
             undoButton.addEventListener('click', handleUndo);
             undoButton.addEventListener('touchend', (e) => {
                 e.preventDefault();
@@ -224,14 +308,10 @@
             });
             feedbackContainer.appendChild(undoButton);
         }
+
         const doneButton = document.createElement('button');
         doneButton.textContent = 'Done';
-        doneButton.style.background = '#007bff';
-        doneButton.style.color = 'white';
-        doneButton.style.border = 'none';
-        doneButton.style.padding = '5px 10px';
-        doneButton.style.borderRadius = '3px';
-        doneButton.style.cursor = 'pointer';
+        styleFeedbackButton(doneButton, 'primary');
         doneButton.addEventListener('click', () => stopSelecting(false));
         doneButton.addEventListener('touchend', (e) => {
             e.preventDefault();
@@ -261,13 +341,15 @@
                     // Reapply merged (persistent + remaining session)
                     const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                     applyCustomElementStyles(currentSiteIdentifier, merged);
-                    updateFeedbackMessage(sessionHiddenSelectors.length > 0 ? 'Element hidden' : 'Click element to hide it', sessionHiddenSelectors.length > 0);
+                    updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length, false);
                 });
             } else {
                 // Session-only: just reapply merged without touching storage
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
-                updateFeedbackMessage(sessionHiddenSelectors.length > 0 ? 'Element hidden (session only)' : 'Click element to hide it', sessionHiddenSelectors.length > 0);
+                updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length, true);
+                // Notify popup that session selectors changed
+                chrome.runtime.sendMessage({ type: 'sessionSelectorsChanged', siteIdentifier: currentSiteIdentifier, selectors: merged });
             }
         });
     }
@@ -283,7 +365,7 @@
         document.addEventListener('click', selectElementOnClick, { capture: true });
         document.addEventListener('touchend', selectElementOnTap, { capture: true });
         document.addEventListener('keydown', handleKeydown, { capture: true });
-        
+
         // Update storage to reflect that selection has started
         if (currentSiteIdentifier) {
             chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: true });
@@ -305,7 +387,7 @@
         if (tempStyle) tempStyle.remove();
         feedbackContainer = highlightOverlay = selectorDisplay = currentHighlightedElement = null;
         // Keep sessionHiddenSelectors so session rules persist until refresh
-        
+
         // Update storage to reflect that selection has stopped
         if (currentSiteIdentifier) {
             chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: false });
@@ -384,7 +466,8 @@
             const rememberEnabled = result[rememberKey] !== false; // default true
             const alreadyHas = customSelectors.includes(selector) || sessionHiddenSelectors.includes(selector);
             if (alreadyHas) {
-                updateFeedbackMessage('Element already hidden');
+                const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
+                updateFeedbackMessage('Element already hidden', false, merged.length, !rememberEnabled);
                 return;
             }
             sessionHiddenSelectors.push(selector);
@@ -398,13 +481,15 @@
                     // Apply merged to ensure immediate effect
                     const merged = Array.from(new Set([...toSave, ...sessionHiddenSelectors]));
                     applyCustomElementStyles(currentSiteIdentifier, merged);
-                    updateFeedbackMessage('Element hidden', true);
+                    updateFeedbackMessage('Element hidden', true, merged.length, false);
                 });
             } else {
                 // Session only — apply without saving
                 const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
                 applyCustomElementStyles(currentSiteIdentifier, merged);
-                updateFeedbackMessage('Element hidden (session only)', true);
+                updateFeedbackMessage('Element hidden', true, merged.length, true);
+                // Notify popup that session selectors changed
+                chrome.runtime.sendMessage({ type: 'sessionSelectorsChanged', siteIdentifier: currentSiteIdentifier, selectors: merged });
             }
         });
     }
@@ -437,7 +522,7 @@
     // --- Listen for storage changes to apply settings immediately ---
     let lastAppliedSettings = {};
     let lastAppliedCustomElements = {};
-    
+
     function applySettingsFromStorage() {
         if (!chrome.runtime?.id) // don't run if disconnected
             return;
@@ -449,16 +534,16 @@
                 if (Object.prototype.hasOwnProperty.call(sessionOverrides, platformStatusKey)) {
                     platformIsOn = sessionOverrides[platformStatusKey] !== false;
                 }
-                
+
                 elementsThatCanBeHidden
                     .filter(element => element.startsWith(currentPlatform))
                     .forEach(function (item) {
                         const styleName = item + "Style";
                         const itemStatusKey = item + "Status";
-                        
+
                         // Check if we need to update this element
                         let currentSetting = platformIsOn ? (lastAppliedSettings[item] || "default") : "platformDisabled";
-                        
+
                         // For multi-state elements, we need to get the actual stored value
                         if (platformIsOn && (item === "youtubeThumbnails" || item === "youtubeNotifications")) {
                             chrome.storage.sync.get(itemStatusKey, function (itemResult) {
@@ -467,7 +552,7 @@
                                     statusValue = sessionOverrides[itemStatusKey];
                                 }
                                 let newSetting = statusValue || "On";
-                                
+
                                 if (currentSetting !== newSetting) {
                                     let cssToApply = cssSelectors[item + "Css" + newSetting];
                                     lastAppliedSettings[item] = newSetting;
@@ -480,7 +565,7 @@
                                 storedDefault = sessionOverrides[itemStatusKey];
                             }
                             let newSetting = platformIsOn ? (storedDefault || "On") : "platformDisabled";
-                            
+
                             if (currentSetting !== newSetting) {
                                 if (!platformIsOn) {
                                     // Platform is disabled, show all elements
@@ -494,15 +579,52 @@
                                             statusValue = sessionOverrides[itemStatusKey];
                                         }
                                         let cssToApply;
-                                        
+
                                         if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
                                             let state = statusValue || "On";
                                             cssToApply = cssSelectors[item + "Css" + state];
                                             lastAppliedSettings[item] = state;
                                         } else if (item === "linkedinFeed") {
-                                            let isFeedPage = window.location.pathname === '/' || window.location.pathname === '/feed/';
-                                            cssToApply = (statusValue === true && isFeedPage) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
-                                            lastAppliedSettings[item] = statusValue === true && isFeedPage ? "hidden" : "visible";
+                                            let isMainFeed = window.location.pathname === '/' || window.location.pathname === '/feed' || window.location.pathname === '/feed/';
+                                            let isViewingPost = window.location.pathname.includes('/feed/update') || window.location.search.includes('highlightedUpdateUrn');
+
+                                            if (statusValue === true) {
+                                                // User wants feed Hidden
+                                                if (isViewingPost) {
+                                                    cssToApply = cssSelectors[item + "CssFocused"];
+                                                    lastAppliedSettings[item] = "focused";
+                                                } else if (isMainFeed) {
+                                                    cssToApply = cssSelectors[item + "CssOff"];
+                                                    lastAppliedSettings[item] = "hidden";
+                                                } else {
+                                                    cssToApply = cssSelectors[item + "CssOn"];
+                                                    lastAppliedSettings[item] = "visible";
+                                                }
+                                            } else {
+                                                // User wants feed Visible
+                                                cssToApply = cssSelectors[item + "CssOn"];
+                                                lastAppliedSettings[item] = "visible";
+                                            }
+                                        } else if (item === "redditFeed") {
+                                            // Only hide feed on home page, not on subreddits or other pages
+                                            let isHomePage = window.location.pathname === '/' ||
+                                                (window.location.pathname === '/' && window.location.search.includes('feed=home'));
+
+                                            if (statusValue === true) {
+                                                // User wants feed hidden
+                                                if (isHomePage) {
+                                                    cssToApply = cssSelectors[item + "CssOff"];
+                                                    lastAppliedSettings[item] = "hidden";
+                                                } else {
+                                                    // Not on home page, show feed
+                                                    cssToApply = cssSelectors[item + "CssOn"];
+                                                    lastAppliedSettings[item] = "visible";
+                                                }
+                                            } else {
+                                                // User wants feed visible
+                                                cssToApply = cssSelectors[item + "CssOn"];
+                                                lastAppliedSettings[item] = "visible";
+                                            }
                                         } else {
                                             cssToApply = (statusValue === true) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
                                             lastAppliedSettings[item] = statusValue === true ? "hidden" : "visible";
@@ -515,7 +637,7 @@
                     });
             });
         }
-        
+
         // Also check for custom element changes
         if (currentSiteIdentifier) {
             const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
@@ -531,7 +653,7 @@
                     lastAppliedCustomElements[currentSiteIdentifier] = [...merged];
                 }
             });
-            
+
             // Check for selection state changes
             const selectionKey = `${currentSiteIdentifier}SelectionActive`;
             chrome.storage.sync.get(selectionKey, function (result) {
@@ -544,23 +666,23 @@
             });
         }
     }
-    
+
     // Listen for storage changes to be responsive
-    chrome.storage.onChanged.addListener(function(changes, namespace) {
+    chrome.storage.onChanged.addListener(function (changes, namespace) {
         if (namespace === 'sync') {
             let hasRelevantChanges = false;
-            
+
             // Check platform-specific changes
             if (currentPlatform) {
                 for (let key in changes) {
-                    if (key === `${currentPlatform}Status` || 
+                    if (key === `${currentPlatform}Status` ||
                         (key.endsWith('Status') && elementsThatCanBeHidden.some(elem => elem.startsWith(currentPlatform) && elem + 'Status' === key))) {
                         hasRelevantChanges = true;
                         break;
                     }
                 }
             }
-            
+
             // Check custom element changes
             if (currentSiteIdentifier) {
                 const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
@@ -569,14 +691,14 @@
                     hasRelevantChanges = true;
                 }
             }
-            
+
             if (hasRelevantChanges) {
                 // Apply changes immediately
                 setTimeout(applySettingsFromStorage, 100);
             }
         }
     });
-    
+
     // Also poll every 1 second as a safety net
     setInterval(applySettingsFromStorage, 1000);
 
@@ -595,6 +717,68 @@
                 sendResponse({ overrides: sessionOverrides, customSelectors: mergedSelectors });
             });
             return true; // async response
+        } else if (message.type === 'removeSessionSelector') {
+            // Remove a specific selector from session memory
+            const selectorToRemove = message.selector;
+            // Use findIndex to handle both string and object formats
+            const index = sessionHiddenSelectors.findIndex(s =>
+                (typeof s === 'string' ? s : s.selector) === selectorToRemove
+            );
+            if (index > -1) {
+                sessionHiddenSelectors.splice(index, 1);
+            }
+            // Reapply styles so element immediately reappears
+            const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
+            chrome.storage.sync.get(customKey, function (result) {
+                let baseSelectors = result[customKey] || [];
+                if (!Array.isArray(baseSelectors)) baseSelectors = [];
+                const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
+                applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
+                lastAppliedCustomElements[currentSiteIdentifier] = [...mergedSelectors];
+                sendResponse({ success: true, customSelectors: mergedSelectors });
+            });
+            return true; // async response
+        } else if (message.type === 'editSessionSelector') {
+            // Edit/rename a specific selector in session memory
+            const oldSelector = message.oldSelector;
+            const newSelector = message.newSelector;
+            const newName = message.newName;
+            const index = sessionHiddenSelectors.findIndex(s =>
+                (typeof s === 'string' ? s : s.selector) === oldSelector
+            );
+            if (index > -1) {
+                // Replace with object format { name, selector }
+                sessionHiddenSelectors[index] = { name: newName, selector: newSelector };
+            }
+            // Reapply styles with updated selectors
+            const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
+            chrome.storage.sync.get(customKey, function (result) {
+                let baseSelectors = result[customKey] || [];
+                if (!Array.isArray(baseSelectors)) baseSelectors = [];
+                const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
+                applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
+                sendResponse({ success: true, customSelectors: mergedSelectors });
+            });
+            return true; // async response
+        } else if (message.type === 'reapplyCustomStyles') {
+            // Force immediate reapplication of custom element styles
+            console.log('reapplyCustomStyles message received');
+            const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
+            chrome.storage.sync.get(customKey, function (result) {
+                let baseSelectors = result[customKey] || [];
+                if (!Array.isArray(baseSelectors)) baseSelectors = [];
+                const mergedSelectors = Array.from(new Set([...baseSelectors, ...sessionHiddenSelectors]));
+                console.log('Reapplying styles with selectors:', mergedSelectors);
+                applyCustomElementStyles(currentSiteIdentifier, mergedSelectors);
+                lastAppliedCustomElements[currentSiteIdentifier] = [...mergedSelectors];
+                sendResponse({ success: true });
+            });
+            return true; // async response
+        } else if (message.type === 'clearSessionSelectors') {
+            // Clear session selectors after saving to storage (to prevent duplicates)
+            console.log('Clearing session selectors');
+            sessionHiddenSelectors.length = 0; // Clear the array
+            sendResponse({ success: true });
         }
     });
 
@@ -629,9 +813,45 @@
                                 cssToApply = cssSelectors[item + "Css" + state];
                                 lastAppliedSettings[item] = state;
                             } else if (item === "linkedinFeed") {
-                                let isFeedPage = window.location.pathname === '/' || window.location.pathname === '/feed/';
-                                cssToApply = (statusValue === true && isFeedPage) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
-                                lastAppliedSettings[item] = statusValue === true && isFeedPage ? "hidden" : "visible";
+                                // 3-state logic: Hidden (Main Feed) / Focused (View Post) / Visible (User ON)
+                                let isMainFeed = window.location.pathname === '/' || window.location.pathname === '/feed' || window.location.pathname === '/feed/';
+                                let isViewingPost = window.location.pathname.includes('/feed/update') || window.location.search.includes('highlightedUpdateUrn');
+
+                                if (statusValue === true) {
+                                    if (isViewingPost) {
+                                        cssToApply = cssSelectors[item + "CssFocused"];
+                                        lastAppliedSettings[item] = "focused";
+                                    } else if (isMainFeed) {
+                                        cssToApply = cssSelectors[item + "CssOff"];
+                                        lastAppliedSettings[item] = "hidden";
+                                    } else {
+                                        cssToApply = cssSelectors[item + "CssOn"];
+                                        lastAppliedSettings[item] = "visible";
+                                    }
+                                } else {
+                                    cssToApply = cssSelectors[item + "CssOn"];
+                                    lastAppliedSettings[item] = "visible";
+                                }
+                            } else if (item === "redditFeed") {
+                                // Only hide feed on home page, not on subreddits or other pages
+                                let isHomePage = window.location.pathname === '/' ||
+                                    (window.location.pathname === '/' && window.location.search.includes('feed=home'));
+
+                                if (statusValue === true) {
+                                    // User wants feed hidden
+                                    if (isHomePage) {
+                                        cssToApply = cssSelectors[item + "CssOff"];
+                                        lastAppliedSettings[item] = "hidden";
+                                    } else {
+                                        // Not on home page, show feed
+                                        cssToApply = cssSelectors[item + "CssOn"];
+                                        lastAppliedSettings[item] = "visible";
+                                    }
+                                } else {
+                                    // User wants feed visible
+                                    cssToApply = cssSelectors[item + "CssOn"];
+                                    lastAppliedSettings[item] = "visible";
+                                }
                             } else {
                                 cssToApply = (statusValue === true) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
                                 lastAppliedSettings[item] = statusValue === true ? "hidden" : "visible";
