@@ -1498,6 +1498,8 @@ footer .friction-customisation {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
+    min-width: 16px;
+    min-height: 16px;
     background-color: var(--checkbox-bg);
     border: 1px solid var(--checkbox-border);
     border-radius: 4px;
@@ -1507,7 +1509,11 @@ footer .friction-customisation {
     position: relative;
     transition: all 0.2s ease;
     transform: none;
-    /* Removed scale to use specific sizing */
+    overflow: visible;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 #modal-settings #frictionToggle:checked,
@@ -1520,13 +1526,14 @@ footer .friction-customisation {
 #modal-settings #rememberSettingsToggle:checked::after {
     content: "";
     position: absolute;
-    left: 4.5px;
-    top: 1.5px;
-    width: 5px;
-    height: 9px;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
+    transform-origin: center center;
 }
 
 .dark-mode #modal-settings #frictionToggle:checked::after,
