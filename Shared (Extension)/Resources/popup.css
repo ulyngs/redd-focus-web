@@ -1533,6 +1533,59 @@ footer .friction-customisation {
 }
 
 
+/* =========================
+   Safari popup scrolling fix
+   ========================= */
+
+/* Give the popup viewport a real height to work with */
+html,
+body {
+    height: 100%;
+}
+
+/* Treat the popup as a column layout and prevent body-scroll */
+body {
+    overflow: hidden;
+    /* important: scrolling will happen in .toggle-wrapper */
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+    /* since footer is fixed, don't rely on body padding */
+}
+
+/* If you want the footer fixed, reserve space for it */
+:root {
+    --footer-h: 56px;
+    /* adjust if needed */
+}
+
+/* Main content should not run under the fixed footer */
+#popup-content {
+    /* when visible, it becomes the layout container */
+    display: flex;
+    flex-direction: column;
+    /* critical: bound the height so overflow can happen */
+    max-height: calc(100vh - var(--footer-h));
+}
+
+/* This is your long list area: make it the scroll container */
+.toggle-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* critical for Safari flex overflow */
+    overflow-y: auto;
+    /* scrollbar appears here */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+    /* breathing room above footer */
+}
+
+/* Keep footer pinned; also give it a predictable height */
+footer {
+    height: var(--footer-h);
+}
+
+
 /* Add this to popup.css to define the loading animation */
 @keyframes loading {
     0% { transform: rotate(0deg); }

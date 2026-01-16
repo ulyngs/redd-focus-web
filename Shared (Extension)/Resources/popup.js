@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             countdownBox.innerText = countdown;
                         } else {
                             messageContainer.style.display = "none";
-                            popupContainer.style.display = "block";
+                            popupContainer.style.display = "flex";
                             errorContainer.style.display = "none";
                             updateSaveFooterVisibility();
                             clearInterval(timerId);
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     messageContainer.style.display = "none";
                     messageContainer.classList.remove("show");
-                    popupContainer.style.display = "block";
+                    popupContainer.style.display = "flex";
                     errorContainer.style.display = "none";
                     updateSaveFooterVisibility();
                 }
