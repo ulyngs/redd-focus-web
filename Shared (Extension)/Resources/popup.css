@@ -107,7 +107,8 @@
     /* Toggle/Checkbox colors */
     --toggle-bg: #475569;
     --toggle-bg-checked: #818cf8;
-    --checkbox-bg: #0f172a;
+    --checkbox-bg: #3d4b5f;
+    /* Lighter blue-purple for better theme sync */
     --checkbox-border: #475569;
     --checkbox-check-color: #a78bfa;
 
@@ -1483,35 +1484,62 @@ footer .friction-customisation {
     margin: 8px 4px;
 }
 
-/* Bigger checkbox and label inside the modal settings row */
-#modal-settings .friction-toggle input[type="checkbox"] {
-    transform: scale(1.25);
-    transform-origin: left center;
-    margin-right: 6px;
-    accent-color: var(--accent-primary);
-    cursor: pointer;
-}
-
+/* Label inside the modal settings row */
 #modal-settings .friction-toggle label {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
+    /* Consistency */
 }
 
 /* Make 'Delay' and 'Remember settings' checkboxes/labels consistent */
 #modal-settings #frictionToggle,
 #modal-settings #rememberSettingsToggle {
-    transform: scale(1.25);
-    transform-origin: left center;
-    margin-right: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background-color: var(--checkbox-bg);
+    border: 1px solid var(--checkbox-border);
+    border-radius: 4px;
+    margin-right: 8px;
     vertical-align: middle;
-    accent-color: var(--accent-primary);
     cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    transform: none;
+    /* Removed scale to use specific sizing */
+}
+
+#modal-settings #frictionToggle:checked,
+#modal-settings #rememberSettingsToggle:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+#modal-settings #frictionToggle:checked::after,
+#modal-settings #rememberSettingsToggle:checked::after {
+    content: "";
+    position: absolute;
+    left: 4.5px;
+    top: 1.5px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.dark-mode #modal-settings #frictionToggle:checked::after,
+.dark-mode #modal-settings #rememberSettingsToggle:checked::after {
+    border-color: var(--btn-primary-text);
+    /* Use dark text on purple background */
 }
 
 #modal-settings label[for="frictionToggle"],
 #modal-settings label[for="rememberSettingsToggle"] {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
+    /* Consistency */
     vertical-align: middle;
 }
 
