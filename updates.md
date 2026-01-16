@@ -22,6 +22,7 @@ bug fixes and improvements:
 4. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
 5. YouTube: fixed issue where "Explore" section wasn't being hidden
 6. YouTube: removed "Entire right sidebar" as functionality replaced by Cinema mode
+7. YouTube: view numbers now hides everywhere 
 7. Facebook: rename "Chat" to "Group chats" to mirror functionality and add "Community chats" to it
 8. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
 9. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs"  ## can remove if people find this to be too much
