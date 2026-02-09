@@ -154,7 +154,7 @@ const cssSelectors = {
     redditBestOfCssOn: 'faceplate-tracker[noun="communities_menu"]:has(a), faceplate-tracker[noun^="rereddit"] { display: block !important; }',
     redditBestOfCssOff: 'faceplate-tracker[noun="communities_menu"]:has(a), faceplate-tracker[noun^="rereddit"] { display: none !important; }',
     redditLeftSidebarCssOn: '',
-    redditLeftSidebarCssOff: '#left-sidebar-container { display: none !important; }',
+    redditLeftSidebarCssOff: '#left-sidebar-container, #left-sidebar { display: none !important; }',
     redditRightSidebarCssOn: '#right-sidebar-container { display: block !important; }',
     redditRightSidebarCssOff: '#right-sidebar-container { display: none !important; }'
 };
