@@ -682,6 +682,7 @@
                                         } else if (item === "redditFeed") {
                                             // Only hide feed on home page, not on subreddits or other pages
                                             let isHomePage = window.location.pathname === '/' ||
+                                                window.location.pathname.startsWith('/r/popular') ||
                                                 (window.location.pathname === '/' && window.location.search.includes('feed=home'));
 
                                             if (statusValue === true) {
@@ -913,6 +914,7 @@
                             } else if (item === "redditFeed") {
                                 // Only hide feed on home page, not on subreddits or other pages
                                 let isHomePage = window.location.pathname === '/' ||
+                                    window.location.pathname.startsWith('/r/popular') ||
                                     (window.location.pathname === '/' && window.location.search.includes('feed=home'));
 
                                 if (statusValue === true) {
