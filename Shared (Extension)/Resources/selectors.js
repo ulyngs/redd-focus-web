@@ -153,7 +153,7 @@ const cssSelectors = {
     redditRelatedCssOff: '#answers-suggested-queries-m3, aside[aria-label="Related Posts Section"] { display: none !important; }',
     redditBestOfCssOn: 'faceplate-tracker[noun="communities_menu"]:has(a), faceplate-tracker[noun^="rereddit"] { display: block !important; }',
     redditBestOfCssOff: 'faceplate-tracker[noun="communities_menu"]:has(a), faceplate-tracker[noun^="rereddit"] { display: none !important; }',
-    redditLeftSidebarCssOn: '#left-sidebar-container { display: block !important; }',
+    redditLeftSidebarCssOn: '',
     redditLeftSidebarCssOff: '#left-sidebar-container { display: none !important; }',
     redditRightSidebarCssOn: '#right-sidebar-container { display: block !important; }',
     redditRightSidebarCssOff: '#right-sidebar-container { display: none !important; }'
