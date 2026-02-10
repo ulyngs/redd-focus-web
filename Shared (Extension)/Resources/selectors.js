@@ -36,7 +36,7 @@ const cssSelectors = {
     youtubeMoreCssOn: '#sections ytd-guide-section-renderer:has(a[href="https://studio.youtube.com/"]) { display: block !important; }',
     youtubeMoreCssOff: '#sections ytd-guide-section-renderer:has(a[href="https://studio.youtube.com/"]) { display: none !important; }',
     youtubeRelatedCssOn: '#related { visibility: visible !important; display: block !important; } #app ytm-item-section-renderer[section-identifier="related-items"] { display: block !important; } ytm-single-column-watch-next-results-renderer .related-chips-slot-wrapper { transform: translateY(0) !important; }',
-    youtubeRelatedCssOff: '#related { visibility: hidden !important; display: none !important; } #app ytm-item-section-renderer[section-identifier="related-items"] { display: none !important; } ytm-single-column-watch-next-results-renderer .related-chips-slot-wrapper { transform: none !important; }',
+    youtubeRelatedCssOff: '#related { visibility: hidden !important; display: none !important; } #app ytm-item-section-renderer[section-identifier="related-items"] { display: none !important; } ytm-single-column-watch-next-results-renderer .related-chips-slot-wrapper { transform: none !important; } .ytp-ce-element.ytp-ce-video { display: none !important; visibility: hidden !important; }',
     // youtubeSidebarCssOn: '',
     // youtubeSidebarCssOff: '#secondary { display: none !important; } video.html5-main-video { width: 100% !important; height: auto !important; }',
     youtubeCommentsCssOn: '',
