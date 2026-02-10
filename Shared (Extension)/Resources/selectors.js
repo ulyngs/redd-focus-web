@@ -155,6 +155,6 @@ const cssSelectors = {
     redditBestOfCssOff: 'faceplate-tracker[noun="communities_menu"]:has(a), faceplate-tracker[noun^="rereddit"] { display: none !important; }',
     redditLeftSidebarCssOn: '',
     redditLeftSidebarCssOff: '#left-sidebar-container, #left-sidebar { display: none !important; }',
-    redditRightSidebarCssOn: '#right-sidebar-container { display: block !important; }',
+    redditRightSidebarCssOn: '@media (min-width: 1024px) { #right-sidebar-container { display: block !important; } }',
     redditRightSidebarCssOff: '#right-sidebar-container { display: none !important; }'
 };
