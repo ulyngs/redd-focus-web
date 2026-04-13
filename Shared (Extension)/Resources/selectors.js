@@ -105,7 +105,7 @@ const cssSelectors = {
     linkedinFeedCssOff: 'div[data-testid="mainFeed"] ._8969c64b.efd98e7a._4e14bf6e, div.scaffold-finite-scroll.scaffold-finite-scroll--infinite, div.scaffold-finite-scroll.scaffold-finite-scroll--finite, #feed-container, .feed-container, section.feeds, li.feed-item, article.main-feed-activity-card {display: none !important;}',
     linkedinFeedCssFocused: 'div.scaffold-finite-scroll__content > *:nth-child(n+2) { display: none !important; }',
     linkedinNotificationsCssOn: '',
-    linkedinNotificationsCssOff: 'span.notification-badge--show, #nav-notifications-small-badge, #nav-people-small-badge, span[data-badge-source="notificationsCount"] { display: none !important; }',
+    linkedinNotificationsCssOff: 'span.notification-badge--show, #nav-notifications-small-badge, #nav-people-small-badge, span[data-badge-source="notificationsCount"], a[href*="/notifications/"][aria-label*="Notifications"] > span:first-child > span[data-color-scheme] { display: none !important; }',
     linkedinNewsCssOn: '#feed-news-module, .feed-follows-module { display: block !important; }',
     linkedinNewsCssOff: '#feed-news-module, .feed-follows-module { display: none !important; }',
 
