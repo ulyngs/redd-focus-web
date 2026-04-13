@@ -108,8 +108,6 @@ const cssSelectors = {
     linkedinNotificationsCssOff: 'span.notification-badge--show, #nav-notifications-small-badge, #nav-people-small-badge, span[data-badge-source="notificationsCount"] { display: none !important; }',
     linkedinNewsCssOn: '#feed-news-module, .feed-follows-module { display: block !important; }',
     linkedinNewsCssOff: '#feed-news-module, .feed-follows-module { display: none !important; }',
-    linkedinAdsCssOn: 'section.ad-banner-container { display: block !important;}',
-    linkedinAdsCssOff: 'section.ad-banner-container { display: none !important;}',
 
     // WhatsApp
     whatsappPreviewCssOn: 'div._ak8k { display: block !important; }',
