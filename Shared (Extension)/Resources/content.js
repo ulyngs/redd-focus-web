@@ -100,6 +100,7 @@
 
     let isSelecting = false;
     let highlightOverlay = null;
+    let selectionCaptureLayer = null;
     let selectorDisplay = null;
     let feedbackContainer = null;
     let currentHighlightedElement = null;
@@ -151,6 +152,45 @@
             highlightOverlay.style.boxSizing = 'border-box';
             document.body.appendChild(highlightOverlay);
         }
+    }
+
+    function createSelectionCaptureLayer() {
+        if (!selectionCaptureLayer) {
+            selectionCaptureLayer = document.createElement('div');
+            selectionCaptureLayer.id = 'mindshield-selection-capture-layer';
+            selectionCaptureLayer.style.position = 'fixed';
+            selectionCaptureLayer.style.inset = '0';
+            selectionCaptureLayer.style.zIndex = '2147483645';
+            selectionCaptureLayer.style.background = 'transparent';
+            selectionCaptureLayer.style.cursor = 'crosshair';
+            selectionCaptureLayer.style.touchAction = 'auto';
+            document.body.appendChild(selectionCaptureLayer);
+        }
+    }
+
+    function getEventClientPosition(event) {
+        if (event.touches && event.touches.length > 0) {
+            return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        }
+        if (event.changedTouches && event.changedTouches.length > 0) {
+            return { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+        }
+        if (event.clientX !== undefined && event.clientY !== undefined) {
+            return { x: event.clientX, y: event.clientY };
+        }
+        return null;
+    }
+
+    function getUnderlyingElementFromPosition(clientX, clientY) {
+        if (!selectionCaptureLayer) {
+            return document.elementFromPoint(clientX, clientY);
+        }
+
+        const previousPointerEvents = selectionCaptureLayer.style.pointerEvents;
+        selectionCaptureLayer.style.pointerEvents = 'none';
+        const el = document.elementFromPoint(clientX, clientY);
+        selectionCaptureLayer.style.pointerEvents = previousPointerEvents || 'auto';
+        return el;
     }
 
     function createSelectorDisplay() {
@@ -432,12 +472,14 @@
         if (isSelecting) return;
         isSelecting = true;
         createHighlightOverlay();
+        createSelectionCaptureLayer();
         createSelectorDisplay();
         createFeedbackContainer();
-        document.addEventListener('mousemove', highlightElement, { capture: true });
-        document.addEventListener('touchstart', highlightElement, { capture: true });
-        document.addEventListener('click', selectElementOnClick, { capture: true });
-        document.addEventListener('touchend', selectElementOnTap, { capture: true });
+        selectionCaptureLayer.addEventListener('mousemove', highlightElement);
+        selectionCaptureLayer.addEventListener('touchstart', highlightElement, { passive: true });
+        selectionCaptureLayer.addEventListener('touchmove', highlightElement, { passive: true });
+        selectionCaptureLayer.addEventListener('click', selectElementOnClick);
+        selectionCaptureLayer.addEventListener('touchend', selectElementOnTap, { passive: false });
         document.addEventListener('keydown', handleKeydown, { capture: true });
 
         // Update storage to reflect that selection has started
@@ -449,17 +491,19 @@
     function stopSelecting(cancelled = false) {
         if (!isSelecting) return;
         isSelecting = false;
-        document.removeEventListener('mousemove', highlightElement, { capture: true });
-        document.removeEventListener('touchstart', highlightElement, { capture: true });
-        document.removeEventListener('click', selectElementOnClick, { capture: true });
-        document.removeEventListener('touchend', selectElementOnTap, { capture: true });
+        selectionCaptureLayer?.removeEventListener('mousemove', highlightElement);
+        selectionCaptureLayer?.removeEventListener('touchstart', highlightElement);
+        selectionCaptureLayer?.removeEventListener('touchmove', highlightElement);
+        selectionCaptureLayer?.removeEventListener('click', selectElementOnClick);
+        selectionCaptureLayer?.removeEventListener('touchend', selectElementOnTap);
         document.removeEventListener('keydown', handleKeydown, { capture: true });
+        if (selectionCaptureLayer) selectionCaptureLayer.remove();
         if (feedbackContainer) feedbackContainer.remove();
         if (highlightOverlay) highlightOverlay.remove();
         if (selectorDisplay) selectorDisplay.remove();
         const tempStyle = document.getElementById(highlightStyleId);
         if (tempStyle) tempStyle.remove();
-        feedbackContainer = highlightOverlay = selectorDisplay = currentHighlightedElement = null;
+        feedbackContainer = highlightOverlay = selectionCaptureLayer = selectorDisplay = currentHighlightedElement = null;
         // Keep sessionHiddenSelectors so session rules persist until refresh
 
         // Update storage to reflect that selection has stopped
@@ -478,7 +522,10 @@
 
     function highlightElement(event) {
         if (!isSelecting) return;
-        const el = event.target;
+        const position = getEventClientPosition(event);
+        if (!position) return;
+
+        const el = getUnderlyingElementFromPosition(position.x, position.y);
         if (!el || el === highlightOverlay || el === selectorDisplay || el.closest('#mindshield-feedback-container')) {
             if (highlightOverlay) highlightOverlay.style.display = 'none';
             if (selectorDisplay) selectorDisplay.style.display = 'none';
@@ -487,10 +534,8 @@
         }
         currentHighlightedElement = el;
         const selector = generateCSSSelector(el);
-        let posX, posY;
-        if (event.touches && event.touches.length > 0) { posX = event.touches[0].clientX; posY = event.touches[0].clientY; }
-        else if (event.clientX !== undefined) { posX = event.clientX; posY = event.clientY; }
-        else { return; }
+        const posX = position.x;
+        const posY = position.y;
         if (selectorDisplay) {
             selectorDisplay.textContent = selector || "Cannot select this element";
             const displayPosX = posX + 15;
@@ -510,18 +555,26 @@
     }
 
     function selectElementOnClick(event) {
-        if (Date.now() - lastTapTime < 500) { event.preventDefault(); event.stopPropagation(); return; }
-        if (!isSelecting || event.target.closest('#mindshield-feedback-container') || event.target.tagName === 'BUTTON' || event.target !== currentHighlightedElement) return;
+        if (Date.now() - lastTapTime < 500) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
+        if (!isSelecting) return;
+        highlightElement(event);
+        if (!currentHighlightedElement) return;
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         processSelectedElement(currentHighlightedElement);
     }
 
     function selectElementOnTap(event) {
         lastTapTime = Date.now();
-        if (!isSelecting || event.target.closest('#mindshield-feedback-container') || event.target.tagName === 'BUTTON' || !currentHighlightedElement) return;
+        if (!isSelecting) return;
+        highlightElement(event);
+        if (!currentHighlightedElement) return;
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         processSelectedElement(currentHighlightedElement);
     }
 
