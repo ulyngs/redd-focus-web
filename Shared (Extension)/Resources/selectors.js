@@ -59,12 +59,12 @@ const cssSelectors = {
     facebookFeedCssOff: '#ssrb_feed_start + div, div.x1hc1fzr.x1unhpq9.x6o7n8i { visibility: hidden !important; } #screen-root div:not([data-adjust-on-keyboard-shown="true"]) > div[data-mcomponent="MContainer"] > div.m.displayed:nth-child(n+7), #screen-root div[data-mcomponent="MContainer"] div[data-mcomponent="MContainer"]:has(div[data-testid^="post-profile"]) { display: none !important; }',
     facebookContactsCssOn: '',
     facebookContactsCssOff: 'div[role="complementary"] div[data-visualcompletion="ignore-dynamic"]:has([data-focus-target="right_rail"]) { display: none !important; }',
-    facebookGroupChatsCssOn: 'div[role="complementary"] div.x1n2onr6.x1uc6qws.xyen2ro:has(ul[data-visualcompletion="ignore-late-mutation"]):not(:has(a[aria-label="Advertiser"])):not(:has([data-focus-target="right_rail"])) { visibility: visible !important; }',
-    facebookGroupChatsCssOff: 'div[role="complementary"] div.x1n2onr6.x1uc6qws.xyen2ro:has(ul[data-visualcompletion="ignore-late-mutation"]):not(:has(a[aria-label="Advertiser"])):not(:has([data-focus-target="right_rail"])) { visibility: hidden !important; }',
+    facebookGroupChatsCssOn: 'div[role="complementary"] div.x1n2onr6.x1uc6qws.xyen2ro:has(ul[data-visualcompletion="ignore-late-mutation"]):not(:has(a[aria-label="Advertiser"])):not(:has([aria-label*="sponsored content"])):not(:has(a[attributionsrc^="/privacy_sandbox/comet/register/source"])):not(:has([data-focus-target="right_rail"])) { visibility: visible !important; }',
+    facebookGroupChatsCssOff: 'div[role="complementary"] div.x1n2onr6.x1uc6qws.xyen2ro:has(ul[data-visualcompletion="ignore-late-mutation"]):not(:has(a[aria-label="Advertiser"])):not(:has([aria-label*="sponsored content"])):not(:has(a[attributionsrc^="/privacy_sandbox/comet/register/source"])):not(:has([data-focus-target="right_rail"])) { visibility: hidden !important; }',
     facebookNotificationsCssOn: '',
     facebookNotificationsCssOff: 'div[aria-label*="Notifications"], div[data-hidden-ref-key="notifications.pill.jewel.hidden"], div[role="tab"][aria-label*="notifications" i], #screen-root div[data-mcomponent="MScreen"] div[data-mcomponent="MContainer"] div[data-mcomponent="MContainer"]:nth-child(2) div[role="button"]:nth-child(5) div[data-mcomponent="MContainer"]:nth-child(3) {visibility: hidden !important;}',
     facebookSponsoredCssOn: '',
-    facebookSponsoredCssOff: 'a[aria-label="Advertiser"] { display: none !important; }',
+    facebookSponsoredCssOff: 'a[aria-label="Advertiser"] { display: none !important; } div[data-visualcompletion="ignore-late-mutation"]:has([aria-label*="sponsored content"]) { display: none !important; } a[attributionsrc^="/privacy_sandbox/comet/register/source"] { display: none !important; }',
 
     // X (Twitter)
     xExploreCssOn: 'nav[role="navigation"] a[href="/explore"] { display: flex !important; }',
