@@ -46,7 +46,7 @@ const cssSelectors = {
     youtubeLikesCssOn: '',
     youtubeLikesCssOff: 'ytd-watch-metadata #top-level-buttons-computed like-button-view-model .yt-spec-button-shape-next__button-text-content { display: none !important; } /* m.youtube.com */ ytm-slim-video-metadata-section-renderer like-button-view-model .yt-spec-button-shape-next__button-text-content { display: none !important; }',
     youtubeSubscribersCssOn: '',
-    youtubeSubscribersCssOff: '#owner-sub-count, #subscriber-count { display: none !important; } /* m.youtube.com */ .slim-owner-icon-and-title .subhead .yt-core-attributed-string { display: none !important; }',
+    youtubeSubscribersCssOff: '#owner-sub-count, #subscriber-count { display: none !important; } /* m.youtube.com */ .slim-owner-icon-and-title .subhead .yt-core-attributed-string { display: none !important; } /* channel page metadata row */ span.ytContentMetadataViewModelMetadataText[aria-label*="subscriber"], span.ytContentMetadataViewModelMetadataText[aria-label*="subscriber"] + span.ytContentMetadataViewModelDelimiter, span.ytContentMetadataViewModelDelimiter:has(+ span.ytContentMetadataViewModelMetadataText[aria-label*="subscriber"]) { display: none !important; }',
 
     // Facebook
     facebookStoriesCssOn: 'div[aria-label="Stories"], #screen-root div[data-mcomponent="MContainer"] > div[data-mcomponent="MContainer"]:has(div[aria-label*="story"]) { display: block !important;}',
