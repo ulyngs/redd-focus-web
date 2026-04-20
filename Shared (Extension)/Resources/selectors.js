@@ -105,7 +105,7 @@ const cssSelectors = {
     linkedinFeedCssOff: 'div.scaffold-finite-scroll.scaffold-finite-scroll--infinite, div.scaffold-finite-scroll.scaffold-finite-scroll--finite, #feed-container, .feed-container, section.feeds, li.feed-item, article.main-feed-activity-card {display: none !important;}',
     linkedinFeedCssFocused: 'div.scaffold-finite-scroll__content > *:nth-child(n+2) { display: none !important; }',
     linkedinNotificationsCssOn: '',
-    linkedinNotificationsCssOff: 'a[href*="/notifications"] span[data-color-scheme] { display: none !important; }',
+    linkedinNotificationsCssOff: 'a[href*="/notifications"] span[data-color-scheme], a[href*="/mynetwork"] span[data-color-scheme], a[href*="/messaging"] span[data-color-scheme], .msg-overlay-list-bubble .msg-overlay-bubble-header__unread-count { display: none !important; }',
     linkedinNewsCssOn: '#feed-news-module, .feed-follows-module, div:has(> div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]), div:has(> div > div > div > div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]) { display: block !important; }',
     linkedinNewsCssOff: '#feed-news-module, .feed-follows-module, div:has(> div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]), div:has(> div > div > div > div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]) { display: none !important; }',
     linkedinAdsCssOn: 'section.ad-banner-container { display: block !important;}',
