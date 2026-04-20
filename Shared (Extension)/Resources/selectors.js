@@ -106,8 +106,8 @@ const cssSelectors = {
     linkedinFeedCssFocused: 'div.scaffold-finite-scroll__content > *:nth-child(n+2) { display: none !important; }',
     linkedinNotificationsCssOn: '',
     linkedinNotificationsCssOff: 'a[href*="/notifications"] span[data-color-scheme] { display: none !important; }',
-    linkedinNewsCssOn: '#feed-news-module, .feed-follows-module { display: block !important; }',
-    linkedinNewsCssOff: '#feed-news-module, .feed-follows-module { display: none !important; }',
+    linkedinNewsCssOn: '#feed-news-module, .feed-follows-module, div:has(> div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]), div:has(> div > div > div > div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]) { display: block !important; }',
+    linkedinNewsCssOff: '#feed-news-module, .feed-follows-module, div:has(> div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]), div:has(> div > div > div > div > button[aria-label="Info tooltip"]):has(a[href*="/news/story/"]) { display: none !important; }',
     linkedinAdsCssOn: 'section.ad-banner-container { display: block !important;}',
     linkedinAdsCssOff: 'section.ad-banner-container { display: none !important;}',
 
