@@ -599,18 +599,6 @@
     let lastAppliedSettings = {};
     let lastAppliedCustomElements = {};
 
-    /** True when LinkedIn should apply home-column feed hide rules (main feed paths, or /notifications/ with embedded mainFeed). */
-    function linkedinFeedTreatAsHomeFeedPathForHide() {
-        const p = window.location.pathname;
-        if (p === '/' || p === '/feed' || p === '/feed/') {
-            return true;
-        }
-        if (p.includes('/notifications') && document.querySelector('div[role="list"][data-testid="mainFeed"]')) {
-            return true;
-        }
-        return false;
-    }
-
     function applySettingsFromStorage() {
         if (!chrome.runtime?.id) // don't run if disconnected
             return;
@@ -673,7 +661,7 @@
                                             cssToApply = cssSelectors[item + "Css" + state];
                                             lastAppliedSettings[item] = state;
                                         } else if (item === "linkedinFeed") {
-                                            let isMainFeed = linkedinFeedTreatAsHomeFeedPathForHide();
+                                            let isMainFeed = window.location.pathname === '/' || window.location.pathname === '/feed' || window.location.pathname === '/feed/';
                                             let isViewingPost = window.location.pathname.includes('/feed/update') || window.location.search.includes('highlightedUpdateUrn');
 
                                             if (statusValue === true) {
@@ -907,7 +895,9 @@
                                 lastAppliedSettings[item] = state;
                             } else if (item === "linkedinFeed") {
                                 // 3-state logic: Hidden (Main Feed) / Focused (View Post) / Visible (User ON)
-                                let isMainFeed = linkedinFeedTreatAsHomeFeedPathForHide();
+                                let isMainFeed = window.location.pathname === '/' ||
+                                    window.location.pathname === '/feed' ||
+                                    window.location.pathname === '/feed/';
                                 let isViewingPost = window.location.pathname.includes('/feed/update') || window.location.search.includes('highlightedUpdateUrn');
 
                                 if (statusValue === true) {
