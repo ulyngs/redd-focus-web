@@ -139,8 +139,6 @@ const cssSelectors = {
     redditFeedCssOff: 'shreddit-feed { display: none !important; }',
     redditPopularCssOn: 'a[href="/r/popular/"] { display: flex !important; }',
     redditPopularCssOff: 'a[href="/r/popular/"] { display: none !important; }',
-    redditAllCssOn: 'a[href="/r/all/"] { display: flex !important; }',
-    redditAllCssOff: 'a[href="/r/all/"] { display: none !important; }',
     redditRecentCssOn: 'reddit-recent-pages, div#recent-communities-section, faceplate-expandable-section-helper#recent-communities-section { display: block !important; }',
     redditRecentCssOff: 'reddit-recent-pages, div#recent-communities-section, faceplate-expandable-section-helper#recent-communities-section { display: none !important; }',
     redditCommunitiesCssOn: '[aria-controls="communities_section"] + faceplate-auto-height-animator { display: block !important; } [aria-controls="communities_section"] { display: flex !important; }',

@@ -4,7 +4,6 @@
 
     const shadowSelectors = {
         "redditPopular": "left-nav-top-section",
-        "redditAll": "left-nav-top-section",
         "redditChat": "left-nav-top-section",
         // LinkedIn messaging overlay (unread chip) lives under open shadow DOM on this host
         "linkedinNotifications": "#interop-outlet",
