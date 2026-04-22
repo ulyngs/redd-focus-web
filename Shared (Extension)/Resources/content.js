@@ -673,7 +673,7 @@
                         let currentSetting = platformIsOn ? (lastAppliedSettings[item] || "default") : "platformDisabled";
 
                         // For multi-state elements, we need to get the actual stored value
-                        if (platformIsOn && (item === "youtubeThumbnails" || item === "youtubeNotifications")) {
+                        if (platformIsOn && item === "youtubeThumbnails") {
                             chrome.storage.sync.get(itemStatusKey, function (itemResult) {
                                 let statusValue = itemResult[itemStatusKey];
                                 if (Object.prototype.hasOwnProperty.call(sessionOverrides, itemStatusKey)) {
@@ -708,7 +708,7 @@
                                         }
                                         let cssToApply;
 
-                                        if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                                        if (item === "youtubeThumbnails") {
                                             let state = statusValue || "On";
                                             cssToApply = cssSelectors[item + "Css" + state];
                                             lastAppliedSettings[item] = state;
@@ -941,7 +941,7 @@
                         chrome.storage.sync.get(itemStatusKey, function (itemResult) {
                             let statusValue = itemResult[itemStatusKey];
                             let cssToApply;
-                            if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                            if (item === "youtubeThumbnails") {
                                 let state = statusValue || "On";
                                 cssToApply = cssSelectors[item + "Css" + state];
                                 lastAppliedSettings[item] = state;

@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!currentToggle) return;
 
             chrome.storage.sync.get(element_to_check + "Status", function (result) {
-                currentToggle.checked = result[element_to_check + "Status"] || false;
+                currentToggle.checked = !!result[element_to_check + "Status"];
             });
         }
 
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (item.startsWith('youtube') || item.startsWith('facebook') || item.startsWith('x') ||
                 item.startsWith('instagram') || item.startsWith('linkedin') || item.startsWith('whatsapp') ||
                 item.startsWith('google') || item.startsWith('reddit')) {
-                if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                if (item === "youtubeThumbnails") {
                     setButtonStateFour(item, item + "Toggle");
                     toggleViewStatusMultiToggle(item, item + "Toggle");
                 } else {
@@ -708,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (currentPlatform) {
                 elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(item => {
-                    if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                    if (item === "youtubeThumbnails") {
                         setButtonStateFour(item, item + "Toggle");
                     } else {
                         setCheckboxState(item, item + "Toggle");
@@ -839,7 +839,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         let state = overrides[statusKey] || 'On';
                         toggleEl.setAttribute('data-state', state);
                     } else if (toggleEl.type === 'checkbox') {
-                        // Booleans use true => hidden (checked)
                         toggleEl.checked = !!overrides[statusKey];
                     }
                 });
