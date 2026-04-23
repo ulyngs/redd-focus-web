@@ -55,6 +55,10 @@
     --modal-overlay: rgba(0, 0, 0, 0.4);
     --modal-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
+    /* Settings / FAQ panel (#faq-dropdown): full-bleed overlay; equal horizontal inset for content */
+    --settings-overlay-padding-x: 1rem;
+    --settings-overlay-padding-y: 0.75rem;
+
     /* Icon colors */
     --icon-color: #71717a;
     --icon-hover: #333;
@@ -1286,7 +1290,6 @@ footer .friction-customisation {
     font-size: 0.9em;
     font-weight: 600;
     color: var(--text-muted);
-    padding-left: 4px;
 }
 
 /* Make the FAQ dropdown behave like a modal */
@@ -1295,23 +1298,28 @@ footer .friction-customisation {
     color: var(--text-secondary);
     background-color: var(--modal-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 0;
     box-shadow: var(--modal-shadow);
-    padding: 10px 8px 20px 18px;
+    box-sizing: border-box;
+    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 1.25rem;
     position: fixed;
-    top: 2px;
-    left: 2px;
-    width: 90%;
-    max-height: 90%;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    /* Cap scroll area at the popup window height (viewport in extension UI) */
+    max-height: 100%;
     overflow-y: auto;
     z-index: 1000;
     transform: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Optional: tighter spacing for the settings rows inside modal */
 #modal-settings .a-toggle,
 #modal-settings .toggle-group.friction-customisation {
-    margin: 8px 4px;
+    margin: 8px 0;
 }
 
 /* Label inside the modal settings row */
@@ -1392,7 +1400,7 @@ footer .friction-customisation {
 .faq-trigger {
     background: none;
     border: none;
-    padding: 10px 4px;
+    padding: 10px 0;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1426,12 +1434,12 @@ footer .friction-customisation {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.25s ease-out, padding 0.25s ease-out;
-    padding: 0 4px;
+    padding: 0;
 }
 
 .faq-item[data-state="open"] .faq-content {
     max-height: 100px;
-    padding: 0 4px 12px 4px;
+    padding: 0 0 12px 0;
 }
 
 .faq-content p {
@@ -1452,7 +1460,7 @@ footer .friction-customisation {
     border-radius: 4px;
     color: var(--text-primary);
     z-index: 1001;
-    margin: -8px -8px 10px auto;
+    margin: calc(-1 * var(--settings-overlay-padding-y)) calc(-1 * var(--settings-overlay-padding-x)) 10px auto;
     display: block;
 }
 
