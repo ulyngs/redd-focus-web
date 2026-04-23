@@ -1544,6 +1544,7 @@ footer .friction-customisation {
 :root {
     --selector-box-size: 16px;
     --selector-gap: 9px;
+    --selector-row-spacing: 9px;
     --selector-font-size: 16px;
     --selector-radius: 3px;
     --selector-rotate-duration: 0.8s;
@@ -1575,11 +1576,12 @@ footer .friction-customisation {
     position: relative;
     padding-left: calc(var(--selector-box-size) + var(--selector-gap));
     min-height: var(--selector-box-size);
-    margin-bottom: 6px;
+    margin-bottom: var(--selector-row-spacing);
     text-align: left;
-    line-height: 1.4;
 }
 
+/* Line box matches checkbox height so label text centers on the control
+   (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
 .hide-checkboxes .a-toggle label,
 .hide-checkboxes .a-toggle .multi-state-label {
     display: inline-block;
@@ -1587,7 +1589,7 @@ footer .friction-customisation {
     padding: 0;
     font-size: var(--selector-font-size);
     color: var(--text-primary);
-    line-height: 1.4;
+    line-height: var(--selector-box-size);
     cursor: pointer;
     vertical-align: top;
 }
