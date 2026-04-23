@@ -754,22 +754,6 @@
                                                 cssToApply = cssSelectors[item + "CssOn"];
                                                 lastAppliedSettings[item] = "visible";
                                             }
-                                        } else if (item === "xTimeline") {
-                                            let isHomeTimeline = window.location.pathname === '/home' ||
-                                                window.location.pathname === '/home/';
-
-                                            if (statusValue === true) {
-                                                if (isHomeTimeline) {
-                                                    cssToApply = cssSelectors[item + "CssOff"];
-                                                    lastAppliedSettings[item] = "hidden";
-                                                } else {
-                                                    cssToApply = cssSelectors[item + "CssOn"];
-                                                    lastAppliedSettings[item] = "visible";
-                                                }
-                                            } else {
-                                                cssToApply = cssSelectors[item + "CssOn"];
-                                                lastAppliedSettings[item] = "visible";
-                                            }
                                         } else {
                                             cssToApply = (statusValue === true) ? cssSelectors[item + "CssOff"] : cssSelectors[item + "CssOn"];
                                             lastAppliedSettings[item] = statusValue === true ? "hidden" : "visible";
@@ -1001,22 +985,6 @@
                                     }
                                 } else {
                                     // User wants feed visible
-                                    cssToApply = cssSelectors[item + "CssOn"];
-                                    lastAppliedSettings[item] = "visible";
-                                }
-                            } else if (item === "xTimeline") {
-                                let isHomeTimeline = window.location.pathname === '/home' ||
-                                    window.location.pathname === '/home/';
-
-                                if (statusValue === true) {
-                                    if (isHomeTimeline) {
-                                        cssToApply = cssSelectors[item + "CssOff"];
-                                        lastAppliedSettings[item] = "hidden";
-                                    } else {
-                                        cssToApply = cssSelectors[item + "CssOn"];
-                                        lastAppliedSettings[item] = "visible";
-                                    }
-                                } else {
                                     cssToApply = cssSelectors[item + "CssOn"];
                                     lastAppliedSettings[item] = "visible";
                                 }
