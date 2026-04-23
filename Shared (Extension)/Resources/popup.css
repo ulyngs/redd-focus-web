@@ -58,6 +58,8 @@
     /* Settings / FAQ panel (#faq-dropdown): full-bleed overlay; equal horizontal inset for content */
     --settings-overlay-padding-x: 1rem;
     --settings-overlay-padding-y: 0.75rem;
+    /* Space between each FAQ question row and its expanded answer (adjust here after shipping) */
+    --faq-question-response-gap: 2px;
 
     /* Icon colors */
     --icon-color: #71717a;
@@ -1292,6 +1294,11 @@ footer .friction-customisation {
     color: var(--text-muted);
 }
 
+/* Tiny gap between the "FAQ" heading and the first accordion row */
+#theme-settings + h3 {
+    margin-bottom: 6px;
+}
+
 /* Make the FAQ dropdown behave like a modal */
 #faq-dropdown {
     text-align: left;
@@ -1301,7 +1308,7 @@ footer .friction-customisation {
     border-radius: 0;
     box-shadow: var(--modal-shadow);
     box-sizing: border-box;
-    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 1.25rem;
+    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 4px;
     position: fixed;
     top: 0;
     left: 0;
@@ -1397,6 +1404,12 @@ footer .friction-customisation {
     border-bottom: none;
 }
 
+/* Bleed FAQ rows to the full #faq-dropdown width so hover spans edge-to-edge */
+#faq-dropdown .faq-item {
+    margin-left: calc(-1 * var(--settings-overlay-padding-x));
+    margin-right: calc(-1 * var(--settings-overlay-padding-x));
+}
+
 .faq-trigger {
     background: none;
     border: none;
@@ -1410,11 +1423,20 @@ footer .friction-customisation {
     font-size: 0.9rem;
     font-family: system-ui;
     color: var(--text-secondary);
+    box-sizing: border-box;
+}
+
+#faq-dropdown .faq-trigger {
+    padding: 10px var(--settings-overlay-padding-x);
 }
 
 .faq-trigger:hover {
     background-color: var(--bg-tertiary);
     border-radius: 4px;
+}
+
+#faq-dropdown .faq-trigger:hover {
+    border-radius: 0;
 }
 
 .faq-chevron {
@@ -1437,9 +1459,14 @@ footer .friction-customisation {
     padding: 0;
 }
 
-.faq-item[data-state="open"] .faq-content {
+#faq-dropdown .faq-content {
+    padding: 0 var(--settings-overlay-padding-x);
+}
+
+#faq-dropdown .faq-item[data-state="open"] .faq-content {
     max-height: 100px;
-    padding: 0 0 12px 0;
+    padding: var(--faq-question-response-gap) var(--settings-overlay-padding-x) 12px
+        var(--settings-overlay-padding-x);
 }
 
 .faq-content p {
