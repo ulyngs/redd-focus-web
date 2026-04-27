@@ -12,6 +12,8 @@ new features:
 
 bug fixes and improvements:
 
+1. Add EULA (End-user License Agreement) onboarding step
+2. Design overhaul and improvements!
 1. Fixed all selectors
 2. Reddit: fixed rendering issue of main and subreddit feeds on reddit on iPad and iOS
 3. Reddit: allowed feed on Reddit's 'popular' page to be hidden
