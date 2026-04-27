@@ -986,8 +986,8 @@ document.addEventListener('DOMContentLoaded', function () {
             trigger.addEventListener("click", function () {
                 const isHidden = content.style.display === "none";
                 content.style.display = isHidden ? "block" : "none";
-                arrowRight.style.display = isHidden ? "none" : "inline-block";
-                arrowDown.style.display = isHidden ? "inline-block" : "none";
+                arrowRight.style.display = isHidden ? "none" : "flex";
+                arrowDown.style.display = isHidden ? "flex" : "none";
             });
         }
 

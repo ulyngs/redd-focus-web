@@ -862,7 +862,9 @@ body.dark-mode #sites-arrow path {
 body.dark-mode #sites-arrow-right path,
 body.dark-mode #sites-arrow-down path,
 body.dark-mode #how-to-arrow-right path,
-body.dark-mode #how-to-arrow-down path {
+body.dark-mode #how-to-arrow-down path,
+body.dark-mode #how-to-arrow-right-not-mobile path,
+body.dark-mode #how-to-arrow-down-not-mobile path {
     fill: var(--icon-color);
 }
 
@@ -898,18 +900,53 @@ body.dark-mode .faq-content p {
     color: var(--text-muted);
 }
 
-/* YouTube previews row uses a chevron instead of a checkbox — drop the
-   checkbox-reserved left padding so the chevron lines up with the left
-   edge of the other rows' checkboxes. Everything else stays as-is. */
-.hide-checkboxes .a-toggle#hide-previews,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile {
-    padding-left: 0;
+/* YouTube preview rows: chevron sits in the same 16px column as selector checkboxes; label uses selector tokens. */
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile {
+    display: flex;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+    display: none;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right svg,
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down svg,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile svg,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
 }
 
 p.previews-text {
-    display: inline;
-    font-style: italic;
-    font-size: 0.95em;
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: var(--selector-font-size);
+    line-height: var(--selector-box-size);
+    font-style: normal;
+    color: var(--text-primary);
 }
 
 p.how-to-description {
@@ -972,8 +1009,8 @@ p.how-to-description {
     }
 
     p.previews-text {
-        display: inline-block !important;
-        margin: 5px 0px 1px 2px !important;
+        display: block !important;
+        margin: 0 !important;
     }
 
     #how-to-description {
