@@ -1,33 +1,28 @@
 new features:
 
-1. introduced dark mode!
-2. redesigned custom-selector, button, and progressive feedback on hidden elements
-3. make google ads highlighting colour more red and account for dark mode on browsers
-4. YouTube: add ability to hide the "You" section in the menu bar
-5. YouTube: thumbnail styling now includes ads and sponsored posts
-6. Facebook: add ability to hide "People you may know" on the feed
-7. Facebook: add ability to hide "Contacts" on right sidebar on desktop
-8. Instagram: add ability to hide suggested posts
-9. Instagram: add ability to hide notification badges
-10. X/Twitter: add ability to hide "Explore" section
-11. WhatsApp Web: add ability to hide "Status", "Channels", and "Communities" tabs
-12. WhatsApp Web: add ability to hide chat profile pictures
-13. Reddit: add ability to hide left and right sidebars on desktop 
-14. Reddit: add ability to hide AI Related Answers/Posts sections on mobile
+1. YouTube: related/up next videos now includes the recommended videos at the end of a video
+2. YouTube: "History" selector now hides watch history in 'You' tabs
+3. Youtube: "Explore" and "More from YouTube" now hide relevant elements in mobile's collapsible sidebar
+4. WhatsApp: added ability to hide archived chats
+5. Facebook: added ability to hide the 'Open app' prompt on mobile 
+6. Facebook: added separate selectors for notifications button and notification badges
+7. Twitter/X: added ability to hide 'News' sections (also hides the news stories in different tabs like 'Sports' and 'Entertainment')
+8. Instagram: desktop website now has selector for the 'Explore' grid, allowing users to just use that for search functionality and avoid distracting Reels/posts
+
 
 bug fixes and improvements:
 
-1. fixed all functionalities
-2. element hiding, reappearing, and renaming works fluidly across all states (session-only, saving as default, auto-save ON)
-3. Instagram: renamed "instagramSuggestions" as "instagramSuggestedFollows" and fixed functionality
-4. YouTube: hiding "Subscriptions" now hides all subscribed-to channels and all buttons related to the Subscriptions
-5. YouTube: fixed issue where "Explore" section wasn't being hidden
-6. YouTube: removed "Entire right sidebar" as functionality replaced by Cinema mode
-7. YouTube: view numbers now hides everywhere 
-7. Facebook: rename "Chat" to "Group chats" to mirror functionality and add "Community chats" to it
-8. Facebook: separate "Stories" and "Reels" into their own toggles and fix functionality
-9. Instagram: "Reels" now hides Reels in feeds ## perhaps look to separate out "Reels in feed" and "Reels tabs"  ## can remove if people find this to be too much
-10. LinkedIn: feed is now hidden everywhere except when viewing a specific post
-11. Reddit: "Feed" now only targets home feed and not community/popular feeds
-12. Reddit: rename "Popular communities" to "Best of Reddit" to mirror functionality and hide entire "Best" section in sidebar
+1. Fixed all selectors
+2. Reddit: fixed rendering issue of main and subreddit feeds on reddit on iPad and iOS
+3. Reddit: allowed feed on Reddit's 'popular' page to be hidden
+4. Reddit: removed "All" button selector the button was removed by Reddit
+5. LinkedIn: fixed all selectors (LinkedIn restructured it's website)
+6. LinkedIn: rename "Notification counts" to "Notification badges" for consistency
+7. YouTube: expanded like numbers, view numbers, account images, and other selectors to include more relevant elements
+8. YouTube: removed Blur and Black as view options for notifications as unecessary
+9. Twitter/X: harden selector for timeline to only hide Tweets and media in 'Media' tab
+10. Twitter/X: rename "Trends" to "Trending" to match current website 
+11. Instagram: fix issue on desktop where suggested follows was hiding account information
+12. Instagram: "Comments" selector now also hides comments in desktop Reels tab and on mobile posts, without hiding user captions
+13. Reddit: removed "Trending topics" selector as depracated and now moved into 'Popular' tab
 

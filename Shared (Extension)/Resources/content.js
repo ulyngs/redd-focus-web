@@ -1,11 +1,32 @@
 (function () {
 
     // --- All helper functions are defined first, making them available to the entire script ---
+    // ReDD design language (light / dark surfaces) — align with design-language/redd-design-tokens.json
+    const REDD = {
+        canvas: '#faf8f5',
+        navy: '#1e2d3e',
+        body: '#2c2c35',
+        muted: '#696977',
+        borderSubtle: '#e1dcd6',
+        teal: '#2a9d8f',
+        tealHover: '#248a7e',
+        card: '#ffffff',
+        tealSoft: '#e5f5f3',
+        dark: {
+            surface: 'rgba(30, 41, 59, 0.96)',
+            text: '#f1f5f9',
+            border: 'rgba(51, 65, 85, 0.8)',
+            teal: '#3dbfb0',
+            tealHover: '#2a9d8f',
+            selectorTipBg: 'rgba(15, 23, 42, 0.98)',
+        },
+    };
 
     const shadowSelectors = {
         "redditPopular": "left-nav-top-section",
-        "redditAll": "left-nav-top-section",
         "redditChat": "left-nav-top-section",
+        // LinkedIn messaging overlay (unread chip) lives under open shadow DOM on this host
+        "linkedinNotifications": "#interop-outlet",
     };
 
     function createStyleElement(some_style_id, some_css) {
@@ -197,11 +218,11 @@
         if (!selectorDisplay) {
             selectorDisplay = document.createElement('div');
             selectorDisplay.style.position = 'fixed';
-            selectorDisplay.style.background = currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.98)' : 'rgba(241, 245, 249, 0.98)';
-            selectorDisplay.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
+            selectorDisplay.style.background = currentTheme === 'dark' ? REDD.dark.selectorTipBg : 'rgba(255, 255, 255, 0.97)';
+            selectorDisplay.style.color = currentTheme === 'dark' ? REDD.dark.text : REDD.navy;
             selectorDisplay.style.padding = '4px 8px';
-            selectorDisplay.style.borderRadius = '6px';
-            selectorDisplay.style.border = currentTheme === 'dark' ? '1px solid #334155' : '1px solid #cbd5e1';
+            selectorDisplay.style.borderRadius = '8px';
+            selectorDisplay.style.border = currentTheme === 'dark' ? `1px solid ${REDD.dark.border}` : `1px solid ${REDD.borderSubtle}`;
             selectorDisplay.style.zIndex = '2147483647';
             selectorDisplay.style.fontSize = '11px';
             selectorDisplay.style.fontFamily = 'monospace';
@@ -224,20 +245,19 @@
             feedbackContainer.style.top = '100px';
             feedbackContainer.style.left = '10px';
             // Use theme colors
-            feedbackContainer.style.background = currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.96)' : 'rgba(255, 255, 255, 0.98)';
-            feedbackContainer.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
+            feedbackContainer.style.background = currentTheme === 'dark' ? REDD.dark.surface : REDD.card;
+            feedbackContainer.style.color = currentTheme === 'dark' ? REDD.dark.text : REDD.navy;
             feedbackContainer.style.padding = '10px 14px';
             feedbackContainer.style.borderRadius = '12px';
 
-            // Add a vibrant top border to match the theme (Blue for Light, Purple for Dark)
-            const accentColor = currentTheme === 'dark' ? '#818cf8' : '#2196F3';
-            feedbackContainer.style.border = currentTheme === 'dark' ? '1px solid rgba(51, 65, 85, 0.8)' : '1px solid rgba(148, 163, 184, 0.4)';
+            const accentColor = currentTheme === 'dark' ? REDD.dark.teal : REDD.teal;
+            feedbackContainer.style.border = currentTheme === 'dark' ? `1px solid ${REDD.dark.border}` : `1px solid ${REDD.borderSubtle}`;
             feedbackContainer.style.borderTop = `3px solid ${accentColor}`;
 
             feedbackContainer.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)';
             feedbackContainer.style.backdropFilter = 'blur(8px)';
             feedbackContainer.style.zIndex = '2147483647';
-            feedbackContainer.style.fontFamily = '"Arial", sans-serif';
+            feedbackContainer.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif';
             feedbackContainer.style.fontSize = '13px';
             feedbackContainer.style.display = 'flex';
             feedbackContainer.style.alignItems = 'center';
@@ -333,20 +353,20 @@
                 button.style.color = '#94a3b8';
                 button.style.borderColor = 'rgba(241, 245, 249, 0.1)';
             } else {
-                button.style.background = 'rgba(15, 23, 42, 0.05)';
-                button.style.color = '#475569';
-                button.style.borderColor = 'rgba(15, 23, 42, 0.1)';
+                button.style.background = 'rgba(30, 45, 62, 0.05)';
+                button.style.color = REDD.muted;
+                button.style.borderColor = 'rgba(30, 45, 62, 0.12)';
             }
         } else {
-            // Primary: Blue in Light, Purple in Dark
+            // Primary: brand teal (Done, etc.)
             if (currentTheme === 'dark') {
-                button.style.background = '#818cf8'; // The Purple
-                button.style.color = '#0f172a';     // Dark text on purple
-                button.style.borderColor = '#818cf8';
-            } else {
-                button.style.background = '#2196F3'; // The Blue
+                button.style.background = REDD.dark.teal;
                 button.style.color = '#ffffff';
-                button.style.borderColor = '#2196F3';
+                button.style.borderColor = REDD.dark.teal;
+            } else {
+                button.style.background = REDD.teal;
+                button.style.color = '#ffffff';
+                button.style.borderColor = REDD.teal;
             }
         }
 
@@ -355,15 +375,15 @@
                 if (currentTheme === 'dark') {
                     button.style.background = 'rgba(241, 245, 249, 0.1)';
                 } else {
-                    button.style.background = 'rgba(15, 23, 42, 0.1)';
+                    button.style.background = 'rgba(30, 45, 62, 0.08)';
                 }
             } else {
                 if (currentTheme === 'dark') {
-                    button.style.background = '#6366f1'; // Hover Purple
-                    button.style.borderColor = '#6366f1';
+                    button.style.background = REDD.dark.tealHover;
+                    button.style.borderColor = REDD.dark.tealHover;
                 } else {
-                    button.style.background = '#1976D2'; // Hover Blue
-                    button.style.borderColor = '#1976D2';
+                    button.style.background = REDD.tealHover;
+                    button.style.borderColor = REDD.tealHover;
                 }
             }
         });
@@ -373,15 +393,15 @@
                 if (currentTheme === 'dark') {
                     button.style.background = 'rgba(241, 245, 249, 0.05)';
                 } else {
-                    button.style.background = 'rgba(15, 23, 42, 0.05)';
+                    button.style.background = 'rgba(30, 45, 62, 0.05)';
                 }
             } else {
                 if (currentTheme === 'dark') {
-                    button.style.background = '#818cf8';
-                    button.style.borderColor = '#818cf8';
+                    button.style.background = REDD.dark.teal;
+                    button.style.borderColor = REDD.dark.teal;
                 } else {
-                    button.style.background = '#2196F3';
-                    button.style.borderColor = '#2196F3';
+                    button.style.background = REDD.teal;
+                    button.style.borderColor = REDD.teal;
                 }
             }
         });
@@ -405,7 +425,7 @@
         messageSpan.style.fontWeight = '500';
         messageSpan.style.flex = '1';
         messageSpan.style.minWidth = '100px';
-        messageSpan.style.color = currentTheme === 'dark' ? '#f1f5f9' : '#0f172a';
+        messageSpan.style.color = currentTheme === 'dark' ? REDD.dark.text : REDD.navy;
         messageSpan.style.marginRight = showUndo ? '6px' : '4px';
         messageSpan.style.whiteSpace = 'nowrap';
         feedbackContainer.appendChild(messageSpan);
@@ -672,7 +692,7 @@
                         let currentSetting = platformIsOn ? (lastAppliedSettings[item] || "default") : "platformDisabled";
 
                         // For multi-state elements, we need to get the actual stored value
-                        if (platformIsOn && (item === "youtubeThumbnails" || item === "youtubeNotifications")) {
+                        if (platformIsOn && item === "youtubeThumbnails") {
                             chrome.storage.sync.get(itemStatusKey, function (itemResult) {
                                 let statusValue = itemResult[itemStatusKey];
                                 if (Object.prototype.hasOwnProperty.call(sessionOverrides, itemStatusKey)) {
@@ -707,7 +727,7 @@
                                         }
                                         let cssToApply;
 
-                                        if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                                        if (item === "youtubeThumbnails") {
                                             let state = statusValue || "On";
                                             cssToApply = cssSelectors[item + "Css" + state];
                                             lastAppliedSettings[item] = state;
@@ -735,6 +755,7 @@
                                         } else if (item === "redditFeed") {
                                             // Only hide feed on home page, not on subreddits or other pages
                                             let isHomePage = window.location.pathname === '/' ||
+                                                window.location.pathname.startsWith('/r/popular') ||
                                                 (window.location.pathname === '/' && window.location.search.includes('feed=home'));
 
                                             if (statusValue === true) {
@@ -939,13 +960,15 @@
                         chrome.storage.sync.get(itemStatusKey, function (itemResult) {
                             let statusValue = itemResult[itemStatusKey];
                             let cssToApply;
-                            if (item === "youtubeThumbnails" || item === "youtubeNotifications") {
+                            if (item === "youtubeThumbnails") {
                                 let state = statusValue || "On";
                                 cssToApply = cssSelectors[item + "Css" + state];
                                 lastAppliedSettings[item] = state;
                             } else if (item === "linkedinFeed") {
                                 // 3-state logic: Hidden (Main Feed) / Focused (View Post) / Visible (User ON)
-                                let isMainFeed = window.location.pathname === '/' || window.location.pathname === '/feed' || window.location.pathname === '/feed/';
+                                let isMainFeed = window.location.pathname === '/' ||
+                                    window.location.pathname === '/feed' ||
+                                    window.location.pathname === '/feed/';
                                 let isViewingPost = window.location.pathname.includes('/feed/update') || window.location.search.includes('highlightedUpdateUrn');
 
                                 if (statusValue === true) {
@@ -966,6 +989,7 @@
                             } else if (item === "redditFeed") {
                                 // Only hide feed on home page, not on subreddits or other pages
                                 let isHomePage = window.location.pathname === '/' ||
+                                    window.location.pathname.startsWith('/r/popular') ||
                                     (window.location.pathname === '/' && window.location.search.includes('feed=home'));
 
                                 if (statusValue === true) {

@@ -1,67 +1,111 @@
 /* ========================================
    Theme Variables - Light Mode (default)
+   ReDD design language (design-language/redd-design-tokens.json)
    ======================================== */
 :root {
     color-scheme: light;
 
+    /* Canonical palette (portable tokens) */
+    --redd-canvas: #faf8f5;
+    --redd-subtle: #f1eee9;
+    --redd-card: #ffffff;
+    --redd-navy: #1e2d3e;
+    --redd-body: #2c2c35;
+    --redd-muted: #696977;
+    --redd-border-subtle: #e1dcd6;
+    --redd-teal: #2a9d8f;
+    --redd-teal-hover: #248a7e;
+    --redd-teal-soft: #e5f5f3;
+    --redd-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08);
+
     /* Background colors */
-    --bg-primary: #F5F5F5;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f1f1f1;
-    --bg-hover: #ddd;
-    --bg-input: #ffffff;
+    --bg-primary: var(--redd-canvas);
+    --bg-secondary: var(--redd-card);
+    --bg-tertiary: var(--redd-subtle);
+    --bg-hover: #e8e4de;
+    --bg-input: var(--redd-card);
 
     /* Text colors */
-    --text-primary: #333333;
-    --text-secondary: rgb(69, 69, 69);
-    --text-muted: gray;
-    --text-subtle: darkgray;
-    --text-link: rgb(69, 69, 69);
-    --text-link-hover: #333333;
+    --text-primary: var(--redd-navy);
+    --text-secondary: var(--redd-body);
+    --text-muted: var(--redd-muted);
+    --text-subtle: #8a8a96;
+    --text-link: var(--redd-body);
+    --text-link-hover: var(--redd-navy);
 
     /* Border colors */
-    --border-color: #e4e4e7;
-    --border-hover: #d4d4d8;
-    --border-input: #e4e4e7;
-    --border-focus: #3b82f6;
+    --border-color: var(--redd-border-subtle);
+    --border-hover: #d4cfc8;
+    --border-input: var(--redd-border-subtle);
+    --border-focus: var(--redd-teal);
 
-    /* Accent colors */
-    --accent-primary: #2196F3;
-    --accent-hover: #1976D2;
-    --accent-secondary: #3498DB;
+    /* Accent colors (primary actions = teal) */
+    --accent-primary: var(--redd-teal);
+    --accent-hover: var(--redd-teal-hover);
+    --accent-secondary: #4a90e2;
 
     /* Button colors */
-    --btn-primary-bg: #1a1a1a;
+    --btn-primary-bg: var(--redd-teal);
     --btn-primary-text: #ffffff;
-    --btn-primary-hover: #2d2d2d;
-    --btn-secondary-bg: rgb(228, 228, 231);
-    --btn-secondary-text: rgb(24, 24, 27);
-    --btn-secondary-hover: rgb(232, 232, 234);
+    --btn-primary-hover: var(--redd-teal-hover);
+    --btn-secondary-bg: var(--redd-subtle);
+    --btn-secondary-text: var(--redd-navy);
+    --btn-secondary-hover: #e8e4de;
+
+    /* "Hide custom element": calm surface + teal ring; .active uses accent */
+    --btn-custom-hide-bg: var(--redd-subtle);
+    --btn-custom-hide-border: var(--redd-teal);
+    --btn-custom-hide-text: var(--redd-navy);
+    --btn-custom-hide-hover-bg: var(--redd-teal-soft);
 
     /* Toggle/Checkbox colors */
-    --toggle-bg: #ccc;
-    --toggle-bg-checked: #2196F3;
-    --checkbox-bg: #FFF;
-    --checkbox-border: #aaa;
-    --checkbox-check-color: #CB22ED;
+    --toggle-bg: #c8c4be;
+    --toggle-bg-checked: var(--redd-teal);
+    --checkbox-bg: #ffffff;
+    --checkbox-border: var(--redd-border-subtle);
+    --checkbox-check-color: var(--redd-teal);
 
     /* Footer */
-    --footer-bg: #F5F5F5;
-    --footer-text: #9b9fa7;
-    --footer-border: rgb(207, 206, 206);
+    --footer-bg: var(--redd-canvas);
+    --footer-text: var(--redd-muted);
+    --footer-border: var(--redd-border-subtle);
 
-    /* Modal/Dialog */
-    --modal-bg: white;
-    --modal-overlay: rgba(0, 0, 0, 0.4);
-    --modal-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Modal/Dialog — match popup canvas (settings #faq-dropdown); edit dialog uses same */
+    --modal-bg: var(--bg-primary);
+    --modal-overlay: rgba(30, 45, 62, 0.35);
+    --modal-shadow: var(--redd-shadow-card);
+
+    /* Settings / FAQ panel (#faq-dropdown): full-bleed overlay; equal horizontal inset for content */
+    --settings-overlay-padding-x: 1rem;
+    --settings-overlay-padding-y: 0.75rem;
+    /* Space between each FAQ question row and its expanded answer (adjust here after shipping) */
+    --faq-question-response-gap: 2px;
+    /* Space below the “FAQ” title before the first question row (see also .faq-trigger padding) */
+    --settings-faq-title-below: 1px;
+    /* Nudge the “Theme:” label on the y-axis (negative = up). Does not move the dropdown. */
+    --settings-theme-label-nudge-y: -1px;
+    /* Nudge the current value text inside the theme button (see #themeSelectTriggerText; negative = up) */
+    --settings-theme-trigger-text-nudge-y: -1px;
+    /* Space between the preview row title and the expanded how-to line (#how-to-description, #how-to-description-not-mobile) */
+    --previews-how-to-gap: 6px;
 
     /* Icon colors */
-    --icon-color: #71717a;
-    --icon-hover: #333;
+    --icon-color: var(--redd-muted);
+    --icon-hover: var(--redd-navy);
 
     /* Misc */
-    --dropdown-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    --message-bg: white;
+    --dropdown-shadow: 0 8px 24px rgba(30, 45, 62, 0.1);
+    --message-bg: var(--redd-canvas);
+
+    /* EULA / ReDD 2FA popup parity (legal onboarding) */
+    --link-color: var(--accent-secondary);
+    --link-hover: var(--accent-primary);
+    --shadow-sm: var(--redd-shadow-card);
+    --shadow-md: 0 8px 24px rgba(30, 45, 62, 0.1);
+    --radius-sm: 8px;
+    --radius-card: 12px;
+    --font-heading: Georgia, "Times New Roman", serif;
+    --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 /* ========================================
@@ -89,28 +133,32 @@
     --border-color: #334155;
     --border-hover: #475569;
     --border-input: #334155;
-    --border-focus: #818cf8;
+    --border-focus: #3dbfb0;
 
-    /* Accent colors */
-    --accent-primary: #818cf8;
-    --accent-hover: #6366f1;
-    --accent-secondary: #60a5fa;
+    /* Accent colors (teal on dark) */
+    --accent-primary: #3dbfb0;
+    --accent-hover: #2a9d8f;
+    --accent-secondary: #4a90e2;
 
     /* Button colors */
-    --btn-primary-bg: #818cf8;
-    --btn-primary-text: #0f172a;
-    --btn-primary-hover: #6366f1;
+    --btn-primary-bg: #2a9d8f;
+    --btn-primary-text: #ffffff;
+    --btn-primary-hover: #248a7e;
     --btn-secondary-bg: #334155;
     --btn-secondary-text: #fafafa;
     --btn-secondary-hover: #475569;
 
+    --btn-custom-hide-bg: #334155;
+    --btn-custom-hide-border: #3dbfb0;
+    --btn-custom-hide-text: #e2e8f0;
+    --btn-custom-hide-hover-bg: #3d4f63;
+
     /* Toggle/Checkbox colors */
     --toggle-bg: #475569;
-    --toggle-bg-checked: #818cf8;
+    --toggle-bg-checked: #2a9d8f;
     --checkbox-bg: #3d4b5f;
-    /* Lighter blue-purple for better theme sync */
     --checkbox-border: #475569;
-    --checkbox-check-color: #a78bfa;
+    --checkbox-check-color: #ffffff;
 
     /* Footer */
     --footer-bg: #1e293b;
@@ -129,16 +177,20 @@
     /* Misc */
     --dropdown-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.4);
     --message-bg: #1e293b;
+
+    --link-color: #89b9f2;
+    --link-hover: #72cfc3;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Contrast adjustment for settings button in dark mode */
+/* Settings (gear): same surface as “Hide custom element”; no border */
 .dark-mode #help-icon-btn {
-    background-color: var(--bg-tertiary);
-    border-color: var(--border-color);
+    background-color: var(--btn-custom-hide-bg);
 }
 
 .dark-mode #help-icon-btn:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--btn-custom-hide-hover-bg);
 }
 
 .dark-mode #help-icon-btn svg {
@@ -157,14 +209,62 @@ body {
     min-width: 300px;
     min-height: 150px;
     margin: 0;
-    padding: 0.5rem 1rem 3rem 1rem;
-    font-family: system-ui;
+    /* Top = same as #faq-dropdown (settings) vertical inset; L/R/bottom unchanged */
+    padding: var(--settings-overlay-padding-y) 1rem 3rem 1rem;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
     text-align: center;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
     box-sizing: border-box;
     transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Section labels (e.g. “Watch page”) + settings panel headings: Arial, caps, bold, body text colour */
+.toggle-group h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 5px 0;
+}
+
+#faq-dropdown h3,
+#accountabilityHeading,
+#appearance-heading {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+#accountabilityHeading .accountability-on,
+#accountabilityHeading #currentSiteNameModal {
+    text-transform: none;
+    font-weight: 400;
+    letter-spacing: normal;
+    color: var(--text-primary);
+}
+
+#currentSiteInfo strong {
+    font-family: inherit;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+#payment-status p {
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-primary);
+}
+
+/* Native checkboxes (e.g. Google options): teal accent, tick stays readable */
+input[type="checkbox"] {
+    accent-color: var(--accent-primary);
 }
 
 body.modal-open {
@@ -200,13 +300,8 @@ body.modal-open {
 }
 
 .toggle-group {
-    margin: 0px 0px 15px 0px;
-    padding: 0px;
-}
-
-.toggle-group h2 {
-    font-size: 0.95em;
-    margin: 0px 0px 5px 0px;
+    margin: 0 0 15px 0;
+    padding: 0;
 }
 
 a:visited {
@@ -341,72 +436,6 @@ input:checked+.slider:before {
     transform: translateX(12px);
 }
 
-.multi-state-checkbox {
-    cursor: pointer;
-    display: inline-block;
-    position: relative;
-    width: 17px;
-    height: 18px;
-    top: -4px;
-    left: 0px;
-    margin-right: 2px;
-    border: 1px solid var(--checkbox-border);
-    padding: 0;
-    background-color: var(--checkbox-bg);
-    border-radius: 3px;
-}
-
-.multi-state-label {
-    vertical-align: middle;
-}
-
-.multi-state-checkbox[data-state="On"]::after {
-    content: '';
-}
-
-.multi-state-checkbox[data-state="Off"]::after {
-    content: '\01F6AB';
-    position: absolute;
-    top: -1px;
-    left: -2px;
-    font-size: 14px;
-}
-
-.multi-state-checkbox[data-state="Blur"]::after {
-    content: '\2601';
-    position: absolute;
-    top: -1px;
-    left: 0px;
-    font-size: 16px;
-    color: var(--text-muted);
-}
-
-.multi-state-checkbox[data-state="Black"]::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 15px;
-    height: 16px;
-    background-color: black;
-}
-
-/* Add this to popup.css to apply the loading animation to multi-state buttons */
-.multi-state-checkbox.loading::after {
-    content: '\21BB';
-    /* Unicode for clockwise arrow circle (loading spinner) */
-    font-size: 12px;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: loading 0.8s linear;
-    opacity: 1;
-    transform: scale(1) rotate(0);
-}
-
 .slider.round {
     border-radius: 34px;
 }
@@ -471,26 +500,25 @@ input:checked+.slider:before {
     background-color: var(--accent-hover);
 }
 
-/* Style for Add more elements button */
+/* Hide custom element: subtle surface; selection mode = filled teal; no border */
 button[id$="AddElementButton"] {
-    background-color: var(--btn-secondary-bg);
+    background-color: var(--btn-custom-hide-bg);
+    color: var(--btn-custom-hide-text);
     border: none;
-    color: var(--btn-secondary-text);
-    padding: 7px;
+    padding: 7px 10px;
     text-align: center;
-    font-size: 0.8em;
-    font-weight: 500;
-    border-radius: 6px;
-    /* Consistency with help-icon-btn */
+    font-size: 0.95em;
+    font-weight: 600;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 button[id$="AddElementButton"]:hover {
-    background-color: var(--btn-secondary-hover);
+    background-color: var(--btn-custom-hide-hover-bg);
 }
 
-/* Active/Selection Mode state */
 button[id$="AddElementButton"].active {
     background-color: var(--accent-primary);
     color: #ffffff;
@@ -501,115 +529,22 @@ button[id$="AddElementButton"].active:hover {
 }
 
 .dark-mode button[id$="AddElementButton"] {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
+    background-color: var(--btn-custom-hide-bg);
+    color: var(--btn-custom-hide-text);
+    border: none;
 }
 
 .dark-mode button[id$="AddElementButton"]:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--btn-custom-hide-hover-bg);
 }
 
 .dark-mode button[id$="AddElementButton"].active {
     background-color: var(--accent-primary);
-    color: var(--btn-primary-text);
-    border-color: var(--accent-primary);
+    color: #ffffff;
 }
 
 .dark-mode button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
-}
-
-/****** Checkboxes ******/
-.hide-checkboxes [type="checkbox"]:not(:checked),
-.hide-checkboxes [type="checkbox"]:checked {
-    position: absolute;
-    left: 0;
-    opacity: 0.01;
-}
-
-.hide-checkboxes [type="checkbox"]:not(:checked)+label,
-.hide-checkboxes [type="checkbox"]:checked+label {
-    position: relative;
-    padding-left: 24px;
-    line-height: 1.4;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.hide-checkboxes [type="checkbox"]:not(:checked)+label:before,
-.hide-checkboxes [type="checkbox"]:checked+label:before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 15px;
-    height: 15px;
-    border: 1px solid var(--checkbox-border);
-    background: var(--checkbox-bg);
-    border-radius: .2em;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 rgba(203, 34, 237, .2);
-    -webkit-transition: all .275s;
-    transition: all .275s;
-}
-
-.hide-checkboxes [type="checkbox"]:not(:checked)+label:after,
-.hide-checkboxes [type="checkbox"]:checked+label:after {
-    content: '\01F6AB';
-    position: absolute;
-    top: 9px;
-    left: 0px;
-    font-size: 12px;
-    color: var(--checkbox-check-color);
-    line-height: 0;
-    -webkit-transition: all .9s;
-    transition: all .9s;
-}
-
-.hide-checkboxes [type="checkbox"].loading+label:before {
-    content: '\21BB';
-    /* Unicode for clockwise arrow circle (loading spinner) */
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: loading 0.8s linear infinite;
-    border: none;
-    background: none;
-    box-shadow: none;
-}
-
-
-.hide-checkboxes [type="checkbox"]:not(:checked)+label:after {
-    opacity: 0;
-    -webkit-transform: scale(0) rotate(45deg);
-    transform: scale(0) rotate(45deg);
-}
-
-.hide-checkboxes [type="checkbox"]:checked+label:after {
-    opacity: 1;
-    -webkit-transform: scale(1) rotate(0);
-    transform: scale(1) rotate(0);
-}
-
-.hide-checkboxes [type="checkbox"]:disabled:not(:checked)+label:before,
-.hide-checkboxes [type="checkbox"]:disabled:checked+label:before {
-    box-shadow: none;
-    border-color: #bbb;
-    background-color: #e9e9e9;
-}
-
-.hide-checkboxes [type="checkbox"]:disabled:checked+label:after {
-    color: #777;
-}
-
-.hide-checkboxes [type="checkbox"]:disabled+label {
-    color: #aaa;
-}
-
-.hide-checkboxes [type="checkbox"]:checked:focus+label:before,
-.hide-checkboxes [type="checkbox"]:not(:checked):focus+label:before {
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
 }
 
 .ordinary-checkbox [type="checkbox"] {
@@ -678,24 +613,90 @@ button[id$="AddElementButton"].active:hover {
 
 .shadcn-input:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.28);
 }
 
 body.dark-mode .shadcn-input:focus {
-    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35);
+    box-shadow: 0 0 0 2px rgba(61, 191, 176, 0.35);
 }
 
 /* Select dropdown styling */
 select.shadcn-input {
     cursor: pointer;
     padding-right: 28px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23696977' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
 }
 
 body.dark-mode select.shadcn-input {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* Theme control: same closed look as native select; options use FAQ row hover (var(--bg-tertiary)) */
+.theme-select-root {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.theme-select-root .theme-select-trigger {
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23696977' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    text-align: left;
+    font-family: inherit;
+}
+
+#themeSelectTriggerText {
+    display: inline-block;
+    transform: translateY(var(--settings-theme-trigger-text-nudge-y));
+}
+
+.dark-mode .theme-select-root .theme-select-trigger {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.theme-select-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 4px);
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: var(--dropdown-shadow);
+    z-index: 1101;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.theme-select-option {
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    line-height: 1.2rem;
+    transition: background-color 0.15s ease;
+}
+
+.theme-select-option:hover,
+.theme-select-option:focus {
+    outline: none;
+    background-color: var(--bg-tertiary);
+}
+
+.theme-select-option[aria-selected="true"] {
+    background-color: var(--bg-tertiary);
 }
 
 .a-toggle.friction-toggle {
@@ -864,17 +865,10 @@ body.dark-mode #sites-arrow path {
 body.dark-mode #sites-arrow-right path,
 body.dark-mode #sites-arrow-down path,
 body.dark-mode #how-to-arrow-right path,
-body.dark-mode #how-to-arrow-down path {
+body.dark-mode #how-to-arrow-down path,
+body.dark-mode #how-to-arrow-right-not-mobile path,
+body.dark-mode #how-to-arrow-down-not-mobile path {
     fill: var(--icon-color);
-}
-
-body.dark-mode button[id$="AddElementButton"] {
-    background-color: var(--btn-secondary-bg);
-    color: var(--btn-secondary-text);
-}
-
-body.dark-mode button[id$="AddElementButton"]:hover {
-    background-color: var(--btn-secondary-hover);
 }
 
 body.dark-mode #faq-dropdown {
@@ -883,8 +877,10 @@ body.dark-mode #faq-dropdown {
     color: var(--text-secondary);
 }
 
-body.dark-mode #faq-dropdown h3 {
-    color: var(--text-muted);
+body.dark-mode #faq-dropdown h3,
+body.dark-mode #accountabilityHeading,
+body.dark-mode #appearance-heading {
+    color: var(--text-primary);
 }
 
 body.dark-mode .faq-item {
@@ -907,14 +903,62 @@ body.dark-mode .faq-content p {
     color: var(--text-muted);
 }
 
+/* YouTube preview rows: chevron sits in the same 16px column as selector checkboxes; label uses selector tokens. */
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile {
+    display: flex;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+    display: none;
+}
+
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right svg,
+.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down svg,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile svg,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
 p.previews-text {
-    display: inline;
-    font-style: italic;
-    font-size: 0.95em;
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: var(--selector-font-size);
+    line-height: var(--selector-box-size);
+    font-style: normal;
+    color: var(--text-primary);
 }
 
 p.how-to-description {
     font-size: 0.95em;
+}
+
+#how-to-description,
+#how-to-description-not-mobile {
+    margin-top: var(--previews-how-to-gap);
 }
 
 #editSelectorModal textarea {
@@ -935,24 +979,8 @@ p.how-to-description {
         padding: 10px;
     }
 
-    .multi-state-checkbox[data-state="Black"]::after {
-        content: '';
-        position: absolute;
-        top: 0px !important;
-        left: 0px !important;
-        width: 15px;
-        height: 16px;
-        background-color: black;
-    }
-
     .platform-ipad-mac {
         display: none;
-    }
-
-    .multi-state-checkbox[data-state="Blur"]::after,
-    .multi-state-checkbox[data-state="Black"]::after {
-        top: -2px;
-        left: -3px;
     }
 
     body {
@@ -989,16 +1017,15 @@ p.how-to-description {
     }
 
     p.previews-text {
-        display: inline-block !important;
-        margin: 5px 0px 1px 2px !important;
+        display: block !important;
+        margin: 0 !important;
     }
 
     #how-to-description {
         font-size: 0.9em;
         padding: 8px;
         font-style: italic;
-        margin: 0px;
-        max-width: 90%;
+        margin: var(--previews-how-to-gap) 0 0 0;
     }
 }
 
@@ -1008,9 +1035,6 @@ p.how-to-description {
         display: none;
     }
 }
-
-/****** Checkboxes Styling (Legacy removed) ******/
-
 
 /* Style for refresh button */
 #youtubeRefreshCustomElements,
@@ -1113,7 +1137,7 @@ p.how-to-description {
 
 .selector-input:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
 }
 
 .edit-dialog-overlay {
@@ -1143,9 +1167,12 @@ p.how-to-description {
 
 .edit-dialog h3 {
     margin: 0 0 16px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
 }
 
 .edit-dialog-field {
@@ -1188,7 +1215,7 @@ p.how-to-description {
     border-radius: 6px;
     font-size: 14px;
     box-sizing: border-box;
-    font-family: system-ui;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
     background-color: var(--bg-input);
     color: var(--text-primary);
 }
@@ -1273,14 +1300,22 @@ p.how-to-description {
 
 /* --- Edit Button Hover State --- */
 .edit-symbol:hover {
-    background-color: #dbeafe;
-    /* Light blue hover */
-    border-color: #93c5fd;
+    background-color: var(--redd-teal-soft, #e5f5f3);
+    border-color: var(--accent-primary);
 }
 
 .edit-symbol:hover svg {
-    stroke: #2563eb;
-    /* Blue stroke on hover */
+    stroke: var(--accent-primary);
+}
+
+/* Dark: same cell hover as “Hide custom element”; icon stays teal (not indigo from --accent-primary) */
+.dark-mode .edit-symbol:hover {
+    background-color: var(--btn-custom-hide-hover-bg);
+    border-color: var(--redd-teal);
+}
+
+.dark-mode .edit-symbol:hover svg {
+    stroke: var(--redd-teal);
 }
 
 /* --- Save Button Hover State --- */
@@ -1369,8 +1404,7 @@ footer .footer-bottom-row {
     align-items: center;
     /* Center icon and text vertically */
     text-decoration: none;
-    color: #555;
-    /* Or your preferred link color */
+    color: var(--text-muted);
     font-size: 0.9em;
 }
 
@@ -1387,13 +1421,11 @@ footer .footer-bottom-row {
     /* Space between icon and text */
     vertical-align: middle;
     /* Helps alignment in some cases */
-    fill: black;
-    /* Match icon color to text or use brand color */
+    fill: var(--text-muted);
 }
 
 .footer-bottom-row .suggestions-link a:hover .github-icon {
-    fill: #007bff;
-    /* Change icon color on hover */
+    fill: var(--accent-primary);
 }
 
 /* Ensure footer settings stay above */
@@ -1433,9 +1465,9 @@ footer .friction-customisation {
 
 #help-icon-btn {
     padding: 4px;
-    background-color: var(--btn-secondary-bg);
-    border-color: var(--btn-secondary-bg);
-    border-radius: 6px;
+    background-color: var(--btn-custom-hide-bg);
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -1447,16 +1479,7 @@ footer .friction-customisation {
 }
 
 #help-icon-btn:hover {
-    background-color: var(--btn-secondary-hover);
-    border-color: var(--btn-secondary-hover);
-}
-
-#faq-dropdown h3 {
-    margin: 0.5em 0 0 0;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: var(--text-muted);
-    padding-left: 4px;
+    background-color: var(--btn-custom-hide-hover-bg);
 }
 
 /* Make the FAQ dropdown behave like a modal */
@@ -1465,55 +1488,130 @@ footer .friction-customisation {
     color: var(--text-secondary);
     background-color: var(--modal-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 0;
     box-shadow: var(--modal-shadow);
-    padding: 10px 8px 20px 18px;
+    box-sizing: border-box;
+    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 4px;
     position: fixed;
-    top: 2px;
-    left: 2px;
-    width: 90%;
-    max-height: 90%;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    /* Cap scroll area at the popup window height (viewport in extension UI) */
+    max-height: 100%;
     overflow-y: auto;
     z-index: 1000;
     transform: none;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Optional: tighter spacing for the settings rows inside modal */
-#modal-settings .a-toggle,
+/* Settings dropdown: pre-FAQ. Row gaps = selector tokens; 15px top = same as between popup .toggle-groups (e.g. Watch page → General). */
+#accountabilityHeading {
+    margin: 0.5em 0 5px 0;
+}
+
+/* A bit more than 15px section gap: #modal-settings rows align to 16px checkboxes, so the gap to this title reads better from body text */
+#appearance-heading {
+    margin: 19px 0 5px 0;
+}
+
+#theme-settings + h3 {
+    margin: 15px 0 var(--settings-faq-title-below) 0;
+}
+
+#modal-settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--selector-row-spacing);
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
 #modal-settings .toggle-group.friction-customisation {
-    margin: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--selector-row-spacing);
+    margin: 0;
 }
 
-/* Label inside the modal settings row */
-#modal-settings .friction-toggle label {
-    font-size: 1rem;
-    font-weight: 500;
-    /* Consistency */
+#modal-settings .toggle-group.friction-customisation .a-toggle {
+    margin: 0;
 }
 
-/* Make 'Delay' and 'Remember settings' checkboxes/labels consistent */
+/* Theme row: label vertically centered to default shadcn trigger; reset friction-toggle margins on this id */
+#theme-settings.a-toggle.friction-toggle {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#theme-settings {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--selector-gap);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    box-sizing: border-box;
+    font-size: var(--selector-font-size);
+}
+
+#theme-settings-label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--text-primary);
+    letter-spacing: normal;
+    text-transform: none;
+    flex: 0 0 auto;
+    transform: translateY(var(--settings-theme-label-nudge-y));
+}
+
+#themeSelectRoot {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+#modal-settings > .a-toggle.friction-toggle {
+    position: relative;
+    min-height: var(--selector-box-size);
+    margin: 0;
+    text-align: left;
+}
+
 #modal-settings #frictionToggle,
 #modal-settings #rememberSettingsToggle {
     appearance: none;
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
-    min-height: 16px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    min-width: var(--selector-box-size);
+    min-height: var(--selector-box-size);
+    margin: 0;
     background-color: var(--checkbox-bg);
     border: 1px solid var(--checkbox-border);
     border-radius: 4px;
-    margin-right: 8px;
-    vertical-align: middle;
     cursor: pointer;
-    position: relative;
     transition: all 0.2s ease;
-    transform: none;
     overflow: visible;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    z-index: 1;
 }
 
 #modal-settings #frictionToggle:checked,
@@ -1539,17 +1637,20 @@ footer .friction-customisation {
 .dark-mode #modal-settings #frictionToggle:checked::after,
 .dark-mode #modal-settings #rememberSettingsToggle:checked::after {
     border-color: var(--btn-primary-text);
-    /* Use dark text on purple background */
 }
 
 #modal-settings label[for="frictionToggle"],
 #modal-settings label[for="rememberSettingsToggle"] {
-    font-size: 1rem;
+    display: block;
+    padding-left: calc(var(--selector-box-size) + var(--selector-gap));
+    line-height: var(--selector-box-size);
+    font-size: var(--selector-font-size);
     font-weight: 500;
-    /* Consistency */
-    vertical-align: middle;
+    margin: 0;
+    cursor: pointer;
+    color: var(--text-primary);
+    box-sizing: border-box;
 }
-
 
 .faq-item {
     border-bottom: 1px solid var(--border-color);
@@ -1559,10 +1660,16 @@ footer .friction-customisation {
     border-bottom: none;
 }
 
+/* Bleed FAQ rows to the full #faq-dropdown width so hover spans edge-to-edge */
+#faq-dropdown .faq-item {
+    margin-left: calc(-1 * var(--settings-overlay-padding-x));
+    margin-right: calc(-1 * var(--settings-overlay-padding-x));
+}
+
 .faq-trigger {
     background: none;
     border: none;
-    padding: 10px 4px;
+    padding: 10px 0;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -1570,13 +1677,22 @@ footer .friction-customisation {
     text-align: left;
     cursor: pointer;
     font-size: 0.9rem;
-    font-family: system-ui;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
     color: var(--text-secondary);
+    box-sizing: border-box;
+}
+
+#faq-dropdown .faq-trigger {
+    padding: 10px var(--settings-overlay-padding-x);
 }
 
 .faq-trigger:hover {
     background-color: var(--bg-tertiary);
     border-radius: 4px;
+}
+
+#faq-dropdown .faq-trigger:hover {
+    border-radius: 0;
 }
 
 .faq-chevron {
@@ -1596,12 +1712,17 @@ footer .friction-customisation {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.25s ease-out, padding 0.25s ease-out;
-    padding: 0 4px;
+    padding: 0;
 }
 
-.faq-item[data-state="open"] .faq-content {
+#faq-dropdown .faq-content {
+    padding: 0 var(--settings-overlay-padding-x);
+}
+
+#faq-dropdown .faq-item[data-state="open"] .faq-content {
     max-height: 100px;
-    padding: 0 4px 12px 4px;
+    padding: var(--faq-question-response-gap) var(--settings-overlay-padding-x) 12px
+        var(--settings-overlay-padding-x);
 }
 
 .faq-content p {
@@ -1622,7 +1743,7 @@ footer .friction-customisation {
     border-radius: 4px;
     color: var(--text-primary);
     z-index: 1001;
-    margin: -8px -8px 10px auto;
+    margin: calc(-1 * var(--settings-overlay-padding-y)) calc(-1 * var(--settings-overlay-padding-x)) 10px auto;
     display: block;
 }
 
@@ -1707,13 +1828,517 @@ footer .friction-customisation {
 }
 
 
-/* Add this to popup.css to define the loading animation */
-@keyframes loading {
-    0% {
-        transform: rotate(0deg);
-    }
+/* =========================================================================
+   SELECTOR CHECKBOXES
+   Unified styling for the per-element selector toggles.
+   Applies to both:
+     - Single-state: <input type="checkbox"> + <label>   (show / hide)
+     - Multi-state:  <button class="multi-state-checkbox" data-state="…">
+                     + <label class="multi-state-label"> (On / Off / Blur / Black)
+   Scope: only rows inside `.toggle-group.hide-checkboxes .a-toggle`.
+   ========================================================================= */
 
-    100% {
-        transform: rotate(360deg);
-    }
+/* --- Tokens --------------------------------------------------------------- */
+:root {
+    --selector-box-size: 16px;
+    --selector-gap: 9px;
+    --selector-row-spacing: 9px;
+    --selector-font-size: 16px;
+    --selector-radius: 3px;
+    --selector-rotate-duration: 0.8s;
+    --selector-icon-fade: 0.25s;
+    --selector-loading-duration: 800ms;
+    /* (must match the JS setTimeout in popup.js) */
+
+    /* Icon fill colors (ban = red, blur = grey, black = black, refresh = teal) */
+    --selector-color-ban: #dc2626;
+    --selector-color-blur: var(--text-muted);
+    --selector-color-black: #000;
+    --selector-color-refresh: var(--accent-primary);
+
+    /* Icon shapes — used as CSS masks so the fill color follows the theme. */
+    --selector-icon-ban: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='4.93' y1='4.93' x2='19.07' y2='19.07'/></svg>");
+    --selector-icon-blur: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M22 14.5a4.5 4.5 0 0 1-4.5 4.5H7a5 5 0 0 1-1.18-9.86A7 7 0 0 1 19 10a4.5 4.5 0 0 1 3 4.5z'/></svg>");
+    --selector-icon-black: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='black'/></svg>");
+    --selector-icon-refresh: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12a9 9 0 0 1 15.3-6.36L21 8'/><path d='M21 3v5h-5'/><path d='M21 12a9 9 0 0 1-15.3 6.36L3 16'/><path d='M8 16H3v5'/></svg>");
+}
+
+.dark-mode {
+    --selector-color-ban: #f87171;
+    --selector-color-blur: var(--text-muted);
+    --selector-color-black: #000;
+}
+
+/* --- Selector spacing (row layout) --------------------------------------- */
+.hide-checkboxes .a-toggle {
+    position: relative;
+    padding-left: calc(var(--selector-box-size) + var(--selector-gap));
+    min-height: var(--selector-box-size);
+    margin-bottom: var(--selector-row-spacing);
+    text-align: left;
+}
+
+/* Line box matches checkbox height so label text centers on the control
+   (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
+.hide-checkboxes .a-toggle label,
+.hide-checkboxes .a-toggle .multi-state-label {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    font-size: var(--selector-font-size);
+    color: var(--text-primary);
+    line-height: var(--selector-box-size);
+    cursor: pointer;
+    vertical-align: top;
+}
+
+/* Native checkbox is hidden but remains clickable over the box area. */
+.hide-checkboxes .a-toggle input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* --- The box ------------------------------------------------------------- */
+/* Both types use ::before for the box. For multi-state, the <button> itself
+   is just a transparent click target positioned over the box area; its
+   ::before is the visible box (so rotation doesn't affect the ::after icon). */
+.hide-checkboxes .a-toggle input[type="checkbox"] + label::before,
+.hide-checkboxes .a-toggle .multi-state-checkbox::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--checkbox-border);
+    background-color: var(--checkbox-bg);
+    border-radius: var(--selector-radius);
+    transform-origin: 50% 50%;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Multi-state button frame: transparent, 16×16 hit target positioned at 0,0
+   of the row so its ::before and ::after line up with the single-state box. */
+.hide-checkboxes .a-toggle .multi-state-checkbox {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    outline: none;
+}
+
+/* --- Selector icons ------------------------------------------------------ */
+/* Single layer, perfectly centered inside the box. Size + color are set
+   per-icon below so each icon fills the box at the right visual weight. */
+.hide-checkboxes .a-toggle input[type="checkbox"] + label::after,
+.hide-checkboxes .a-toggle .multi-state-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--selector-box-size);
+    height: var(--selector-box-size);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Steady-state icon: Ban (red) — single-state checked + multi-state "Off" */
+.hide-checkboxes .a-toggle input[type="checkbox"]:checked + label::after,
+.hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Off"]::after {
+    -webkit-mask-image: var(--selector-icon-ban);
+    mask-image: var(--selector-icon-ban);
+    -webkit-mask-size: 90% 90%;
+    mask-size: 90% 90%;
+    background-color: var(--selector-color-ban);
+    opacity: 1;
+}
+
+/* Steady-state icon: Blur (grey cloud, edge-to-edge) */
+.hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Blur"]::after {
+    -webkit-mask-image: var(--selector-icon-blur);
+    mask-image: var(--selector-icon-blur);
+    -webkit-mask-size: 115% 115%;
+    mask-size: 115% 115%;
+    background-color: var(--selector-color-blur);
+    opacity: 1;
+}
+
+/* Steady-state icon: Black (filled black square, edge-to-edge) */
+.hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Black"]::after {
+    -webkit-mask-image: var(--selector-icon-black);
+    mask-image: var(--selector-icon-black);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    background-color: var(--selector-color-black);
+    opacity: 1;
+}
+
+/* data-state="On" and unchecked single-state have no icon (opacity 0 base). */
+
+/* --- Selector animations ------------------------------------------------- */
+/* While `.loading` is present (added on click for ~800ms in popup.js):
+     1. The box (::before) rotates 360° on its own axis.
+     2. A subtle purple halo glows briefly around the box.
+     3. The destination icon (::after) fades in over the same duration and
+        rotates in lockstep with the box (all icons: ban, cloud, black, refresh).
+*/
+.hide-checkboxes .a-toggle input[type="checkbox"].loading + label::before,
+.hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
+    animation: selector-rotate var(--selector-rotate-duration) linear;
+    box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
+}
+
+.dark-mode .hide-checkboxes .a-toggle input[type="checkbox"].loading + label::before,
+.dark-mode .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
+    box-shadow: 0 0 0 6px rgba(61, 191, 176, 0.28);
+}
+
+/* Fade + spin: same duration/timing as ::before so icon and box stay aligned. */
+.hide-checkboxes .a-toggle input[type="checkbox"].loading + label::after,
+.hide-checkboxes .a-toggle .multi-state-checkbox.loading::after {
+    animation: selector-rotate var(--selector-rotate-duration) linear,
+        selector-icon-fade-in var(--selector-rotate-duration) ease-out both;
+    transform-origin: 50% 50%;
+}
+
+/* Exception: the refresh icon appears ONLY when transitioning to the
+   normal "show" state (unchecked single-state, or multi-state data-state="On"). */
+.hide-checkboxes .a-toggle input[type="checkbox"].loading:not(:checked) + label::after,
+.hide-checkboxes .a-toggle .multi-state-checkbox.loading[data-state="On"]::after {
+    -webkit-mask-image: var(--selector-icon-refresh);
+    mask-image: var(--selector-icon-refresh);
+    -webkit-mask-size: 90% 90%;
+    mask-size: 90% 90%;
+    background-color: var(--selector-color-refresh);
+}
+
+/* --- Focus ring (accessibility) ------------------------------------------ */
+.hide-checkboxes .a-toggle input[type="checkbox"]:focus-visible + label::before,
+.hide-checkboxes .a-toggle .multi-state-checkbox:focus-visible::before {
+    box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
+}
+
+.dark-mode .hide-checkboxes .a-toggle input[type="checkbox"]:focus-visible + label::before,
+.dark-mode .hide-checkboxes .a-toggle .multi-state-checkbox:focus-visible::before {
+    box-shadow: 0 0 0 6px rgba(61, 191, 176, 0.28);
+}
+
+/* --- Keyframes ----------------------------------------------------------- */
+@keyframes selector-rotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes selector-icon-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ========================================
+   EULA (ReDD 2FA parity, full popup viewport)
+   Extension popups: do NOT use 100vh here — it often resolves to a tiny height and
+   collapses the window. Use a solid min-height so the host sizes the popup.
+   ======================================== */
+html.eula-gate-active,
+html:has(body.eula-gate-active) {
+    min-height: 520px;
+}
+
+body.eula-gate-active {
+    padding: 0;
+    min-height: 520px;
+    box-sizing: border-box;
+}
+
+.eula-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100%;
+    background-color: var(--bg-primary);
+    z-index: 10001;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.eula-overlay .screen-container {
+    padding: 24px 24px 88px;
+    text-align: left;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.eula-screen-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
+    max-width: 400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.eula-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 20px 18px;
+    margin: 8px 0 0;
+    text-align: left;
+}
+
+/* EULA: custom checkbox (same pattern as .hide-checkboxes; checkmark = agree, 22px to match EULA) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox {
+    --eula-checkbox-size: 22px;
+    --eula-checkbox-gap: 12px;
+    --eula-checkbox-radius: 8px;
+    --eula-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    position: relative;
+    display: block;
+    min-height: var(--eula-checkbox-size);
+    padding-left: calc(var(--eula-checkbox-size) + var(--eula-checkbox-gap));
+    margin: 0;
+    font-size: 1.1em;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+/* Native input hidden; remains focusable and clickable (selector pattern) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.eula-card .eula-checkbox-label {
+    display: block;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.eula-card .eula-checkbox-text {
+    display: block;
+    cursor: inherit;
+}
+
+/* Box (::before) — match selector row tokens */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] + .eula-checkbox-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    box-sizing: border-box;
+    border: 1px solid var(--checkbox-border);
+    background-color: var(--checkbox-bg);
+    border-radius: var(--eula-checkbox-radius);
+    transform-origin: 50% 50%;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: none;
+}
+
+/* Checkmark (::after) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] + .eula-checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    box-sizing: border-box;
+    -webkit-mask-image: var(--eula-icon-check);
+    mask-image: var(--eula-icon-check);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 76% 76%;
+    mask-size: 76% 76%;
+    background-color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:checked + .eula-checkbox-label::before {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:checked + .eula-checkbox-label::after {
+    opacity: 1;
+}
+
+/* Keyboard focus: ring on drawn box (selector-style) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:focus-visible + .eula-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3);
+}
+
+.dark-mode .eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:focus-visible + .eula-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(61, 191, 176, 0.32);
+}
+
+/* In-body legal links: body colour; hover = teal (ReDD 2FA EULA: var(--link-hover)) */
+.eula-link,
+.eula-link:visited {
+    color: currentColor;
+    font-weight: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease;
+}
+
+.eula-link:hover,
+.eula-link:visited:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+}
+
+.eula-note {
+    margin: 14px 0 0;
+    font-size: 1.05em;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+.eula-note .eula-link {
+    /* inherits italic + muted from <em> parent */
+    font-weight: 400;
+}
+
+.eula-card .btn-primary {
+    margin-top: 16px;
+}
+
+.eula-card .btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.eula-overlay .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px 12px;
+}
+
+.eula-overlay .top-bar-no-border {
+    border-bottom: none;
+    padding: 0 0 8px;
+}
+
+.eula-overlay .top-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.9em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--text-primary);
+}
+
+.eula-overlay .top-title-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.eula-overlay .top-logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.eula-overlay .top-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.eula-overlay .top-title-group-screen {
+    margin-bottom: 10px;
+}
+
+.eula-overlay .assurance-copy {
+    margin: auto 0 0 0;
+    padding-top: 32px;
+    font-size: 0.82em;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.eula-overlay .assurance-copy a {
+    color: currentColor;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.eula-overlay .assurance-copy a:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+}
+
+.eula-overlay .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: var(--font-body);
+    color: var(--btn-primary-text);
+    background-color: var(--btn-primary-bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.eula-overlay .btn-primary:hover:not(:disabled) {
+    background-color: var(--btn-primary-hover);
+    transform: none;
+    box-shadow: var(--shadow-sm);
 }

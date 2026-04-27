@@ -32,17 +32,17 @@ const elementsThatCanBeHidden = [
     "youtubeShorts", "youtubeSubscriptions", "youtubeYou", "youtubeHistory", "youtubeExplore", "youtubeMore",
     "youtubeRelated", /* "youtubeSidebar", */ "youtubeComments", "youtubeViews", "youtubeLikes", "youtubeSubscribers",
     // X (Twitter)
-    "xExplore", "xNotifications", "xTrends", "xFollow", "xTimeline",
+    "xExplore", "xNotifications", "xNews", "xTrends", "xFollow", "xTimeline",
     // Facebook
-    "facebookStories", "facebookReels", "facebookSuggestedFollows", "facebookFeed", "facebookContacts", "facebookGroupChats", "facebookNotifications", "facebookSponsored",
+    "facebookStories", "facebookReels", "facebookSuggestedFollows", "facebookFeed", "facebookContacts", "facebookGroupChats", "facebookNotifications", "facebookNotificationBadges", "facebookOpenApp",
     // LinkedIn
     "linkedinNews", "linkedinNotifications", "linkedinFeed",
     // Instagram
     "instagramFeed", "instagramSearchFeed", "instagramStories", "instagramMutedStories", "instagramExplore", "instagramReels", "instagramSuggestedFollows", "instagramComments", "instagramNotificationBadges",
     // WhatsApp
-    "whatsappPreview", "whatsappProfilePictures", "whatsappStatus", "whatsappChannels", "whatsappCommunities", "whatsappNotificationPrompt",
+    "whatsappPreview", "whatsappStatus", "whatsappChannels", "whatsappCommunities", "whatsappArchived", "whatsappProfilePictures", "whatsappNotificationPrompt",
     // Google
     "googleBackground", "googleAIOverview",
     // Reddit
-    "redditFeed", "redditLeftSidebar", "redditPopular", "redditAll", "redditRecent", "redditCommunities", "redditNotification", "redditChat", "redditTrending", "redditRelated", "redditBestOf", "redditRightSidebar"
+    "redditFeed", "redditLeftSidebar", "redditPopular", "redditRecent", "redditCommunities", "redditNotification", "redditChat", "redditRelated", "redditBestOf", "redditRightSidebar"
 ];

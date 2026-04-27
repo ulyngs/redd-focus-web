@@ -10,6 +10,45 @@
 </head>
 
 <body>
+    <div id="eula-overlay" class="eula-overlay" style="display: none;">
+        <div class="screen-container eula-screen-container">
+            <div class="top-bar top-bar-no-border">
+                <div class="top-title-group top-title-group-screen">
+                    <img class="top-logo" src="images/icon-128.png" width="28" height="28" alt="ReDD Focus" />
+                    <div class="top-title-block">
+                        <h2 class="top-title">Welcome to ReDD Focus</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eula-card">
+                <div class="eula-checkbox-row eula-custom-checkbox">
+                    <input type="checkbox" id="eula-agree-checkbox">
+                    <label for="eula-agree-checkbox" class="eula-checkbox-label">
+                        <span class="eula-checkbox-text">
+                            I agree to the ReDD Project's
+                            <a href="https://reddfocus.org/eula" target="_blank" rel="noopener noreferrer" class="eula-link">End User
+                                License Agreement</a>
+                        </span>
+                    </label>
+                </div>
+                <p class="eula-note">
+                    <em>Note that we do not collect any user data, as per our
+                    <a href="https://reddfocus.org/privacy-policy" target="_blank" rel="noopener noreferrer"
+                        class="eula-link">Privacy Policy</a>.</em>
+                </p>
+                <button type="button" id="eula-continue-btn" class="btn-primary" disabled>Continue</button>
+            </div>
+
+            <p class="assurance-copy">
+                <em>ReDD Focus is developed by the <a href="https://reddfocus.org" target="_blank" rel="noopener noreferrer" class="eula-link">Reduce Digital Distraction Project</a>, in collaboration with
+                researchers at the University of Oxford and University of Maastricht. The ReDD Project is a
+                not-for-profit creating insights &amp; open-source digital focus tools for everyone to thrive in
+                the digital world.</em>
+            </p>
+        </div>
+    </div>
+
     <div id="faq-overlay" style="display: none;"></div>
 
     <!-- Error Prompt -->
@@ -32,7 +71,7 @@
     <!-- Delay Overlay -->
     <div id="delay-content" style="display: none;">
         <p id="delay-message"></p>
-        <img src="/images/calm.svg" class="breathing" />
+        <img src="images/calm.svg" class="breathing" alt="" />
         <p class="delay-time-wrapper"><span id="delay-time"></span></p>
     </div>
 
@@ -58,7 +97,7 @@
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
-                <h3 id="accountabilityHeading">ACCOUNTABILITY on <span id="currentSiteNameModal"></span></h3>
+                <h3 id="accountabilityHeading">ACCOUNTABILITY <span class="accountability-on">on</span> <span id="currentSiteNameModal"></span></h3>
                 <div id="modal-settings">
                     <div class="a-toggle friction-toggle">
                         <input type="checkbox" id="rememberSettingsToggle" name="rememberSettingsToggle" checked>
@@ -85,14 +124,20 @@
                     </div>
                 </div>
                 <h3 id="appearance-heading">APPEARANCE</h3>
-                <div id="theme-settings" class="a-toggle friction-toggle" style="margin: 8px 4px;">
-                    <label for="themeSelect"
-                        style="font-size: 1rem; font-weight: 600; margin-right: 8px;">Theme:</label>
-                    <select id="themeSelect" class="shadcn-input" style="width: auto; min-width: 100px;">
-                        <option value="system">Auto</option>
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                    </select>
+                <div id="theme-settings" class="a-toggle friction-toggle">
+                    <label id="theme-settings-label" for="themeSelectTrigger">Theme:</label>
+                    <div class="theme-select-root" id="themeSelectRoot">
+                        <button type="button" id="themeSelectTrigger" class="shadcn-input theme-select-trigger"
+                            aria-haspopup="listbox" aria-expanded="false" aria-controls="themeSelectMenu"
+                            style="width: auto; min-width: 100px;">
+                            <span id="themeSelectTriggerText">Auto</span>
+                        </button>
+                        <ul id="themeSelectMenu" class="theme-select-menu" role="listbox" hidden>
+                            <li role="option" tabindex="-1" class="theme-select-option" data-value="system">Auto</li>
+                            <li role="option" tabindex="-1" class="theme-select-option" data-value="light">Light</li>
+                            <li role="option" tabindex="-1" class="theme-select-option" data-value="dark">Dark</li>
+                        </ul>
+                    </div>
                 </div>
                 <h3>FAQ</h3>
                 <div class="faq-item">
@@ -105,7 +150,7 @@
                         </svg>
                     </button>
                     <div class="faq-content">
-                        <p style="margin: 6px 0 0 0;">
+                        <p>
                             Works on
                             <a href="https://www.youtube.com" target="_blank">youtube.com</a>,
                             <a href="https://www.facebook.com" target="_blank">facebook.com</a>,
@@ -222,11 +267,11 @@
                 <div class="toggle-group hide-checkboxes">
                     <h2>Home page</h2>
                     <div class="a-toggle platform-iphone" id="hide-previews">
-                        <div id="how-to-arrow-right" style="display: inline-block;"><svg width="12px" height="12px"
+                        <div id="how-to-arrow-right"><svg width="12px" height="12px"
                                 viewBox="0 0 1200 1200">
                                 <path d="m360 1170-90-91.199 478.8-478.8-478.8-478.8 90-91.199 570 570z" />
                             </svg></div>
-                        <div id="how-to-arrow-down" style="display: none;"><svg width="12px" height="12px"
+                        <div id="how-to-arrow-down"><svg width="12px" height="12px"
                                 viewBox="0 0 1200 1200">
                                 <path
                                     d="m652.1 915.27 526.35-524.55c28.742-30.539 28.742-77.246 0-105.99-28.742-28.742-77.246-28.742-105.99 0l-472.46 472.46-472.46-472.46c-30.539-28.742-77.246-28.742-105.99 0-28.742 28.742-28.742 75.449 0 105.99l524.55 524.55c30.539 28.742 77.246 28.742 105.99 0z"
@@ -237,11 +282,11 @@
                             untick 'Video previews'</p>
                     </div>
                     <div class="a-toggle platform-ipad-mac" id="hide-previews-not-mobile">
-                        <div id="how-to-arrow-right-not-mobile" style="display: inline-block;"><svg width="12px"
+                        <div id="how-to-arrow-right-not-mobile"><svg width="12px"
                                 height="12px" viewBox="0 0 1200 1200">
                                 <path d="m360 1170-90-91.199 478.8-478.8-478.8-478.8 90-91.199 570 570z" />
                             </svg></div>
-                        <div id="how-to-arrow-down-not-mobile" style="display: none;"><svg width="12px" height="12px"
+                        <div id="how-to-arrow-down-not-mobile"><svg width="12px" height="12px"
                                 viewBox="0 0 1200 1200">
                                 <path
                                     d="m652.1 915.27 526.35-524.55c28.742-30.539 28.742-77.246 0-105.99-28.742-28.742-77.246-28.742-105.99 0l-472.46 472.46-472.46-472.46c-30.539-28.742-77.246-28.742-105.99 0-28.742 28.742-28.742 75.449 0 105.99l524.55 524.55c30.539 28.742 77.246 28.742 105.99 0z"
@@ -280,8 +325,9 @@
                 <div class="toggle-group hide-checkboxes">
                     <h2>General</h2>
                     <div class="a-toggle platform-ipad-mac">
-                        <button class="multi-state-checkbox" id="youtubeNotificationsToggle" data-state="On"></button>
-                        <label class="multi-state-label" for="youtubeNotificationsToggle">Notifications</label>
+                        <input class="hide-checkbox" type="checkbox" id="youtubeNotificationsToggle"
+                            name="youtubeNotificationsToggle">
+                        <label for="youtubeNotificationsToggle">Notifications</label>
                     </div>
                     <div class="a-toggle">
                         <button class="multi-state-checkbox" id="youtubeThumbnailsToggle" data-state="On"></button>
@@ -346,11 +392,15 @@
                     </div>
                     <div class="a-toggle">
                         <input type="checkbox" id="facebookNotificationsToggle" name="facebookNotificationsToggle">
-                        <label for="facebookNotificationsToggle">Notification count</label>
+                        <label for="facebookNotificationsToggle">Notifications</label>
                     </div>
-                    <div class="a-toggle platform-ipad-mac">
-                        <input type="checkbox" id="facebookSponsoredToggle" name="facebookSponsoredToggle">
-                        <label for="facebookSponsoredToggle">Sponsored</label>
+                    <div class="a-toggle">
+                        <input type="checkbox" id="facebookNotificationBadgesToggle" name="facebookNotificationBadgesToggle">
+                        <label for="facebookNotificationBadgesToggle">Notification badges</label>
+                    </div>
+                    <div class="a-toggle platform-iphone">
+                        <input type="checkbox" id="facebookOpenAppToggle" name="facebookOpenAppToggle">
+                        <label for="facebookOpenAppToggle">Open app prompt</label>
                     </div>
                 </div>
             </div>
@@ -371,8 +421,12 @@
                         <label for="xNotificationsToggle">Notifications</label>
                     </div>
                     <div class="a-toggle platform-ipad-mac">
+                        <input type="checkbox" id="xNewsToggle" name="xNewsToggle">
+                        <label for="xNewsToggle">News</label>
+                    </div>
+                    <div class="a-toggle platform-ipad-mac">
                         <input type="checkbox" id="xTrendsToggle" name="xTrendsToggle">
-                        <label for="xTrendsToggle">Trends</label>
+                        <label for="xTrendsToggle">Trending</label>
                     </div>
                     <div class="a-toggle platform-ipad-mac">
                         <input type="checkbox" id="xFollowToggle" name="xFollowToggle">
@@ -408,7 +462,7 @@
                         <input type="checkbox" id="instagramExploreToggle" name="instagramExploreToggle">
                         <label for="instagramExploreToggle">Explore</label>
                     </div>
-                    <div class="a-toggle platform-iphone">
+                    <div class="a-toggle">
                         <input type="checkbox" id="instagramSearchFeedToggle" name="instagramSearchFeedToggle">
                         <label for="instagramSearchFeedToggle">Grid on explore page</label>
                     </div>
@@ -450,7 +504,7 @@
                     </div>
                     <div class="a-toggle">
                         <input type="checkbox" id="linkedinNotificationsToggle" name="linkedinNotificationsToggle">
-                        <label for="linkedinNotificationsToggle">Notification counts</label>
+                        <label for="linkedinNotificationsToggle">Notification badges</label>
                     </div>
                 </div>
             </div>
@@ -465,10 +519,6 @@
                     <div class="a-toggle">
                         <input type="checkbox" id="redditFeedToggle" name="redditFeedToggle">
                         <label for="redditFeedToggle">Feed</label>
-                    </div>
-                    <div class="a-toggle">
-                        <input type="checkbox" id="redditTrendingToggle" name="redditTrendingToggle">
-                        <label for="redditTrendingToggle">Trending topics</label>
                     </div>
                     <div class="a-toggle platform-iphone">
                         <input type="checkbox" id="redditRelatedToggle" name="redditRelatedToggle">
@@ -493,10 +543,6 @@
                     <div class="a-toggle">
                         <input type="checkbox" id="redditPopularToggle" name="redditPopularToggle">
                         <label for="redditPopularToggle">Popular</label>
-                    </div>
-                    <div class="a-toggle">
-                        <input type="checkbox" id="redditAllToggle" name="redditAllToggle">
-                        <label for="redditAllToggle">All</label>
                     </div>
                     <div class="a-toggle">
                         <input type="checkbox" id="redditRecentToggle" name="redditRecentToggle">
@@ -529,10 +575,6 @@
                         <label for="whatsappPreviewToggle">Message previews</label>
                     </div>
                     <div class="a-toggle platform-ipad-mac">
-                        <input type="checkbox" id="whatsappProfilePicturesToggle" name="whatsappProfilePicturesToggle">
-                        <label for="whatsappProfilePicturesToggle">Profile pictures</label>
-                    </div>
-                    <div class="a-toggle platform-ipad-mac">
                         <input type="checkbox" id="whatsappStatusToggle" name="whatsappStatusToggle">
                         <label for="whatsappStatusToggle">Status</label>
                     </div>
@@ -543,6 +585,14 @@
                     <div class="a-toggle platform-ipad-mac">
                         <input type="checkbox" id="whatsappCommunitiesToggle" name="whatsappCommunitiesToggle">
                         <label for="whatsappCommunitiesToggle">Communities</label>
+                    </div>
+                    <div class="a-toggle platform-ipad-mac">
+                        <input type="checkbox" id="whatsappArchivedToggle" name="whatsappArchivedToggle">
+                        <label for="whatsappArchivedToggle">Archived chats</label>
+                    </div>
+                    <div class="a-toggle platform-ipad-mac">
+                        <input type="checkbox" id="whatsappProfilePicturesToggle" name="whatsappProfilePicturesToggle">
+                        <label for="whatsappProfilePicturesToggle">Profile pictures</label>
                     </div>
                     <div class="a-toggle platform-ipad-mac">
                         <input type="checkbox" id="whatsappNotificationPromptToggle"
