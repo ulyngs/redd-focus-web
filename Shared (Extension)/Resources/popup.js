@@ -50,12 +50,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // Listen for system theme changes
         systemDarkModeQuery.addEventListener('change', handleSystemThemeChange);
 
+        const THEME_LABELS = { system: 'Auto', light: 'Light', dark: 'Dark' };
+
         /**
-         * Initialize theme from storage and set up the theme selector
+         * Initialize theme from storage and set up the theme selector (custom list: option hover matches FAQ rows)
          */
         function setupTheme() {
-            const themeSelect = document.getElementById('themeSelect');
-            if (!themeSelect) return;
+            const themeRoot = document.getElementById('themeSelectRoot');
+            const themeTrigger = document.getElementById('themeSelectTrigger');
+            const themeTriggerText = document.getElementById('themeSelectTriggerText');
+            const themeMenu = document.getElementById('themeSelectMenu');
+            if (!themeRoot || !themeTrigger || !themeTriggerText || !themeMenu) return;
 
             // Detect mobile/tablet devices
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
@@ -72,18 +77,70 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            let currentThemeValue = 'system';
+
+            function setTriggerLabel(value) {
+                themeTriggerText.textContent = THEME_LABELS[value] || THEME_LABELS.system;
+            }
+
+            function syncOptionSelection() {
+                themeMenu.querySelectorAll('[role="option"]').forEach(function (opt) {
+                    const selected = opt.getAttribute('data-value') === currentThemeValue;
+                    opt.setAttribute('aria-selected', selected ? 'true' : 'false');
+                });
+            }
+
+            function closeThemeMenu() {
+                themeMenu.hidden = true;
+                themeTrigger.setAttribute('aria-expanded', 'false');
+            }
+
+            function openThemeMenu() {
+                themeMenu.hidden = false;
+                themeTrigger.setAttribute('aria-expanded', 'true');
+                syncOptionSelection();
+            }
+
             // Load saved theme preference
             chrome.storage.sync.get('themePreference', function (result) {
-                const savedTheme = result.themePreference || 'system';
-                themeSelect.value = savedTheme;
-                applyTheme(savedTheme);
+                currentThemeValue = result.themePreference || 'system';
+                setTriggerLabel(currentThemeValue);
+                applyTheme(currentThemeValue);
             });
 
-            // Handle theme change
-            themeSelect.addEventListener('change', function () {
-                const selectedTheme = themeSelect.value;
-                chrome.storage.sync.set({ themePreference: selectedTheme });
-                applyTheme(selectedTheme);
+            themeTrigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const expanded = themeTrigger.getAttribute('aria-expanded') === 'true';
+                if (expanded) {
+                    closeThemeMenu();
+                } else {
+                    openThemeMenu();
+                }
+            });
+
+            themeMenu.querySelectorAll('[role="option"]').forEach(function (option) {
+                option.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    currentThemeValue = option.getAttribute('data-value') || 'system';
+                    chrome.storage.sync.set({ themePreference: currentThemeValue });
+                    applyTheme(currentThemeValue);
+                    setTriggerLabel(currentThemeValue);
+                    syncOptionSelection();
+                    closeThemeMenu();
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!themeRoot.contains(e.target)) {
+                    closeThemeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && themeTrigger.getAttribute('aria-expanded') === 'true') {
+                    closeThemeMenu();
+                    themeTrigger.focus();
+                }
             });
         }
 
