@@ -147,6 +147,75 @@ document.addEventListener('DOMContentLoaded', function () {
         // Setup theme immediately
         setupTheme();
 
+        // ========================================
+        // EULA (ReDD 2FA parity: revision + storage.local)
+        // ========================================
+        const EULA_STORAGE_KEY = 'reddfocus_eula';
+        const CURRENT_EULA_REVISION = 1;
+
+        function showEulaOverlayThen(onAccept) {
+            const eulaOverlay = document.getElementById('eula-overlay');
+            if (!eulaOverlay) {
+                onAccept();
+                return;
+            }
+            const errorContainer = document.getElementById('error-prompt');
+            const popupContainer = document.getElementById('popup-content');
+            const reviewPrompt = document.getElementById('reviewPrompt');
+            const messageContainer = document.getElementById('delay-content');
+            const saveFooter = document.getElementById('save-controls');
+            if (errorContainer) errorContainer.style.display = 'none';
+            if (popupContainer) popupContainer.style.display = 'none';
+            if (reviewPrompt) reviewPrompt.style.display = 'none';
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+                messageContainer.classList.remove('show');
+            }
+            if (saveFooter) saveFooter.style.display = 'none';
+            const foot = document.querySelector('footer');
+            if (foot) foot.style.display = 'none';
+            document.body.classList.add('eula-gate-active');
+            document.documentElement.classList.add('eula-gate-active');
+            eulaOverlay.style.display = 'block';
+            const checkbox = document.getElementById('eula-agree-checkbox');
+            const continueBtn = document.getElementById('eula-continue-btn');
+            if (checkbox) checkbox.checked = false;
+            if (continueBtn) continueBtn.disabled = true;
+
+            function onCheckboxChange() {
+                if (continueBtn) continueBtn.disabled = !checkbox || !checkbox.checked;
+            }
+            if (checkbox) {
+                checkbox.addEventListener('change', onCheckboxChange);
+            }
+            if (!continueBtn) {
+                onAccept();
+                return;
+            }
+            continueBtn.addEventListener('click', function onContinue() {
+                if (!checkbox || !checkbox.checked) return;
+                continueBtn.removeEventListener('click', onContinue);
+                if (checkbox) checkbox.removeEventListener('change', onCheckboxChange);
+                const originalText = continueBtn.textContent;
+                continueBtn.disabled = true;
+                continueBtn.textContent = 'Continuing...';
+                const toSet = {};
+                toSet[EULA_STORAGE_KEY] = {
+                    acceptedRevision: CURRENT_EULA_REVISION,
+                    acceptedAt: Date.now()
+                };
+                chrome.storage.local.set(toSet, function () {
+                    eulaOverlay.style.display = 'none';
+                    document.body.classList.remove('eula-gate-active');
+                    document.documentElement.classList.remove('eula-gate-active');
+                    if (foot) foot.style.display = '';
+                    continueBtn.textContent = originalText;
+                    onAccept();
+                });
+            });
+        }
+
+        function runMain() {
         /*// Check payment status when popup opens"
         checkPaymentStatus();
 
@@ -1020,6 +1089,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log('Session selectors changed, updating list:', message.selectors);
                     updateCustomElementsList(currentSiteIdentifier, message.selectors || []);
                 }
+            }
+        });
+        }
+
+        chrome.storage.local.get(EULA_STORAGE_KEY, function (result) {
+            const data = result[EULA_STORAGE_KEY];
+            if (data && data.acceptedRevision === CURRENT_EULA_REVISION) {
+                runMain();
+            } else {
+                showEulaOverlayThen(runMain);
             }
         });
     }

@@ -10,6 +10,45 @@
 </head>
 
 <body>
+    <div id="eula-overlay" class="eula-overlay" style="display: none;">
+        <div class="screen-container eula-screen-container">
+            <div class="top-bar top-bar-no-border">
+                <div class="top-title-group top-title-group-screen">
+                    <img class="top-logo" src="images/icon-128.png" width="28" height="28" alt="ReDD Focus" />
+                    <div class="top-title-block">
+                        <h2 class="top-title">Welcome to ReDD Focus</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eula-card">
+                <div class="eula-checkbox-row eula-custom-checkbox">
+                    <input type="checkbox" id="eula-agree-checkbox">
+                    <label for="eula-agree-checkbox" class="eula-checkbox-label">
+                        <span class="eula-checkbox-text">
+                            I agree to the ReDD Project's
+                            <a href="https://reddfocus.org/eula" target="_blank" rel="noopener noreferrer" class="eula-link">End User
+                                License Agreement</a>
+                        </span>
+                    </label>
+                </div>
+                <p class="eula-note">
+                    <em>Note that we do not collect any user data, as per our
+                    <a href="https://reddfocus.org/privacy-policy" target="_blank" rel="noopener noreferrer"
+                        class="eula-link">Privacy Policy</a>.</em>
+                </p>
+                <button type="button" id="eula-continue-btn" class="btn-primary" disabled>Continue</button>
+            </div>
+
+            <p class="assurance-copy">
+                <em>ReDD Focus is developed by the <a href="https://reddfocus.org" target="_blank" rel="noopener noreferrer" class="eula-link">Reduce Digital Distraction Project</a>, in collaboration with
+                researchers at the University of Oxford and University of Maastricht. The ReDD Project is a
+                not-for-profit creating insights &amp; open-source digital focus tools for everyone to thrive in
+                the digital world.</em>
+            </p>
+        </div>
+    </div>
+
     <div id="faq-overlay" style="display: none;"></div>
 
     <!-- Error Prompt -->
@@ -32,7 +71,7 @@
     <!-- Delay Overlay -->
     <div id="delay-content" style="display: none;">
         <p id="delay-message"></p>
-        <img src="/images/calm.svg" class="breathing" />
+        <img src="images/calm.svg" class="breathing" alt="" />
         <p class="delay-time-wrapper"><span id="delay-time"></span></p>
     </div>
 

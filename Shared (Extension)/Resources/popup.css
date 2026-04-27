@@ -88,6 +88,16 @@
     /* Misc */
     --dropdown-shadow: 0 8px 24px rgba(30, 45, 62, 0.1);
     --message-bg: var(--redd-canvas);
+
+    /* EULA / ReDD 2FA popup parity (legal onboarding) */
+    --link-color: var(--accent-secondary);
+    --link-hover: var(--accent-primary);
+    --shadow-sm: var(--redd-shadow-card);
+    --shadow-md: 0 8px 24px rgba(30, 45, 62, 0.1);
+    --radius-sm: 8px;
+    --radius-card: 12px;
+    --font-heading: Georgia, "Times New Roman", serif;
+    --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 /* ========================================
@@ -159,6 +169,11 @@
     /* Misc */
     --dropdown-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.4);
     --message-bg: #1e293b;
+
+    --link-color: #89b9f2;
+    --link-hover: #72cfc3;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* Settings: same shell as “Hide custom element” (teal border + subtle fill); icon stroke unchanged */
@@ -1906,4 +1921,290 @@ footer .friction-customisation {
 @keyframes selector-icon-fade-in {
     from { opacity: 0; }
     to   { opacity: 1; }
+}
+
+/* ========================================
+   EULA (ReDD 2FA parity, full popup viewport)
+   Extension popups: do NOT use 100vh here — it often resolves to a tiny height and
+   collapses the window. Use a solid min-height so the host sizes the popup.
+   ======================================== */
+html.eula-gate-active,
+html:has(body.eula-gate-active) {
+    min-height: 520px;
+}
+
+body.eula-gate-active {
+    padding: 0;
+    min-height: 520px;
+    box-sizing: border-box;
+}
+
+.eula-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100%;
+    background-color: var(--bg-primary);
+    z-index: 10001;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.eula-overlay .screen-container {
+    padding: 24px 24px 88px;
+    text-align: left;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.eula-screen-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
+    max-width: 400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.eula-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 20px 18px;
+    margin: 8px 0 0;
+    text-align: left;
+}
+
+/* EULA: custom checkbox (same pattern as .hide-checkboxes; checkmark = agree, 22px to match EULA) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox {
+    --eula-checkbox-size: 22px;
+    --eula-checkbox-gap: 12px;
+    --eula-checkbox-radius: 8px;
+    --eula-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    position: relative;
+    display: block;
+    min-height: var(--eula-checkbox-size);
+    padding-left: calc(var(--eula-checkbox-size) + var(--eula-checkbox-gap));
+    margin: 0;
+    font-size: 1.1em;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+/* Native input hidden; remains focusable and clickable (selector pattern) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.eula-card .eula-checkbox-label {
+    display: block;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.eula-card .eula-checkbox-text {
+    display: block;
+    cursor: inherit;
+}
+
+/* Box (::before) — match selector row tokens */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] + .eula-checkbox-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    box-sizing: border-box;
+    border: 1px solid var(--checkbox-border);
+    background-color: var(--checkbox-bg);
+    border-radius: var(--eula-checkbox-radius);
+    transform-origin: 50% 50%;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: none;
+}
+
+/* Checkmark (::after) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"] + .eula-checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--eula-checkbox-size);
+    height: var(--eula-checkbox-size);
+    box-sizing: border-box;
+    -webkit-mask-image: var(--eula-icon-check);
+    mask-image: var(--eula-icon-check);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 76% 76%;
+    mask-size: 76% 76%;
+    background-color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:checked + .eula-checkbox-label::before {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:checked + .eula-checkbox-label::after {
+    opacity: 1;
+}
+
+/* Keyboard focus: ring on drawn box (selector-style) */
+.eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:focus-visible + .eula-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3);
+}
+
+.dark-mode .eula-card .eula-checkbox-row.eula-custom-checkbox input[type="checkbox"]:focus-visible + .eula-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(61, 191, 176, 0.32);
+}
+
+/* In-body legal links: body colour; hover = teal (ReDD 2FA EULA: var(--link-hover)) */
+.eula-link,
+.eula-link:visited {
+    color: currentColor;
+    font-weight: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease;
+}
+
+.eula-link:hover,
+.eula-link:visited:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+}
+
+.eula-note {
+    margin: 14px 0 0;
+    font-size: 1.05em;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+.eula-note .eula-link {
+    /* inherits italic + muted from <em> parent */
+    font-weight: 400;
+}
+
+.eula-card .btn-primary {
+    margin-top: 16px;
+}
+
+.eula-card .btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.eula-overlay .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px 12px;
+}
+
+.eula-overlay .top-bar-no-border {
+    border-bottom: none;
+    padding: 0 0 8px;
+}
+
+.eula-overlay .top-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.9em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--text-primary);
+}
+
+.eula-overlay .top-title-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.eula-overlay .top-logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.eula-overlay .top-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.eula-overlay .top-title-group-screen {
+    margin-bottom: 10px;
+}
+
+.eula-overlay .assurance-copy {
+    margin: auto 0 0 0;
+    padding-top: 32px;
+    font-size: 0.82em;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.eula-overlay .assurance-copy a {
+    color: currentColor;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.eula-overlay .assurance-copy a:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+}
+
+.eula-overlay .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: var(--font-body);
+    color: var(--btn-primary-text);
+    background-color: var(--btn-primary-bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.eula-overlay .btn-primary:hover:not(:disabled) {
+    background-color: var(--btn-primary-hover);
+    transform: none;
+    box-shadow: var(--shadow-sm);
 }
