@@ -25,6 +25,10 @@
 		71CCE4CF2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
 		71CCE4D02E4F29B3002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
 		71CCE4D12E4F29B3002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
+		AF05410C2FA0A49E00007AEA /* blocked.js in Resources */ = {isa = PBXBuildFile; fileRef = AF05410B2FA0A49E00007AEA /* blocked.js */; };
+		AF05410D2FA0A49E00007AEA /* blocked.html in Resources */ = {isa = PBXBuildFile; fileRef = AF05410A2FA0A49E00007AEA /* blocked.html */; };
+		AF05410E2FA0A49E00007AEA /* blocked.js in Resources */ = {isa = PBXBuildFile; fileRef = AF05410B2FA0A49E00007AEA /* blocked.js */; };
+		AF05410F2FA0A49E00007AEA /* blocked.html in Resources */ = {isa = PBXBuildFile; fileRef = AF05410A2FA0A49E00007AEA /* blocked.html */; };
 		D70A5B0C2E51F986008BD286 /* icon-1024.png in Resources */ = {isa = PBXBuildFile; fileRef = D70A5B0B2E51F986008BD286 /* icon-1024.png */; };
 		D70A5B0D2E51F986008BD286 /* icon-1024.png in Resources */ = {isa = PBXBuildFile; fileRef = D70A5B0B2E51F986008BD286 /* icon-1024.png */; };
 		D714AB822DF7403500854882 /* selectors.js in Resources */ = {isa = PBXBuildFile; fileRef = D714AB812DF7403100854882 /* selectors.js */; };
@@ -133,6 +137,8 @@
 		5CD766772EBBAD0E0089C56F /* ios-5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-5.png"; sourceTree = "<group>"; };
 		71CCE4CA2E4F2585002FE508 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
 		71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentVerifier.swift; sourceTree = "<group>"; };
+		AF05410A2FA0A49E00007AEA /* blocked.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = blocked.html; sourceTree = "<group>"; };
+		AF05410B2FA0A49E00007AEA /* blocked.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = blocked.js; sourceTree = "<group>"; };
 		D70A5B0B2E51F986008BD286 /* icon-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-1024.png"; sourceTree = "<group>"; };
 		D714AB812DF7403100854882 /* selectors.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = selectors.js; sourceTree = "<group>"; };
 		D72FA3D62DF826AB0021A2E3 /* shared_data.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = shared_data.js; sourceTree = "<group>"; };
@@ -277,6 +283,8 @@
 				D76921A92756452E00EB4CEA /* manifest.json */,
 				D76921AB2756452E00EB4CEA /* content.js */,
 				D769221627564D8F00EB4CEA /* style.css */,
+				AF05410A2FA0A49E00007AEA /* blocked.html */,
+				AF05410B2FA0A49E00007AEA /* blocked.js */,
 				D76921AC2756452E00EB4CEA /* popup.html */,
 				D76921AD2756452E00EB4CEA /* popup.css */,
 				D76921AE2756452E00EB4CEA /* popup.js */,
@@ -520,6 +528,8 @@
 				D72FA3D72DF826AF0021A2E3 /* shared_data.js in Resources */,
 				D76921FA2756452E00EB4CEA /* popup.html in Resources */,
 				D76921F22756452E00EB4CEA /* images in Resources */,
+				AF05410C2FA0A49E00007AEA /* blocked.js in Resources */,
+				AF05410D2FA0A49E00007AEA /* blocked.html in Resources */,
 				D76921F42756452E00EB4CEA /* manifest.json in Resources */,
 				D769221727564D8F00EB4CEA /* style.css in Resources */,
 				71CCE4CC2E4F258A002FE508 /* background.js in Resources */,
@@ -538,6 +548,8 @@
 				D72FA3D82DF826AF0021A2E3 /* shared_data.js in Resources */,
 				D76921FB2756452E00EB4CEA /* popup.html in Resources */,
 				D76921F32756452E00EB4CEA /* images in Resources */,
+				AF05410E2FA0A49E00007AEA /* blocked.js in Resources */,
+				AF05410F2FA0A49E00007AEA /* blocked.html in Resources */,
 				D76921F52756452E00EB4CEA /* manifest.json in Resources */,
 				D769221827564D8F00EB4CEA /* style.css in Resources */,
 				71CCE4CB2E4F258A002FE508 /* background.js in Resources */,
