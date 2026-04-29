@@ -283,6 +283,15 @@ body.modal-open {
     margin-bottom: 2rem;
 }
 
+body.popup-showing-blocked-page {
+    width: 330px;
+    min-width: 330px;
+    max-width: 330px;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+}
+
 .website-toggle {
     display: none;
 }
@@ -1461,6 +1470,20 @@ footer .friction-customisation {
 
 #currentSiteInfo p {
     margin-top: 0;
+}
+
+.blocked-page-popup {
+    margin: 0;
+    padding: 0;
+}
+
+.blocked-page-frame {
+    display: block;
+    width: 100%;
+    height: 430px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
 }
 
 

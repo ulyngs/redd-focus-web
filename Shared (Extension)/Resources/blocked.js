@@ -11,6 +11,9 @@
 
 (() => {
   const params = new URLSearchParams(location.search);
+  if (params.get("popup") === "1") {
+    document.body.classList.add("popup-mode");
+  }
 
   const originalUrl = params.get("u") || "";
   const blocklistId = params.get("id");

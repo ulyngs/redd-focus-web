@@ -748,6 +748,41 @@ document.addEventListener('DOMContentLoaded', function () {
             } else { console.error("Add button not found:", addButtonId); }
         }
 
+        function isBlockedPageUrl(url) {
+            return typeof url === 'string' && url.startsWith(chrome.runtime.getURL('blocked.html'));
+        }
+
+        function renderBlockedPagePopup(blockedPageUrl) {
+            const popupContainer = document.getElementById('popup-content');
+            const delayContent = document.getElementById('delay-content');
+            const saveFooter = document.getElementById('save-controls');
+            const reviewPrompt = document.getElementById('reviewPrompt');
+            const errorPrompt = document.getElementById('error-prompt');
+            const foot = document.querySelector('footer');
+            if (delayContent) delayContent.style.display = 'none';
+            if (saveFooter) saveFooter.style.display = 'none';
+            if (reviewPrompt) reviewPrompt.style.display = 'none';
+            if (errorPrompt) errorPrompt.style.display = 'none';
+            if (foot) foot.style.display = 'none';
+            document.body.classList.add('popup-showing-blocked-page');
+
+            popupContainer.innerHTML = '';
+            popupContainer.classList.add('blocked-page-popup');
+            popupContainer.style.display = 'block';
+
+            const frame = document.createElement('iframe');
+            frame.className = 'blocked-page-frame';
+            frame.title = 'Blocked by ReDD Block';
+            try {
+                const frameUrl = new URL(blockedPageUrl);
+                frameUrl.searchParams.set('popup', '1');
+                frame.src = frameUrl.toString();
+            } catch {
+                frame.src = blockedPageUrl;
+            }
+            popupContainer.appendChild(frame);
+        }
+
         chrome.tabs.query({ active: true, currentWindow: true }, function (tab) {
             if (chrome.runtime.lastError || !tab || tab.length === 0 || !tab[0].url) {
                 console.error("Could not get active tab information.");
@@ -765,6 +800,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('popup-content').innerHTML = `<p class='error-message'>Cannot run on this page (${tab[0].url.split('/')[0]}...).</p>`;
                 document.getElementById('popup-content').style.display = 'block';
                 document.getElementById('delay-content').style.display = 'none';
+                return;
+            }
+
+            if (isBlockedPageUrl(tab[0].url)) {
+                renderBlockedPagePopup(tab[0].url);
                 return;
             }
 
