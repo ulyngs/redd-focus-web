@@ -21,6 +21,8 @@ let activeBlocks = [];
 let port = null;
 let backoffMs = 5_000;
 const BACKOFF_MAX = 5 * 60_000;
+const REDIRECT_DEBOUNCE_MS = 2_000;
+const recentRedirects = new Map();
 
 // URL prefix of our blocked page so a sweep can skip tabs that are
 // already on it (avoiding a redirect loop that Chrome would flag as
@@ -49,6 +51,44 @@ function isBlocked(url) {
   const host = hostnameOf(url);
   if (!host) return false;
   return blocklist.some(d => domainMatches(host, d));
+}
+
+function isHttpUrl(url) {
+  return /^https?:/i.test(url || "");
+}
+
+function isBlockedPageUrl(url) {
+  return typeof url === "string" && url.startsWith(BLOCKED_PAGE_PREFIX);
+}
+
+function originalUrlFromBlockedPage(url) {
+  if (!isBlockedPageUrl(url)) return null;
+  try {
+    return new URL(url).searchParams.get("u");
+  } catch {
+    return null;
+  }
+}
+
+function shouldRedirectTab(tabId, url) {
+  if (!isHttpUrl(url)) {
+    return false;
+  }
+  const host = hostnameOf(url);
+  const matchedDomain = host
+    ? blocklist.find(d => domainMatches(host, d))
+    : null;
+  if (!matchedDomain) {
+    return false;
+  }
+
+  const now = Date.now();
+  const prior = recentRedirects.get(tabId);
+  if (prior && prior.url === url && now - prior.at < REDIRECT_DEBOUNCE_MS) {
+    return false;
+  }
+  recentRedirects.set(tabId, { url, at: now });
+  return true;
 }
 
 // Pick the most salient active block for a given URL. When a domain
@@ -106,6 +146,7 @@ function applyNativePayload(msg) {
   }
   if (domainsChanged) {
     sweepAllTabsForBlocks();
+    restoreUnblockedTabs();
   }
 }
 
@@ -131,11 +172,33 @@ function sweepAllTabsForBlocks() {
       // Skip non-http(s) schemes (chrome://, about:, file://, etc.) —
       // our blocklist never contains those and `chrome.tabs.update` on
       // some of them is a permissions error anyway.
-      if (!/^https?:/i.test(url)) continue;
+      if (!isHttpUrl(url)) continue;
       // Don't loop on already-redirected tabs.
-      if (url.startsWith(BLOCKED_PAGE_PREFIX)) continue;
-      if (isBlocked(url)) {
+      if (isBlockedPageUrl(url)) continue;
+      if (shouldRedirectTab(tab.id, url)) {
         chrome.tabs.update(tab.id, { url: buildBlockedUrl(url) });
+      }
+    }
+  });
+}
+
+// When a block is paused/stopped, tabs already sitting on blocked.html
+// should return to their original URL. Without this, a stale blocked page
+// can remain visible even though the current native payload no longer
+// contains that domain.
+function restoreUnblockedTabs() {
+  if (!chrome.tabs || typeof chrome.tabs.query !== "function") return;
+  chrome.tabs.query({}, tabs => {
+    if (chrome.runtime.lastError) {
+      console.info("[redd-block] restore query failed:", chrome.runtime.lastError.message);
+      return;
+    }
+    for (const tab of tabs) {
+      const url = tab && tab.url;
+      const originalUrl = originalUrlFromBlockedPage(url);
+      if (!originalUrl || !isHttpUrl(originalUrl)) continue;
+      if (!isBlocked(originalUrl)) {
+        chrome.tabs.update(tab.id, { url: originalUrl });
       }
     }
   });
@@ -196,9 +259,14 @@ function connectNative() {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   refreshSafariBlocklist();
   // Cheap early-out when standalone (empty blocklist).
-  if (blocklist.length === 0) return;
+  if (blocklist.length === 0) {
+    return;
+  }
   const url = changeInfo.url || tab.url;
-  if (isBlocked(url)) {
+  if (isBlockedPageUrl(url)) {
+    return;
+  }
+  if (shouldRedirectTab(tabId, url)) {
     chrome.tabs.update(tabId, { url: buildBlockedUrl(url) });
   }
 });
