@@ -114,6 +114,7 @@
   // extension will redirect us away on the next refresh anyway.
   const countdownEl = document.getElementById("countdown");
   const endsAtSuffix = document.getElementById("ends-at-suffix");
+  const ALWAYS_ON_CUTOFF_MS = Date.UTC(9999, 0, 1);
 
   function formatHms(ms) {
     if (ms < 0) ms = 0;
@@ -139,6 +140,12 @@
 
   if (endsAt) {
     show("row-ends");
+    if (endsAt >= ALWAYS_ON_CUTOFF_MS) {
+      document.getElementById("ends-label").textContent = "Ends";
+      countdownEl.textContent = "when turned off";
+      endsAtSuffix.textContent = "";
+      return;
+    }
     const renderCountdown = () => {
       const remainingMs = endsAt - Date.now();
       if (remainingMs <= 0) {
