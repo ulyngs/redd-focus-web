@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "ReDD Focus: Hide Distractions",
   "description": "Open-source attention saver for the web (YouTube, Instagram, ... or any other site!).",
-  "version": "6.0",
+  "version": "6.1",
   "icons": {
     "48": "images/icon-48.png",
     "96": "images/icon-96.png",

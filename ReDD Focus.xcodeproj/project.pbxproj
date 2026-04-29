@@ -789,7 +789,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -822,7 +822,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -862,7 +862,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -902,7 +902,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -942,7 +942,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -979,7 +979,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1019,7 +1019,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1060,7 +1060,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
