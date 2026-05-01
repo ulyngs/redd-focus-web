@@ -749,7 +749,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function isBlockedPageUrl(url) {
-            return typeof url === 'string' && url.startsWith(chrome.runtime.getURL('blocked.html'));
+            if (typeof url !== 'string') return false;
+            if (url.startsWith(chrome.runtime.getURL('blocked.html'))) return true;
+            try {
+                const parsed = new URL(url);
+                const isExtensionPage = [
+                    'chrome-extension:',
+                    'moz-extension:',
+                    'safari-web-extension:',
+                ].includes(parsed.protocol);
+                return isExtensionPage && parsed.pathname.replace(/^\/+/, '') === 'blocked.html';
+            } catch {
+                return false;
+            }
+        }
+
+        function normalizeBlockedPageUrl(blockedPageUrl) {
+            try {
+                const parsed = new URL(blockedPageUrl);
+                return chrome.runtime.getURL('blocked.html') + parsed.search;
+            } catch {
+                return blockedPageUrl;
+            }
         }
 
         function renderBlockedPagePopup(blockedPageUrl) {
@@ -774,7 +795,7 @@ document.addEventListener('DOMContentLoaded', function () {
             frame.className = 'blocked-page-frame';
             frame.title = 'Blocked by ReDD Block';
             try {
-                const frameUrl = new URL(blockedPageUrl);
+                const frameUrl = new URL(normalizeBlockedPageUrl(blockedPageUrl));
                 frameUrl.searchParams.set('popup', '1');
                 frame.src = frameUrl.toString();
             } catch {

@@ -21,7 +21,7 @@ let activeBlocks = [];
 let port = null;
 let backoffMs = 5_000;
 const BACKOFF_MAX = 5 * 60_000;
-const REDIRECT_DEBOUNCE_MS = 2_000;
+const REDIRECT_DEBOUNCE_MS = 30_000;
 const recentRedirects = new Map();
 
 // URL prefix of our blocked page so a sweep can skip tabs that are
@@ -58,7 +58,23 @@ function isHttpUrl(url) {
 }
 
 function isBlockedPageUrl(url) {
-  return typeof url === "string" && url.startsWith(BLOCKED_PAGE_PREFIX);
+  if (typeof url !== "string") return false;
+  if (url.startsWith(BLOCKED_PAGE_PREFIX)) return true;
+
+  // After a Safari/WebExtension update, restored tabs can briefly point at a
+  // blocked page URL minted by the previous extension instance. The runtime
+  // prefix can differ, so recognize our page by extension scheme + path too.
+  try {
+    const parsed = new URL(url);
+    const isExtensionPage = [
+      "chrome-extension:",
+      "moz-extension:",
+      "safari-web-extension:",
+    ].includes(parsed.protocol);
+    return isExtensionPage && parsed.pathname.replace(/^\/+/, "") === "blocked.html";
+  } catch {
+    return false;
+  }
 }
 
 function originalUrlFromBlockedPage(url) {
@@ -71,6 +87,9 @@ function originalUrlFromBlockedPage(url) {
 }
 
 function shouldRedirectTab(tabId, url) {
+  if (isBlockedPageUrl(url)) {
+    return false;
+  }
   if (!isHttpUrl(url)) {
     return false;
   }
@@ -89,6 +108,18 @@ function shouldRedirectTab(tabId, url) {
   }
   recentRedirects.set(tabId, { url, at: now });
   return true;
+}
+
+function updateTabToBlocked(tabId, url) {
+  chrome.tabs.update(tabId, { url: buildBlockedUrl(url) }, () => {
+    if (chrome.runtime.lastError) {
+      const prior = recentRedirects.get(tabId);
+      if (prior && prior.url === url) {
+        recentRedirects.delete(tabId);
+      }
+      console.info("[redd-block] redirect failed:", chrome.runtime.lastError.message);
+    }
+  });
 }
 
 // Pick the most salient active block for a given URL. When a domain
@@ -111,6 +142,7 @@ function blockInfoForUrl(url) {
 // Build the blocked-page URL with as much context as the native host
 // gave us. blocked.html is defensive about missing fields.
 function buildBlockedUrl(originalUrl) {
+  originalUrl = originalUrlFromBlockedPage(originalUrl) || originalUrl;
   const params = new URLSearchParams();
   params.set("u", originalUrl);
   const info = blockInfoForUrl(originalUrl);
@@ -176,7 +208,7 @@ function sweepAllTabsForBlocks() {
       // Don't loop on already-redirected tabs.
       if (isBlockedPageUrl(url)) continue;
       if (shouldRedirectTab(tab.id, url)) {
-        chrome.tabs.update(tab.id, { url: buildBlockedUrl(url) });
+        updateTabToBlocked(tab.id, url);
       }
     }
   });
@@ -262,12 +294,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (blocklist.length === 0) {
     return;
   }
-  const url = changeInfo.url || tab.url;
+  const url = changeInfo.url || (changeInfo.status === "loading" ? tab.url : null);
   if (isBlockedPageUrl(url)) {
     return;
   }
   if (shouldRedirectTab(tabId, url)) {
-    chrome.tabs.update(tabId, { url: buildBlockedUrl(url) });
+    updateTabToBlocked(tabId, url);
   }
 });
 
