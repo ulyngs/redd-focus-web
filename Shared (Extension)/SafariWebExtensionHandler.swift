@@ -168,8 +168,14 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         cal.timeZone = .current
         let now = Date(timeIntervalSince1970: TimeInterval(nowMs) / 1000)
         let comps = cal.dateComponents([.weekday, .hour, .minute, .second], from: now)
-        // Foundation .weekday is 1=Sun..7=Sat; we use 0=Sun..6=Sat.
-        let wd = UInt8(((comps.weekday ?? 1) - 1) & 7)
+        // Foundation .weekday is 1=Sun..7=Sat. Schedule `days` arrays in
+        // redd-block-data.json are authored by `src/app.js` using the JS
+        // Mon=0..Sun=6 convention (see `isScheduleSegmentActiveNow`'s
+        // `currentDay` mapping), and `native_host::match_schedule_now`
+        // honours the same convention. Map Foundation→JS-Mon-zero here so
+        // weekday comparisons match Rust + JS exactly.
+        //   Sun(1)→6, Mon(2)→0, Tue(3)→1, ... Sat(7)→5
+        let wd = UInt8(((comps.weekday ?? 1) + 5) % 7)
         let hour = UInt32(comps.hour ?? 0)
         let minute = UInt32(comps.minute ?? 0)
         let nowMin = hour * 60 + minute
