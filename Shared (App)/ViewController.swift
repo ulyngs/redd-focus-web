@@ -99,6 +99,60 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
             window?.performDrag(with: event)
         }
     }
+
+    /// `SFSafariApplication.showPreferencesForExtension` frequently fails with
+    /// `SFErrorDomain` code 1 when Safari hasn't been launched yet (common right
+    /// after an App Store install). Launching Safari forces the system to
+    /// register installed Safari extensions, after which a single retry usually
+    /// succeeds.
+    private func openSafariExtensionPreferences(retryCount: Int = 0) {
+        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { [weak self] error in
+            if let nsError = error as NSError?,
+               nsError.domain == "SFErrorDomain",
+               nsError.code == 1,
+               retryCount == 0 {
+                NSLog("ReDD Focus: showPreferencesForExtension failed (\(nsError.localizedDescription)); launching Safari and retrying")
+                self?.launchSafari { launched in
+                    let delay: DispatchTime = launched ? .now() + 1.5 : .now() + 0.3
+                    DispatchQueue.main.asyncAfter(deadline: delay) {
+                        self?.openSafariExtensionPreferences(retryCount: retryCount + 1)
+                    }
+                }
+                return
+            }
+
+            if let error = error {
+                NSLog("ReDD Focus: showPreferencesForExtension failed after retry: \(error.localizedDescription)")
+                self?.launchSafari { _ in }
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = "Open Safari → Settings → Extensions"
+                    alert.informativeText = "We couldn't open the Extensions pane automatically. Safari has been launched — please choose Safari → Settings → Extensions and enable ReDD Focus."
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                NSApplication.shared.terminate(nil)
+            }
+        }
+    }
+
+    private func launchSafari(completion: @escaping (Bool) -> Void) {
+        guard let safariURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") else {
+            completion(false)
+            return
+        }
+
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        NSWorkspace.shared.openApplication(at: safariURL, configuration: configuration) { _, error in
+            completion(error == nil)
+        }
+    }
 #endif
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -114,24 +168,7 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
             return;
         }
 
-        SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { error in
-            if let error = error {
-                NSLog("ReDD Focus: showPreferencesForExtension failed: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    let alert = NSAlert()
-                    alert.messageText = "Could not open Safari Extensions Preferences"
-                    alert.informativeText = "\(error.localizedDescription)\n\nMake sure ReDD Focus has been built and the Safari extension is registered. You can also open Safari and go to Settings → Extensions manually."
-                    alert.alertStyle = .warning
-                    alert.addButton(withTitle: "OK")
-                    alert.runModal()
-                }
-                return
-            }
-
-            DispatchQueue.main.async {
-                NSApplication.shared.terminate(nil)
-            }
-        }
+        openSafariExtensionPreferences()
 #elseif os(iOS)
         if (messageBody != "open-safari") {
             return;
