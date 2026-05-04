@@ -6,40 +6,56 @@
     <title>Blocked by ReDD Block</title>
     <style>
       :root {
-        /* Matches redd-block/src/styles.css:
-         *   --container-bg = #f0f4f8 (the calm blue-grey `html`/`body` uses)
-         *   --border-color = hsl(214, 32%, 91%)
-         *   --accent-color = #667eea
-         * so the block page feels like a continuation of the app, not a
-         * random error page. */
-        --bg: #f0f4f8;
+        /* Tracks the ReDD design language used in redd-block/src/styles.css
+         * and reddfocus-open-source/.../popup.css:
+         *   canvas  = #faf8f5  (warm cream)
+         *   card    = #ffffff
+         *   border  = #e1dcd6  (warm cream divider)
+         *   navy    = #1e2d3e  (primary text & headings)
+         *   body    = #2c2c35  (secondary text)
+         *   muted   = #696977
+         *   teal    = #2a9d8f  (accent)
+         *   coral   = #d4605a  (heart)
+         * Headings use Georgia serif; body uses Inter (with system fallback)
+         * — same pairing as the redd-block app and the extension popup, so
+         * the block page feels like a continuation of the brand surface
+         * rather than a random error page.
+         */
+        --bg: #faf8f5;
         --card-bg: #ffffff;
-        --card-border: hsl(214, 32%, 91%);
-        --card-shadow: 0 10px 30px rgba(30, 41, 59, 0.08);
-        --text-primary: #1e293b;
-        --text-secondary: #475569;
-        --text-muted: #64748b;
-        --divider: hsl(214, 32%, 91%);
-        --pill-fallback: #667eea;
-        --footer-text: #64748b;
-        --footer-link: #475569;
-        --heart: #e11d48;
+        --card-border: #e1dcd6;
+        --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06),
+                       0 8px 24px rgba(30, 45, 62, 0.08);
+        --text-primary: #1e2d3e;
+        --text-secondary: #2c2c35;
+        --text-muted: #696977;
+        --divider: #e1dcd6;
+        --pill-fallback: #2a9d8f;
+        --footer-text: #696977;
+        --footer-link: #2c2c35;
+        --heart: #d4605a;
+
+        --font-heading: Georgia, "Times New Roman", serif;
+        --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, Arial, Helvetica, sans-serif;
       }
 
       @media (prefers-color-scheme: dark) {
+        /* Inverted-cream dark mode (matches redd-block dark mode). */
         :root {
-          --bg: #0f172a;
-          --card-bg: rgba(30, 41, 59, 0.95);
-          --card-border: rgba(255, 255, 255, 0.08);
-          --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-          --text-primary: #f8fafc;
-          --text-secondary: #cbd5e1;
-          --text-muted: #94a3b8;
-          --divider: rgba(255, 255, 255, 0.08);
-          --pill-fallback: #818cf8;
-          --footer-text: #94a3b8;
-          --footer-link: #cbd5e1;
-          --heart: #f472b6;
+          --bg: #14202c;
+          --card-bg: #1e2d3e;
+          --card-border: rgba(255, 255, 255, 0.10);
+          --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
+                         0 8px 24px rgba(0, 0, 0, 0.35);
+          --text-primary: #f5f0e8;
+          --text-secondary: #e6e2d8;
+          --text-muted: #9aa3b0;
+          --divider: rgba(255, 255, 255, 0.10);
+          --pill-fallback: #4ec0b0;
+          --footer-text: #9aa3b0;
+          --footer-link: #e6e2d8;
+          --heart: #e07b75;
         }
       }
 
@@ -58,8 +74,7 @@
 
       body {
         background: var(--bg);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen, Ubuntu, Cantarell, sans-serif;
+        font-family: var(--font-body);
         color: var(--text-primary);
         display: flex;
         flex-direction: column;
@@ -73,7 +88,7 @@
         max-width: 520px;
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 20px;
+        border-radius: 16px;
         box-shadow: var(--card-shadow);
         padding: 36px 32px 32px;
         text-align: center;
@@ -89,10 +104,12 @@
       }
 
       h1 {
-        font-size: 22px;
-        font-weight: 700;
+        font-family: var(--font-heading);
+        font-size: 26px;
+        font-weight: 500;
         margin: 0 0 6px;
-        letter-spacing: -0.01em;
+        letter-spacing: 0;
+        line-height: 1.2;
       }
 
       .subtitle {
@@ -181,8 +198,8 @@
 
       /* Small-screen polish */
       @media (max-width: 480px) {
-        main { padding: 28px 20px 22px; border-radius: 16px; }
-        h1 { font-size: 20px; }
+        main { padding: 28px 20px 22px; }
+        h1 { font-size: 22px; }
         .detail-row { font-size: 13px; }
       }
 

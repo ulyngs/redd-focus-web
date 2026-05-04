@@ -67,7 +67,9 @@
       if (!rgb) return "#fff";
       // Rec. 709 relative luminance approximation.
       const l = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
-      return l > 150 ? "#1e1b4b" : "#fff";
+      // Dark text uses --redd-navy for parity with the rest of the
+      // ReDD design language (matches redd-block + extension popup).
+      return l > 150 ? "#1e2d3e" : "#fff";
     } catch {
       return "#fff";
     }
