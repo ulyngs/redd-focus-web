@@ -777,7 +777,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 69;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = 7YEYWQKK25;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -789,7 +789,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -810,7 +810,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 69;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = 7YEYWQKK25;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -822,7 +822,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -846,7 +846,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 69;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -862,7 +862,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -886,7 +886,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 69;
+				CURRENT_PROJECT_VERSION = 76;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -902,7 +902,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -926,7 +926,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/MindShield.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 75;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				ENABLE_APP_SANDBOX = YES;
@@ -942,7 +942,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -963,7 +963,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/MindShield.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 75;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				ENABLE_APP_SANDBOX = YES;
@@ -979,7 +979,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1002,7 +1002,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/MindShield.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 75;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				ENABLE_APP_SANDBOX = YES;
@@ -1019,7 +1019,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1043,7 +1043,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/MindShield.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 72;
+				CURRENT_PROJECT_VERSION = 75;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JD647S9RT6;
 				ENABLE_APP_SANDBOX = YES;
@@ -1060,7 +1060,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
