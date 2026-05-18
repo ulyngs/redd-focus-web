@@ -33,6 +33,9 @@
     --text-light: var(--redd-muted);
     --border-subtle: var(--redd-border-subtle);
     --white: #FFFFFF;
+
+    /* Fixed entrance footer — space reserved in scroll areas (matches extension popup footer tokens) */
+    --app-entrance-footer-block: calc(22px + 1.4em);
 }
 
 h1 {
@@ -52,6 +55,57 @@ html, body {
     padding: 0;
     box-sizing: border-box;
     background-color: var(--bg-primary);
+}
+
+/* iOS: entire column scrolls — pad so the last content clears the fixed footer */
+.scrollable-content.platform-ios {
+    padding-bottom: calc(var(--app-entrance-footer-block) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Fixed footer — same language as extension popup (popup.css footer) */
+footer.app-entrance-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-style: italic;
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    font-size: 0.8em;
+    line-height: 1.4;
+    background-color: var(--bg-primary);
+    color: var(--text-light);
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: default;
+}
+
+body:not(.platform-mac, .platform-ios) footer.app-entrance-footer {
+    display: none;
+}
+
+footer.app-entrance-footer a,
+footer.app-entrance-footer a:visited {
+    color: var(--text-light);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+footer.app-entrance-footer a:hover,
+footer.app-entrance-footer a:visited:hover {
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+body.platform-mac footer.app-entrance-footer {
+    font-size: 0.85em;
+    padding: 12px 20px;
+    padding-bottom: 12px;
 }
 
 body {
@@ -612,6 +666,7 @@ body.platform-mac button.platform-ios {
 
 .steps-container.platform-mac {
     padding: 24px;
+    padding-bottom: calc(24px + var(--app-entrance-footer-block));
     background-color: transparent;
     flex: 1;
     overflow-y: auto;
@@ -821,6 +876,10 @@ button.platform-mac.open-safari-btn:focus {
     
     .arrow-down {
         font-size: 18px;
+    }
+
+    :root {
+        --app-entrance-footer-block: calc(26px + 1.45em);
     }
     
     .callout-icon {
