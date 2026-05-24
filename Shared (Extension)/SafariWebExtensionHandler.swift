@@ -49,10 +49,45 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let incoming = request?.userInfo?[SFExtensionMessageKey]
         os_log(.default, "ReDDFocus native message: %@", String(describing: incoming))
 
+        #if os(macOS)
+        // Persist any self-reported extension state (e.g. private-browsing
+        // access) into the App Group container so ReDD Block can read it
+        // back without needing Full Disk Access on Safari's sandboxed
+        // Extensions.plist. background.js sends this as
+        // `{ type: "reddBlockRefresh", state: { privateBrowsing: bool } }`.
+        if let dict = incoming as? [String: Any],
+           let state = dict["state"] as? [String: Any] {
+            persistExtensionState(state)
+        }
+        #endif
+
         let response = NSExtensionItem()
         response.userInfo = [SFExtensionMessageKey: buildPayload()]
         context.completeRequest(returningItems: [response], completionHandler: nil)
     }
+
+    #if os(macOS)
+    /// Write the extension's self-reported state to
+    /// `safari-extension-state.json` in the App Group container so
+    /// ReDD Block's profile_scan can read private-browsing access
+    /// without needing FDA. Best-effort and atomic — a failed write
+    /// leaves the previous file intact, and the Rust reader treats a
+    /// missing or stale file as "unknown" and gracefully falls back
+    /// to the existing leniency behaviour.
+    private func persistExtensionState(_ state: [String: Any]) {
+        let fm = FileManager.default
+        guard let group = fm.containerURL(forSecurityApplicationGroupIdentifier: kAppGroupID) else {
+            return
+        }
+        var entry = state
+        entry["reportedAtMs"] = NSNumber(value: UInt64(Date().timeIntervalSince1970 * 1000))
+        guard let data = try? JSONSerialization.data(withJSONObject: entry, options: []) else {
+            return
+        }
+        let url = group.appendingPathComponent("safari-extension-state.json")
+        try? data.write(to: url, options: .atomic)
+    }
+    #endif
 
     /// Build `{ blocklist, blocks }` matching the Rust `send_payload`
     /// shape so background.js can render the same metadata in Safari

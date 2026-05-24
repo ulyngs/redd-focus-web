@@ -207,9 +207,29 @@ function restoreUnblockedTabs() {
 async function refreshSafariBlocklist() {
   if (!IS_SAFARI || !USE_REDD_BLOCK_NATIVE) return;
   if (!chrome.runtime || typeof chrome.runtime.sendNativeMessage !== "function") return;
+  // Piggyback the extension's incognito-access state on the refresh ping
+  // so ReDD Block can know it without Full Disk Access. SafariServices'
+  // `getStateOfSafariExtension` only exposes `isEnabled`; the private-
+  // browsing toggle lives inside Safari's sandboxed Extensions.plist
+  // which is FDA-gated. Reading the value here (where the extension owns
+  // it) and writing it into the App Group container in Swift sidesteps
+  // that entirely.
+  let privateBrowsing = null;
+  try {
+    if (chrome.extension && typeof chrome.extension.isAllowedIncognitoAccess === "function") {
+      privateBrowsing = await new Promise(resolve => {
+        try {
+          chrome.extension.isAllowedIncognitoAccess(value => resolve(typeof value === "boolean" ? value : null));
+        } catch (_) {
+          resolve(null);
+        }
+      });
+    }
+  } catch (_) { /* leave as null */ }
   const payload = {
     type: "reddBlockRefresh",
     version: chrome.runtime.getManifest && chrome.runtime.getManifest().version,
+    state: { privateBrowsing },
   };
   try {
     chrome.runtime.sendNativeMessage(
