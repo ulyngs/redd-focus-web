@@ -616,9 +616,11 @@ body.platform-mac button.platform-ios {
 
 .scrollable-content.platform-mac {
     padding: 0;
+    padding-bottom: var(--app-entrance-footer-block);
     height: 100vh;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 .app-header.platform-mac {
@@ -666,10 +668,13 @@ body.platform-mac button.platform-ios {
 
 .steps-container.platform-mac {
     padding: 24px;
-    padding-bottom: calc(24px + var(--app-entrance-footer-block));
+    padding-bottom: 0;
     background-color: transparent;
-    flex: 1;
-    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.steps-container.platform-mac .step:last-child {
+    margin-bottom: 0;
 }
 
 .steps-container.platform-mac .step {
@@ -775,7 +780,7 @@ body.platform-mac button.platform-ios {
 button.platform-mac.open-safari-btn {
     width: auto;
     min-width: 400px;
-    margin: 24px auto 8px auto;
+    margin: 34px auto 16px;
     padding: 18px 36px;
     background-color: var(--accent);
     color: var(--white);
