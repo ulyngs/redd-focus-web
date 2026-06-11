@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const frame = document.createElement('iframe');
             frame.className = 'blocked-page-frame';
-            frame.title = 'Blocked by ReDD Block';
+            frame.title = 'Blocked by Fristed';
             try {
                 const frameUrl = new URL(normalizeBlockedPageUrl(blockedPageUrl));
                 frameUrl.searchParams.set('popup', '1');

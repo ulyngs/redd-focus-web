@@ -18,15 +18,15 @@
 // invocation delivers exactly one message and we reply with one
 // response via `NSExtensionItem.userInfo`.
 //
-// --- Data sharing with ReDD Block ---
+// --- Data sharing with Fristed ---
 //
 // Safari is sandboxed (App Store), so the user-home
 // `~/Library/Application Support/com.redd.block/redd-block-data.json`
 // path used by Chrome/Firefox isn't directly readable. We use a shared
-// App Group container instead. Both ReDD Block (Tauri) and ReDD Focus
+// App Group container instead. Both Fristed (Tauri) and ReDD Focus
 // (this bundle) declare the
 // `com.apple.security.application-groups = group.com.reddblock.shared`
-// entitlement; ReDD Block writes the JSON into the group container,
+// entitlement; Fristed writes the JSON into the group container,
 // this handler reads it from there.
 //
 // Fallbacks (for non-sandbox or pre-App-Group builds): the legacy
@@ -51,7 +51,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         #if os(macOS)
         // Persist any self-reported extension state (e.g. private-browsing
-        // access) into the App Group container so ReDD Block can read it
+        // access) into the App Group container so Fristed can read it
         // back without needing Full Disk Access on Safari's sandboxed
         // Extensions.plist. background.js sends this as
         // `{ type: "reddBlockRefresh", state: { privateBrowsing: bool } }`.
@@ -69,7 +69,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     #if os(macOS)
     /// Write the extension's self-reported state to
     /// `safari-extension-state.json` in the App Group container so
-    /// ReDD Block's profile_scan can read private-browsing access
+    /// Fristed's profile_scan can read private-browsing access
     /// without needing FDA. Best-effort and atomic — a failed write
     /// leaves the previous file intact, and the Rust reader treats a
     /// missing or stale file as "unknown" and gracefully falls back
@@ -100,7 +100,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             "blocks": blocks,
         ]
         #else
-        // iOS ReDD Focus is standalone and does not link to ReDD Block.
+        // iOS ReDD Focus is standalone and does not link to Fristed.
         return [
             "blocklist": [],
             "blocks": [],
@@ -269,7 +269,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     ///   2. Legacy /var/lib/redd-block (helper-era, not written anymore but
     ///      kept for backwards compatibility on installs that still have it).
     ///   3. Per-user ~/Library/Application Support/com.redd.block (used
-    ///      when ReDD Block is running unsandboxed without an App Group).
+    ///      when Fristed is running unsandboxed without an App Group).
     private func reddBlockDataURL() -> URL? {
         let fm = FileManager.default
         if let group = fm.containerURL(forSecurityApplicationGroupIdentifier: kAppGroupID) {
