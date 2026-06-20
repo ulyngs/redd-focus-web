@@ -1,5 +1,3 @@
-import { getReviewStoreUrl } from './review_store_url.js';
-
 document.addEventListener('DOMContentLoaded', function () {
     initializePopup();
 
@@ -256,7 +254,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const reviewLink = document.querySelector('#reviewPrompt .review-link');
-        if (reviewLink) reviewLink.href = getReviewStoreUrl();
+        if (reviewLink && typeof window.getReviewStoreUrl === 'function') {
+            reviewLink.href = window.getReviewStoreUrl();
+        }
 
         let opensCount = localStorage.getItem('opensCount');
         opensCount = opensCount ? parseInt(opensCount, 10) + 1 : 1;

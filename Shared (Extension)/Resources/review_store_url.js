@@ -35,7 +35,7 @@ function isAppleMobile() {
     return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
 }
 
-export function getReviewStoreUrl() {
+function getReviewStoreUrl() {
     if (isSafariExtension()) {
         if (isAppleMobile()) {
             return `${APPLE_LISTING}?action=write-review`;
@@ -47,3 +47,6 @@ export function getReviewStoreUrl() {
     }
     return CHROME_WEB_STORE;
 }
+
+// Loaded as a classic script in popup.html — ES module imports break iOS Safari popups.
+window.getReviewStoreUrl = getReviewStoreUrl;
