@@ -430,7 +430,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1310;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					D76921B22756452E00EB4CEA = {
 						CreatedOnToolsVersion = 13.1;
@@ -950,6 +950,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
 				PRODUCT_NAME = "ReDD Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -987,6 +988,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
 				PRODUCT_NAME = "ReDD Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1029,6 +1031,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
 				PRODUCT_NAME = "ReDD Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1070,6 +1073,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
 				PRODUCT_NAME = "ReDD Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
