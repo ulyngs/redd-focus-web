@@ -240,7 +240,7 @@ async function refreshSafariBlocklist() {
   if (!IS_SAFARI || !USE_REDD_BLOCK_NATIVE) return;
   if (!chrome.runtime || typeof chrome.runtime.sendNativeMessage !== "function") return;
   // Piggyback the extension's incognito-access state on the refresh ping
-  // so Fristed can know it without Full Disk Access. SafariServices'
+  // so ReDD Blocker can know it without Full Disk Access. SafariServices'
   // `getStateOfSafariExtension` only exposes `isEnabled`; the private-
   // browsing toggle lives inside Safari's sandboxed Extensions.plist
   // which is FDA-gated. Reading the value here (where the extension owns
@@ -326,8 +326,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 connectNative();
 refreshSafariBlocklist();
 // Safari's native handler is request/response only, so keep polling
-// for Fristed payload changes even when the user sits on a single
-// tab. Compliance is verified by Fristed from Safari's plist, not
+// for ReDD Blocker payload changes even when the user sits on a single
+// tab. Compliance is verified by ReDD Blocker from Safari's plist, not
 // by this refresh.
 if (IS_SAFARI && USE_REDD_BLOCK_NATIVE) {
   setInterval(refreshSafariBlocklist, 15 * 1000);
