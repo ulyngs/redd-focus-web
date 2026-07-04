@@ -106,6 +106,11 @@
     --radius-card: 12px;
     --font-heading: Georgia, "Times New Roman", serif;
     --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+
+    /* Settings panel (ReDD Blocker parity) */
+    --settings-panel-bg: var(--redd-subtle);
+    --settings-control-width: 140px;
+    --border-color-medium: var(--border-color);
 }
 
 /* ========================================
@@ -220,45 +225,19 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Section labels (e.g. “Watch page”) + settings panel headings: Arial, caps, medium, dark grey */
-.toggle-group h2,
-#faq-dropdown h3,
-#accountabilityHeading,
-#appearance-heading {
+/* Section labels (e.g. “Watch page”) */
+.toggle-group h2 {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.95em;
     font-weight: 500;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #4d4d57;
-}
-
-.toggle-group h2 {
     margin: 0 0 5px 0;
 }
 
-/* Dark mode keeps the muted token (hardcoded grey would be unreadable on dark bg). */
-.dark-mode .toggle-group h2,
-.dark-mode #faq-dropdown h3,
-.dark-mode #accountabilityHeading,
-.dark-mode #appearance-heading {
+.dark-mode .toggle-group h2 {
     color: var(--text-muted);
-}
-
-/* Extra breathing room above APPEARANCE and FAQ (not the first heading, ACCOUNTABILITY). */
-#faq-dropdown h3 {
-    margin-top: 1.75em;
-}
-#accountabilityHeading {
-    margin-top: 0;
-}
-
-#accountabilityHeading .accountability-on,
-#accountabilityHeading #currentSiteNameModal {
-    text-transform: none;
-    font-weight: 400;
-    letter-spacing: normal;
-    color: var(--text-primary);
 }
 
 #currentSiteInfo strong {
@@ -601,27 +580,8 @@ button[id$="AddElementButton"].active:hover {
     background-color: var(--btn-custom-hide-hover-bg);
 }
 
-.grayscale-toggle-row {
-    position: relative;
-    padding-left: calc(30px + var(--selector-gap, 9px));
-    min-height: 18px;
-    margin: 8px 0 var(--selector-row-spacing, 9px) 0;
-    text-align: left;
-}
-
-.grayscale-toggle-row .switch {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0;
-}
-
-/* ID selector needed to out-rank the shared checkbox-label rule further
-   down (which sets line-height to the 16px checkbox height). The switch
-   is 18px tall, so the label's line box must match for true centering. */
-#grayscale-toggle-row .grayscale-label {
-    line-height: 18px;
+.grayscale-controls {
+    margin-top: 8px;
 }
 
 .ordinary-checkbox [type="checkbox"] {
@@ -664,6 +624,15 @@ button[id$="AddElementButton"].active:hover {
 
 .friction-customisation input {
     margin-bottom: 5px;
+}
+
+.friction-customisation.lock-protected-settings input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.friction-customisation.lock-protected-settings label {
+    cursor: not-allowed;
 }
 
 .shadcn-input {
@@ -952,12 +921,7 @@ body.dark-mode #faq-dropdown {
     background-color: var(--bg-secondary);
     border-color: var(--border-color);
     color: var(--text-secondary);
-}
-
-body.dark-mode #faq-dropdown h3,
-body.dark-mode #accountabilityHeading,
-body.dark-mode #appearance-heading {
-    color: var(--text-primary);
+    --settings-panel-bg: var(--bg-tertiary);
 }
 
 body.dark-mode .faq-item {
@@ -965,7 +929,7 @@ body.dark-mode .faq-item {
 }
 
 body.dark-mode .faq-trigger {
-    color: var(--text-secondary);
+    color: var(--text-primary);
 }
 
 body.dark-mode .faq-trigger:hover {
@@ -1318,6 +1282,13 @@ p.how-to-description {
     border-color: var(--border-focus);
 }
 
+.confirm-dialog-message {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
 .edit-dialog-buttons {
     display: flex;
     gap: 8px;
@@ -1556,14 +1527,17 @@ footer .friction-customisation {
 
 #help-container {
     position: fixed;
-    /* was absolute */
     top: 8px;
     right: 8px;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-
-#help-icon-btn {
+.header-icon-btn,
+#help-icon-btn,
+#settings-lock-btn {
     padding: 4px;
     background-color: var(--btn-custom-hide-bg);
     border: none;
@@ -1572,18 +1546,40 @@ footer .friction-customisation {
     transition: background-color 0.2s ease;
 }
 
-#help-icon-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke: var(--btn-secondary-text);
-}
-
-#help-icon-btn:hover {
+.header-icon-btn:hover,
+#help-icon-btn:hover,
+#settings-lock-btn:hover {
     background-color: var(--btn-custom-hide-hover-bg);
 }
 
-/* Make the FAQ dropdown behave like a modal */
+.header-icon-btn svg,
+#help-icon-btn svg,
+#settings-lock-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--btn-secondary-text);
+    display: block;
+}
+
+.dark-mode .header-icon-btn,
+.dark-mode #settings-lock-btn {
+    background-color: var(--btn-custom-hide-bg);
+}
+
+.dark-mode .header-icon-btn:hover,
+.dark-mode #settings-lock-btn:hover {
+    background-color: var(--btn-custom-hide-hover-bg);
+}
+
+.dark-mode .header-icon-btn svg,
+.dark-mode #settings-lock-btn svg {
+    stroke: var(--text-secondary);
+}
+
+/* Settings overlay — ReDD Blocker card layout */
 #faq-dropdown {
+    display: none;
+    flex-direction: column;
     text-align: left;
     color: var(--text-secondary);
     background-color: var(--modal-bg);
@@ -1591,208 +1587,383 @@ footer .friction-customisation {
     border-radius: 0;
     box-shadow: var(--modal-shadow);
     box-sizing: border-box;
-    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 4px;
+    padding: 0;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
     max-width: 100%;
-    /* Cap scroll area at the popup window height (viewport in extension UI) */
     max-height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
     z-index: 1000;
     transform: none;
+    --settings-control-width: 70px;
+}
+
+#faq-dropdown[style*="display: block"] {
+    display: flex !important;
+}
+
+.settings-modal-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 8px;
 }
 
-/* Settings dropdown: pre-FAQ. Row gaps = selector tokens; 15px top = same as between popup .toggle-groups (e.g. Watch page → General). */
-#accountabilityHeading {
-    margin: 0.5em 0 5px 0;
-}
-
-/* A bit more than 15px section gap: #modal-settings rows align to 16px checkboxes, so the gap to this title reads better from body text */
-#appearance-heading {
-    margin: 19px 0 5px 0;
-}
-
-#theme-settings + h3 {
-    margin: 15px 0 var(--settings-faq-title-below) 0;
-}
-
-#modal-settings {
+.settings-modal-header {
     display: flex;
-    flex-direction: column;
-    gap: var(--selector-row-spacing);
-    margin: 0;
-    padding: 0;
-    text-align: left;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
-#modal-settings .toggle-group.friction-customisation {
-    display: flex;
-    flex-direction: column;
-    gap: var(--selector-row-spacing);
+#settings-modal-title {
     margin: 0;
-}
-
-#modal-settings .toggle-group.friction-customisation .a-toggle {
-    margin: 0;
-}
-
-/* Theme row: label vertically centered to default shadcn trigger; reset friction-toggle margins on this id */
-#theme-settings.a-toggle.friction-toggle {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-#theme-settings {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: var(--selector-gap);
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    text-align: left;
-    box-sizing: border-box;
-    font-size: var(--selector-font-size);
-}
-
-#theme-settings-label {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    font-size: inherit;
-    font-weight: 400;
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 700;
     line-height: 1.25;
     color: var(--text-primary);
-    letter-spacing: normal;
-    text-transform: none;
-    flex: 0 0 auto;
-    transform: translateY(var(--settings-theme-label-nudge-y));
 }
 
-#themeSelectRoot {
-    display: inline-flex;
+.settings-current-version {
+    flex-shrink: 0;
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-section-heading {
+    margin: 0;
+    padding: 0 2px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+#accountabilityHeading .accountability-site-detail {
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    color: var(--text-primary);
+}
+
+.settings-panel {
+    border: 1px solid var(--border-color-medium);
+    border-radius: 12px;
+    background: var(--settings-panel-bg);
+    overflow: visible;
+}
+
+.settings-panel-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-panel-rows > .settings-row + .settings-row,
+.settings-panel-faq > .faq-item + .faq-item {
+    border-top: 1px solid var(--border-color-medium);
+}
+
+.settings-panel-rows > .settings-row {
+    padding: 12px 14px;
+}
+
+.settings-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
     align-items: center;
-    flex: 0 1 auto;
+}
+
+#faq-dropdown .settings-row:not(.settings-row-multiline) {
+    grid-template-columns: minmax(0, 1fr) var(--settings-control-width);
+}
+
+.settings-row-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     min-width: 0;
 }
 
-#modal-settings > .a-toggle.friction-toggle {
-    position: relative;
-    min-height: var(--selector-box-size);
-    margin: 0;
+.settings-row-label {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--text-primary);
+}
+
+.settings-row-control {
+    justify-self: end;
+    width: var(--settings-control-width);
+    min-width: 0;
+}
+
+#faq-dropdown .settings-row-control {
+    justify-self: stretch;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#faq-dropdown .settings-row-control .settings-number-input,
+#faq-dropdown .settings-row-control .theme-select-root,
+#faq-dropdown .settings-row-control .settings-select-trigger {
+    width: 100%;
+}
+
+.settings-number-input,
+.settings-text-input,
+#faq-dropdown .settings-select-trigger {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color-medium);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.25;
+}
+
+.settings-number-input {
+    text-align: center;
+}
+
+.settings-text-input {
     text-align: left;
 }
 
-#modal-settings #frictionToggle,
-#modal-settings #rememberSettingsToggle {
-    appearance: none;
-    -webkit-appearance: none;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: var(--selector-box-size);
-    height: var(--selector-box-size);
-    min-width: var(--selector-box-size);
-    min-height: var(--selector-box-size);
-    margin: 0;
-    background-color: var(--checkbox-bg);
-    border: 1px solid var(--checkbox-border);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    overflow: visible;
-    display: inline-flex;
+.settings-row-multiline {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.settings-textarea {
+    width: 100%;
+    min-height: 3.25rem;
+    resize: vertical;
+    line-height: 1.4;
+}
+
+.settings-number-input:hover,
+.settings-text-input:hover,
+#faq-dropdown .settings-select-trigger:hover {
+    border-color: var(--border-hover);
+}
+
+.settings-number-input:focus,
+.settings-text-input:focus,
+#faq-dropdown .settings-select-trigger:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+}
+
+.settings-number-input:disabled,
+.settings-text-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.settings-inline-error {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #dc2626;
+}
+
+#faq-dropdown .settings-row-control .theme-select-root {
+    width: 100%;
+}
+
+#faq-dropdown .settings-select-trigger {
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    margin: 0;
+    cursor: pointer;
+    padding: 8px 24px 8px 8px;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-4.5 5 4.5'/%3E%3Cpath d='M7 14l5 4.5 5-4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    text-align: left;
+}
+
+.dark-mode #faq-dropdown .settings-select-trigger {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-4.5 5 4.5'/%3E%3Cpath d='M7 14l5 4.5 5-4.5'/%3E%3C/svg%3E");
+}
+
+#faq-dropdown .theme-select-menu {
+    z-index: 1101;
+    min-width: 88px;
+}
+
+/* iOS-style toggle (ReDD Blocker enforcement switch) */
+.enforcement-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
     flex-shrink: 0;
-    z-index: 1;
+    cursor: pointer;
 }
 
-#modal-settings #frictionToggle:checked,
-#modal-settings #rememberSettingsToggle:checked {
-    background-color: var(--accent-primary);
-    border-color: var(--accent-primary);
+.enforcement-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-#modal-settings #frictionToggle:checked::after,
-#modal-settings #rememberSettingsToggle:checked::after {
+.enforcement-slider {
+    position: absolute;
+    inset: 0;
+    background: hsl(222, 15%, 82%);
+    border-radius: 24px;
+    transition: background 0.25s ease;
+}
+
+.enforcement-slider::before {
     content: "";
     position: absolute;
-    left: 4px;
-    top: 1px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-    transform-origin: center center;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-.dark-mode #modal-settings #frictionToggle:checked::after,
-.dark-mode #modal-settings #rememberSettingsToggle:checked::after {
-    border-color: var(--btn-primary-text);
+.enforcement-switch input:checked + .enforcement-slider {
+    background: var(--toggle-bg-checked);
 }
 
-#modal-settings label[for="frictionToggle"],
-#modal-settings label[for="rememberSettingsToggle"] {
-    display: block;
-    padding-left: calc(var(--selector-box-size) + var(--selector-gap));
-    line-height: var(--selector-box-size);
-    font-size: var(--selector-font-size);
-    font-weight: 500;
+.enforcement-switch input:checked + .enforcement-slider::before {
+    transform: translateX(20px);
+}
+
+.enforcement-switch input:disabled + .enforcement-slider {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.settings-feedback-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #e9f0ed;
+    border: 1px solid #ccd8d2;
+    border-radius: 10px;
+    color: #2d5a4c;
+}
+
+.settings-feedback-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.settings-feedback-text {
     margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.settings-feedback-text a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.dark-mode .settings-feedback-footer {
+    background: rgba(57, 158, 144, 0.14);
+    border-color: rgba(57, 158, 144, 0.32);
+    color: #b8ddd4;
+}
+
+.settings-modal-buttons {
+    flex-shrink: 0;
+    padding: 12px var(--settings-overlay-padding-x);
+    border-top: 1px solid var(--border-color-medium);
+    background: var(--modal-bg);
+}
+
+#faq-dropdown .modal-btn.cancel-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
-    color: var(--text-primary);
-    box-sizing: border-box;
+    transition: background-color 0.2s ease;
+}
+
+#faq-dropdown .modal-btn.cancel-btn:hover {
+    background: var(--bg-tertiary);
 }
 
 .faq-item {
-    border-bottom: 1px solid var(--border-color);
-}
-
-.faq-item:last-child {
     border-bottom: none;
 }
 
-/* Bleed FAQ rows to the full #faq-dropdown width so hover spans edge-to-edge */
-#faq-dropdown .faq-item {
-    margin-left: calc(-1 * var(--settings-overlay-padding-x));
-    margin-right: calc(-1 * var(--settings-overlay-padding-x));
+.settings-panel-faq > .faq-item:last-child {
+    border-bottom: none;
 }
 
 .faq-trigger {
     background: none;
     border: none;
-    padding: 10px 0;
+    padding: 12px 14px;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-align: left;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
-    color: var(--text-secondary);
+    font-size: 15px;
+    font-family: var(--font-body);
+    color: var(--text-primary);
     box-sizing: border-box;
 }
 
-#faq-dropdown .faq-trigger {
-    padding: 10px var(--settings-overlay-padding-x);
-}
-
 .faq-trigger:hover {
-    background-color: var(--bg-tertiary);
-    border-radius: 4px;
-}
-
-#faq-dropdown .faq-trigger:hover {
-    border-radius: 0;
+    background-color: var(--bg-hover);
 }
 
 .faq-chevron {
@@ -1812,39 +1983,31 @@ footer .friction-customisation {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.25s ease-out, padding 0.25s ease-out;
-    padding: 0;
+    padding: 0 14px;
 }
 
-#faq-dropdown .faq-content {
-    padding: 0 var(--settings-overlay-padding-x);
-}
-
-#faq-dropdown .faq-item[data-state="open"] .faq-content {
-    max-height: 100px;
-    padding: var(--faq-question-response-gap) var(--settings-overlay-padding-x) 12px
-        var(--settings-overlay-padding-x);
+.faq-item[data-state="open"] .faq-content {
+    max-height: 200px;
+    padding: 0 14px 12px;
 }
 
 .faq-content p {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 14px;
     color: var(--text-muted);
     line-height: 1.5;
 }
 
+.dark-mode .settings-number-input,
+.dark-mode .settings-text-input,
+.dark-mode #faq-dropdown .settings-select-trigger {
+    background-color: var(--bg-input);
+}
+
 #faq-close-btn {
-    position: sticky;
-    top: 0;
-    float: right;
-    background: var(--modal-bg);
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    color: var(--text-primary);
-    z-index: 1001;
-    margin: calc(-1 * var(--settings-overlay-padding-y)) calc(-1 * var(--settings-overlay-padding-x)) 10px auto;
-    display: block;
+    position: static;
+    float: none;
+    margin: 0;
 }
 
 
@@ -1961,12 +2124,15 @@ footer .friction-customisation {
     --selector-icon-blur: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M22 14.5a4.5 4.5 0 0 1-4.5 4.5H7a5 5 0 0 1-1.18-9.86A7 7 0 0 1 19 10a4.5 4.5 0 0 1 3 4.5z'/></svg>");
     --selector-icon-black: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='black'/></svg>");
     --selector-icon-refresh: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12a9 9 0 0 1 15.3-6.36L21 8'/><path d='M21 3v5h-5'/><path d='M21 12a9 9 0 0 1-15.3 6.36L3 16'/><path d='M8 16H3v5'/></svg>");
+    --selector-icon-check: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/></svg>");
+    --selector-color-grayscale-check: #7a7a85;
 }
 
 .dark-mode {
     --selector-color-ban: #f87171;
     --selector-color-blur: var(--text-muted);
     --selector-color-black: #000;
+    --selector-color-grayscale-check: #a1a1aa;
 }
 
 /* --- Selector spacing (row layout) --------------------------------------- */
@@ -1981,8 +2147,7 @@ footer .friction-customisation {
 /* Line box matches checkbox height so label text centers on the control
    (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
 .hide-checkboxes .a-toggle label,
-.hide-checkboxes .a-toggle .multi-state-label,
-.grayscale-toggle-row .grayscale-label {
+.hide-checkboxes .a-toggle .multi-state-label {
     display: inline-block;
     margin: 0;
     padding: 0;
@@ -2067,7 +2232,7 @@ footer .friction-customisation {
 }
 
 /* Steady-state icon: Ban (red) — single-state checked + multi-state "Off" */
-.hide-checkboxes .a-toggle input[type="checkbox"]:checked + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"]:checked + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Off"]::after {
     -webkit-mask-image: var(--selector-icon-ban);
     mask-image: var(--selector-icon-ban);
@@ -2099,6 +2264,45 @@ footer .friction-customisation {
 
 /* data-state="On" and unchecked single-state have no icon (opacity 0 base). */
 
+/* Grayscale toggle: gray checkmark when checked (not the hide ban icon) */
+.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::after {
+    -webkit-mask-image: var(--selector-icon-check);
+    mask-image: var(--selector-icon-check);
+    -webkit-mask-size: 78% 78%;
+    mask-size: 78% 78%;
+    background-color: var(--selector-color-grayscale-check);
+    opacity: 1;
+}
+
+.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::before {
+    background-color: var(--checkbox-bg);
+    border-color: var(--selector-color-grayscale-check);
+}
+
+/* Lock-protected toggles: greyed out, can't be clicked to unhide */
+.hide-checkboxes .a-toggle.lock-protected {
+    opacity: 0.55;
+}
+
+.hide-checkboxes .a-toggle.lock-protected label,
+.hide-checkboxes .a-toggle.lock-protected .multi-state-label {
+    cursor: not-allowed;
+}
+
+.hide-checkboxes .a-toggle.lock-protected input[type="checkbox"],
+.hide-checkboxes .a-toggle.lock-protected .multi-state-checkbox {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.hide-checkboxes .a-toggle.lock-protected input[type="checkbox"]:checked + label::after,
+.hide-checkboxes .a-toggle.lock-protected .multi-state-checkbox[data-state="Off"]::after,
+.hide-checkboxes .a-toggle.lock-protected .multi-state-checkbox[data-state="Blur"]::after,
+.hide-checkboxes .a-toggle.lock-protected .multi-state-checkbox[data-state="Black"]::after {
+    background-color: var(--text-muted);
+    opacity: 0.85;
+}
+
 /* --- Selector animations ------------------------------------------------- */
 /* While `.loading` is present (added on click for ~800ms in popup.js):
      1. The box (::before) rotates 360° on its own axis.
@@ -2106,19 +2310,19 @@ footer .friction-customisation {
      3. The destination icon (::after) fades in over the same duration and
         rotates in lockstep with the box (all icons: ban, cloud, black, refresh).
 */
-.hide-checkboxes .a-toggle input[type="checkbox"].loading + label::before,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::before,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     animation: selector-rotate var(--selector-rotate-duration) linear;
     box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
 }
 
-.dark-mode .hide-checkboxes .a-toggle input[type="checkbox"].loading + label::before,
+.dark-mode .hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::before,
 .dark-mode .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     box-shadow: 0 0 0 6px rgba(61, 191, 176, 0.28);
 }
 
 /* Fade + spin: same duration/timing as ::before so icon and box stay aligned. */
-.hide-checkboxes .a-toggle input[type="checkbox"].loading + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::after {
     animation: selector-rotate var(--selector-rotate-duration) linear,
         selector-icon-fade-in var(--selector-rotate-duration) ease-out both;
@@ -2127,7 +2331,7 @@ footer .friction-customisation {
 
 /* Exception: the refresh icon appears ONLY when transitioning to the
    normal "show" state (unchecked single-state, or multi-state data-state="On"). */
-.hide-checkboxes .a-toggle input[type="checkbox"].loading:not(:checked) + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading:not(:checked) + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading[data-state="On"]::after {
     -webkit-mask-image: var(--selector-icon-refresh);
     mask-image: var(--selector-icon-refresh);

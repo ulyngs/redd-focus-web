@@ -67,11 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             if (isMobile) {
-                // On mobile, hide entire theme section and use system theme
-                const themeSettingsDiv = document.getElementById('theme-settings');
-                const appearanceHeading = document.getElementById('appearance-heading');
-                if (themeSettingsDiv) themeSettingsDiv.style.display = 'none';
-                if (appearanceHeading) appearanceHeading.style.display = 'none';
+                const appearanceSection = document.getElementById('appearance-section');
+                if (appearanceSection) appearanceSection.style.display = 'none';
                 chrome.storage.sync.set({ themePreference: 'system' });
                 applyTheme('system');
                 return;
@@ -243,6 +240,10 @@ document.addEventListener('DOMContentLoaded', function () {
         let currentPlatform = null;
         let currentSiteIdentifier = null;
         let rememberSettingsEnabled = true; // default
+        let isSettingsLocked = false;
+        let protectedHiddenAtLock = new Set();
+        let unlockWaitTime = 10;
+        let unlockWaitText = "What's your intention?";
 
         function updateSaveFooterVisibility() {
             const saveFooterEl = document.getElementById('save-controls');
@@ -272,135 +273,277 @@ document.addEventListener('DOMContentLoaded', function () {
             if (reviewPrompt) reviewPrompt.style.display = 'none';
         });
 
-        function setupFrictionDelay(siteIdentifier) {
-            var frictionToggle = document.getElementById("frictionToggle");
-            var frictionCustomisationOptions = document.querySelector('.toggle-group.center-align.friction-customisation');
-
+        function setupUnlockSettings(siteIdentifier) {
             if (!siteIdentifier) return;
 
-            const addFrictionKey = `${siteIdentifier}AddFriction`;
             const waitTextKey = `${siteIdentifier}WaitText`;
             const waitTimeKey = `${siteIdentifier}WaitTime`;
 
-            chrome.storage.sync.get([addFrictionKey, waitTextKey, waitTimeKey, "addFriction", "waitText", "waitTime"]).then((result) => {
-                var popupContainer = document.getElementById("popup-content");
-                var messageContainer = document.getElementById("delay-content");
-                var errorContainer = document.getElementById("error-prompt");
-                var messageBox = document.getElementById("delay-message");
-                var waitTextBox = document.getElementById("waitText");
-                var waitTimeBox = document.getElementById("waitTime");
-                var countdownBox = document.getElementById("delay-time");
-                var saveFooter = document.getElementById("save-controls");
+            chrome.storage.sync.get([waitTextKey, waitTimeKey, "waitText", "waitTime"], function (result) {
+                const waitTextBox = document.getElementById("waitText");
+                const waitTimeBox = document.getElementById("waitTime");
+                const messageBox = document.getElementById("delay-message");
+                const countdownBox = document.getElementById("delay-time");
 
-                const defaultWaitTime = 10;
-                const defaultWaitText = "What's your intention?";
+                unlockWaitText = (result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText) || "What's your intention?";
+                unlockWaitTime = (result[waitTimeKey] !== undefined ? result[waitTimeKey] : result.waitTime) || 10;
 
-                const storedAddFriction = (result[addFrictionKey] !== undefined) ? result[addFrictionKey] : result.addFriction;
-                frictionToggle.checked = storedAddFriction || false;
-                frictionCustomisationOptions.style.display = frictionToggle.checked ? "block" : "none";
+                if (waitTextBox) waitTextBox.value = unlockWaitText;
+                if (waitTimeBox) waitTimeBox.value = unlockWaitTime;
+                if (messageBox) messageBox.innerText = unlockWaitText;
+                if (countdownBox) countdownBox.innerText = unlockWaitTime;
+            });
 
-                let effectiveWaitText = (result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText) || defaultWaitText;
-                waitTextBox.value = effectiveWaitText;
-                messageBox.innerText = effectiveWaitText;
+            const waitTimeInput = document.getElementById("waitTime");
+            if (waitTimeInput) {
+                waitTimeInput.addEventListener('input', function () {
+                    if (isSettingsLocked) return;
+                    let waitValue = parseInt(this.value) || 10;
+                    const waitTimeKey = `${siteIdentifier}WaitTime`;
+                    unlockWaitTime = waitValue;
+                    chrome.storage.sync.set({ [waitTimeKey]: waitValue });
+                    const countdownBox = document.getElementById("delay-time");
+                    if (countdownBox) countdownBox.innerText = waitValue;
 
-                let effectiveWaitTime = (result[waitTimeKey] !== undefined ? result[waitTimeKey] : result.waitTime) || defaultWaitTime;
-                waitTimeBox.value = effectiveWaitTime;
-                countdownBox.innerText = effectiveWaitTime;
-
-                if (frictionToggle.checked) {
-                    popupContainer.style.display = "none";
-                    messageContainer.style.display = "block";
-                    errorContainer.style.display = "none";
-                    if (saveFooter) saveFooter.style.display = "none"; // Hide save button during delay countdown
-                    setTimeout(() => messageContainer.classList.add("show"), 100);
-
-                    let countdown = effectiveWaitTime;
-                    var timerId = setInterval(() => {
-                        countdown--;
-                        if (countdown >= 0) {
-                            countdownBox.innerText = countdown;
-                        } else {
-                            messageContainer.style.display = "none";
-                            popupContainer.style.display = "block";
-                            errorContainer.style.display = "none";
-                            updateSaveFooterVisibility();
-                            clearInterval(timerId);
+                    const savedTextTime = document.getElementById("savedTextTime");
+                    const maxLimit = 600;
+                    const minLimit = 1;
+                    if (isNaN(waitValue) || waitValue < minLimit) {
+                        this.value = minLimit;
+                    } else if (waitValue > maxLimit) {
+                        if (savedTextTime) {
+                            savedTextTime.innerText = "Maximum is " + maxLimit;
+                            savedTextTime.hidden = false;
+                            setTimeout(() => { savedTextTime.hidden = true; }, 2500);
                         }
-                    }, 1000);
-                } else {
-                    messageContainer.style.display = "none";
-                    messageContainer.classList.remove("show");
-                    popupContainer.style.display = "block";
-                    errorContainer.style.display = "none";
-                    updateSaveFooterVisibility();
-                }
-            });
-
-            var frictionToggle = document.getElementById("frictionToggle");
-            frictionToggle.addEventListener('change', function () {
-                const addFrictionKey = `${siteIdentifier}AddFriction`;
-                let obj = {}; obj[addFrictionKey] = frictionToggle.checked;
-                chrome.storage.sync.set(obj);
-                frictionCustomisationOptions.style.display = frictionToggle.checked ? "block" : "none";
-            });
-
-
-            // Auto-save wait time
-            document.getElementById("waitTime").addEventListener('input', function () {
-                let waitValue = parseInt(this.value) || 10;
-                const waitTimeKey = `${siteIdentifier}WaitTime`;
-                let obj = {}; obj[waitTimeKey] = waitValue;
-                chrome.storage.sync.set(obj);
-            });
-
-            // Auto-save wait text
-            document.getElementById("waitText").addEventListener('input', function () {
-                const waitTextKey = `${siteIdentifier}WaitText`;
-                let obj = {}; obj[waitTextKey] = this.value;
-                chrome.storage.sync.set(obj);
-            })
-
-            var savedTextTime = document.getElementById("savedTextTime");
-            let hideTimeOut;
-            document.getElementById("waitTime").addEventListener('input', function () {
-                clearTimeout(hideTimeOut);
-                let waitValue = parseInt(document.getElementById("waitTime").value);
-                const maxLimit = 600;
-                const minLimit = 1;
-
-                if (isNaN(waitValue) || waitValue < minLimit) {
-                    document.getElementById("waitTime").value = minLimit;
-                } else if (waitValue > maxLimit) {
-                    savedTextTime.innerText = "Maximum is " + maxLimit;
-                    document.getElementById("waitTime").value = maxLimit;
-                    savedTextTime.style.display = 'block';
-                    hideTimeOut = setTimeout(() => savedTextTime.style.display = 'none', 2500);
-                } else {
-                    savedTextTime.style.display = 'none';
-                }
-            });
-
-            // at the bottom of initializePopup(), before it returns:
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isSelectionModeActive) {
-                    e.preventDefault();
-                    // stop selecting by updating storage
-                    if (currentSiteIdentifier) {
-                        chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: false });
+                        this.value = maxLimit;
+                    } else if (savedTextTime) {
+                        savedTextTime.hidden = true;
                     }
-                    // reset the popup UI
-                    const addButtonId = currentPlatform
-                        ? `${currentPlatform}AddElementButton`
-                        : 'genericAddElementButton';
-                    const addButton = document.getElementById(addButtonId);
-                    if (addButton) {
-                        isSelectionModeActive = false;
-                        addButton.classList.remove('active');
-                        addButton.textContent = 'Hide custom element';
-                    }
+                });
+            }
+
+            const waitTextInput = document.getElementById("waitText");
+            if (waitTextInput) {
+                waitTextInput.addEventListener('input', function () {
+                    if (isSettingsLocked) return;
+                    const waitTextKey = `${siteIdentifier}WaitText`;
+                    unlockWaitText = this.value;
+                    chrome.storage.sync.set({ [waitTextKey]: this.value });
+                    const messageBox = document.getElementById("delay-message");
+                    if (messageBox) messageBox.innerText = this.value;
+                });
+            }
+        }
+
+        function isElementHidden(elementKey, toggleEl) {
+            if (!toggleEl) return false;
+            if (toggleEl.tagName === 'BUTTON') {
+                return toggleEl.getAttribute('data-state') !== 'On';
+            }
+            if (toggleEl.type === 'checkbox') {
+                return toggleEl.checked;
+            }
+            return false;
+        }
+
+        function captureProtectedHiddenSnapshot() {
+            protectedHiddenAtLock.clear();
+            if (!currentPlatform) return;
+            elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                const toggleEl = document.getElementById(item + 'Toggle');
+                if (isElementHidden(item, toggleEl)) {
+                    protectedHiddenAtLock.add(item);
                 }
             });
         }
+
+        function updateLockIcon() {
+            const lockBtn = document.getElementById('settings-lock-btn');
+            const unlockedIcon = document.getElementById('lock-icon-unlocked');
+            const lockedIcon = document.getElementById('lock-icon-locked');
+            if (!lockBtn || !unlockedIcon || !lockedIcon) return;
+
+            unlockedIcon.style.display = isSettingsLocked ? 'none' : 'block';
+            lockedIcon.style.display = isSettingsLocked ? 'block' : 'none';
+            lockBtn.title = isSettingsLocked ? 'Unlock settings' : 'Lock settings';
+            lockBtn.setAttribute('aria-label', lockBtn.title);
+            lockBtn.setAttribute('aria-pressed', isSettingsLocked ? 'true' : 'false');
+
+            const waitTimeInput = document.getElementById('waitTime');
+            const waitTextInput = document.getElementById('waitText');
+            const frictionCustomisation = document.querySelector('.friction-customisation');
+            if (waitTimeInput) waitTimeInput.disabled = isSettingsLocked;
+            if (waitTextInput) waitTextInput.disabled = isSettingsLocked;
+            if (frictionCustomisation) {
+                frictionCustomisation.classList.toggle('lock-protected-settings', isSettingsLocked);
+            }
+        }
+
+        function updateLockProtectedUI() {
+            if (!currentPlatform) return;
+            elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                const toggleEl = document.getElementById(item + 'Toggle');
+                const row = toggleEl ? toggleEl.closest('.a-toggle') : null;
+                if (!row) return;
+                const shouldProtect = isSettingsLocked &&
+                    protectedHiddenAtLock.has(item) &&
+                    isElementHidden(item, toggleEl);
+                row.classList.toggle('lock-protected', shouldProtect);
+            });
+        }
+
+        function persistLockState(siteIdentifier) {
+            const lockKey = `${siteIdentifier}SettingsLocked`;
+            chrome.storage.sync.set({ [lockKey]: isSettingsLocked });
+        }
+
+        function showConfirmDialog(title, message, confirmLabel, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.className = 'edit-dialog-overlay';
+
+            const dialog = document.createElement('div');
+            dialog.className = 'edit-dialog confirm-dialog';
+            dialog.innerHTML = `
+                <h3>${title}</h3>
+                <p class="confirm-dialog-message">${message}</p>
+                <div class="edit-dialog-buttons">
+                    <button id="cancel-confirm" class="secondary-btn">Cancel</button>
+                    <button id="accept-confirm" class="primary-btn">${confirmLabel}</button>
+                </div>`;
+
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            document.body.classList.add('modal-open');
+
+            const closeDialog = function () {
+                document.body.removeChild(overlay);
+                document.body.classList.remove('modal-open');
+            };
+
+            document.getElementById('accept-confirm').addEventListener('click', function () {
+                closeDialog();
+                onConfirm();
+            });
+            document.getElementById('cancel-confirm').addEventListener('click', closeDialog);
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) closeDialog();
+            });
+            overlay.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeDialog();
+            });
+        }
+
+        function runUnlockCountdown(onComplete) {
+            const popupContainer = document.getElementById('popup-content');
+            const messageContainer = document.getElementById('delay-content');
+            const errorContainer = document.getElementById('error-prompt');
+            const messageBox = document.getElementById('delay-message');
+            const countdownBox = document.getElementById('delay-time');
+            const saveFooter = document.getElementById('save-controls');
+            const helpContainer = document.getElementById('help-container');
+
+            if (!popupContainer || !messageContainer || !countdownBox) {
+                if (onComplete) onComplete();
+                return;
+            }
+
+            if (messageBox) messageBox.innerText = unlockWaitText;
+            let countdown = parseInt(unlockWaitTime, 10) || 10;
+            countdownBox.innerText = countdown;
+
+            popupContainer.style.display = 'none';
+            if (helpContainer) helpContainer.style.display = 'none';
+            if (errorContainer) errorContainer.style.display = 'none';
+            if (saveFooter) saveFooter.style.display = 'none';
+            messageContainer.style.display = 'block';
+            setTimeout(() => messageContainer.classList.add('show'), 100);
+
+            const timerId = setInterval(function () {
+                countdown--;
+                if (countdown >= 0) {
+                    countdownBox.innerText = countdown;
+                } else {
+                    clearInterval(timerId);
+                    messageContainer.style.display = 'none';
+                    messageContainer.classList.remove('show');
+                    popupContainer.style.display = 'block';
+                    if (helpContainer) helpContainer.style.display = '';
+                    if (errorContainer) errorContainer.style.display = 'none';
+                    updateSaveFooterVisibility();
+                    if (onComplete) onComplete();
+                }
+            }, 1000);
+        }
+
+        function setupSettingsLock(siteIdentifier) {
+            const lockBtn = document.getElementById('settings-lock-btn');
+            if (!lockBtn || !siteIdentifier) return;
+
+            lockBtn.style.display = currentPlatform ? '' : 'none';
+
+            const lockKey = `${siteIdentifier}SettingsLocked`;
+            chrome.storage.sync.get(lockKey, function (result) {
+                isSettingsLocked = result[lockKey] === true;
+                updateLockIcon();
+
+                if (isSettingsLocked) {
+                    setTimeout(function () {
+                        captureProtectedHiddenSnapshot();
+                        updateLockProtectedUI();
+                    }, 150);
+                }
+            });
+
+            lockBtn.addEventListener('click', function () {
+                if (!isSettingsLocked) {
+                    const waitSecs = parseInt(unlockWaitTime, 10) || 10;
+                    showConfirmDialog(
+                        'Lock settings?',
+                        `While locked, you won\u2019t be able to turn off hiding for elements that are already hidden. You can still hide new elements and undo those during this session. To unlock, you\u2019ll need to wait ${waitSecs} seconds.`,
+                        'Lock',
+                        function () {
+                            captureProtectedHiddenSnapshot();
+                            isSettingsLocked = true;
+                            persistLockState(siteIdentifier);
+                            updateLockIcon();
+                            updateLockProtectedUI();
+                        }
+                    );
+                } else {
+                    runUnlockCountdown(function () {
+                        isSettingsLocked = false;
+                        protectedHiddenAtLock.clear();
+                        persistLockState(siteIdentifier);
+                        updateLockIcon();
+                        updateLockProtectedUI();
+                    });
+                }
+            });
+        }
+
+        function setupFrictionDelay(siteIdentifier) {
+            /* replaced by setupUnlockSettings + setupSettingsLock */
+            setupUnlockSettings(siteIdentifier);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isSelectionModeActive) {
+                e.preventDefault();
+                if (currentSiteIdentifier) {
+                    chrome.storage.sync.set({ [`${currentSiteIdentifier}SelectionActive`]: false });
+                }
+                const addButtonId = currentPlatform
+                    ? `${currentPlatform}AddElementButton`
+                    : 'genericAddElementButton';
+                const addButton = document.getElementById(addButtonId);
+                if (addButton) {
+                    isSelectionModeActive = false;
+                    addButton.classList.remove('active');
+                    addButton.textContent = 'Hide custom element';
+                }
+            }
+        });
 
         function isRememberEnabled() {
             return rememberSettingsEnabled === true;
@@ -438,12 +581,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             currentCheckbox.addEventListener('click', function () {
                 const newValue = currentCheckbox.checked;
+                if (isSettingsLocked && protectedHiddenAtLock.has(element_to_change) && !newValue) {
+                    currentCheckbox.checked = true;
+                    return;
+                }
                 applySettingChange(element_to_change, newValue);
-                currentCheckbox.classList.add('loading'); // Add loading class for animation
+                currentCheckbox.classList.add('loading');
 
                 setTimeout(() => {
-                    currentCheckbox.classList.remove('loading'); // Remove loading class after animation
-                }, 800); // 0.8-second animation duration
+                    currentCheckbox.classList.remove('loading');
+                    updateLockProtectedUI();
+                }, 800);
             }, false);
         }
 
@@ -463,6 +611,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             currentButton.addEventListener('click', function () {
                 let currentState = currentButton.getAttribute("data-state");
+
+                if (isSettingsLocked && protectedHiddenAtLock.has(element_to_change) && currentState !== "On") {
+                    return;
+                }
+
                 let nextState;
 
                 if (currentState == "On") {
@@ -479,8 +632,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentButton.classList.add('loading'); // Add loading class for animation
 
                 setTimeout(() => {
-                    currentButton.classList.remove('loading'); // Remove loading class after animation
-                }, 800); // 0.8-second animation duration
+                    currentButton.classList.remove('loading');
+                    updateLockProtectedUI();
+                }, 800);
             }, false);
         }
 
@@ -752,21 +906,23 @@ document.addEventListener('DOMContentLoaded', function () {
             const existing = document.getElementById('grayscale-toggle-row');
             if (existing) existing.remove();
 
+            const wrapper = document.createElement('div');
+            wrapper.className = 'hide-checkboxes grayscale-controls';
+
             const row = document.createElement('div');
             row.id = 'grayscale-toggle-row';
-            row.className = 'a-toggle grayscale-toggle-row';
+            row.className = 'a-toggle grayscale-toggle';
             row.innerHTML = `
-                <label class="switch">
-                    <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle">
-                    <span class="slider round"></span>
-                </label>
-                <label for="grayscaleToggle" class="grayscale-label">Grayscale</label>`;
+                <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle">
+                <label for="grayscaleToggle">Grayscale</label>`;
+
+            wrapper.appendChild(row);
 
             const controls = anchorContainer.querySelector('.custom-elements-controls');
             if (controls) {
-                controls.insertAdjacentElement('afterend', row);
+                controls.insertAdjacentElement('afterend', wrapper);
             } else {
-                anchorContainer.prepend(row);
+                anchorContainer.prepend(wrapper);
             }
 
             const toggle = document.getElementById('grayscaleToggle');
@@ -1020,6 +1176,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (currentSiteIdentifier) {
                 setupFrictionDelay(currentSiteIdentifier);
                 setupGrayscaleToggle(currentSiteIdentifier);
+                setupSettingsLock(currentSiteIdentifier);
+
+                const popupContainer = document.getElementById('popup-content');
+                const messageContainer = document.getElementById('delay-content');
+                const errorContainer = document.getElementById('error-prompt');
+                if (popupContainer) popupContainer.style.display = 'block';
+                if (messageContainer) {
+                    messageContainer.style.display = 'none';
+                    messageContainer.classList.remove('show');
+                }
+                if (errorContainer) errorContainer.style.display = 'none';
+                updateSaveFooterVisibility();
             }
 
             // Setup Remember settings UI now that we know the site identifier
@@ -1041,6 +1209,12 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (response && response.overrides) {
                                     applyOverridesToUI(response.overrides);
                                 }
+                                if (isSettingsLocked) {
+                                    setTimeout(function () {
+                                        captureProtectedHiddenSnapshot();
+                                        updateLockProtectedUI();
+                                    }, 50);
+                                }
                                 // Also update custom elements list with session selectors
                                 if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
                                     updateCustomElementsList(currentSiteIdentifier, response.customSelectors);
@@ -1061,6 +1235,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
                                 if (response && response.overrides) {
                                     applyOverridesToUI(response.overrides);
+                                }
+                                if (isSettingsLocked) {
+                                    setTimeout(function () {
+                                        captureProtectedHiddenSnapshot();
+                                        updateLockProtectedUI();
+                                    }, 50);
                                 }
                                 // Also update custom elements list with session selectors
                                 if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
@@ -1180,6 +1360,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Make sure all elements exist
             if (!helpBtn || !faqDropdown || !faqOverlay) return;
+
+            const versionEl = document.getElementById('settings-app-version');
+            if (versionEl && chrome.runtime.getManifest) {
+                versionEl.textContent = 'Version ' + chrome.runtime.getManifest().version;
+            }
 
             // Toggle FAQ dropdown and overlay visibility
             helpBtn.addEventListener('click', (event) => {
