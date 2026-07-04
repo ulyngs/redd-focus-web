@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Blocked by Fristed</title>
+    <title>Blocked by ReDD Blocker</title>
     <style>
       :root {
         /* Tracks the ReDD design language used in redd-block/src/styles.css
@@ -95,12 +95,11 @@
       }
 
       .app-icon {
-        /* shield-only.svg is a portrait shape (~633x791). Width scales
-           automatically from height so the aspect ratio stays right. */
         height: 80px;
-        width: auto;
+        width: 80px;
         margin: 0 auto 16px;
         display: block;
+        object-fit: contain;
       }
 
       h1 {
@@ -219,6 +218,7 @@
 
       body.popup-mode .app-icon {
         height: 56px;
+        width: 56px;
         margin-bottom: 10px;
       }
 
@@ -265,30 +265,9 @@
   </head>
   <body>
     <main>
-      <!--
-        Inline SVG of the Fristed shield. Kept in sync with
-        redd-block/assets/icons/shield-only.svg; duplicated here so
-        blocked.html is self-contained and doesn't need an extra bundled
-        asset. The shield-only variant (no red rounded-square behind it)
-        works better on a card because the card already provides the
-        visual container.
-      -->
-      <svg class="app-icon" viewBox="0 0 633 791" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="50"  y="381" width="533" height="220" fill="#9DC6A1"/>
-        <rect x="85"  y="536" width="355" height="111" fill="#9DC6A1"/>
-        <rect x="140" y="601" width="325" height="98"  fill="#9DC6A1"/>
-        <rect x="127" y="583" width="325" height="98"  fill="#9DC6A1"/>
-        <rect x="220" y="545" width="326" height="111" fill="#9DC6A1"/>
-        <rect x="308" y="570" width="181" height="111" fill="#9DC6A1"/>
-        <rect x="212" y="626" width="214" height="123" fill="#9DC6A1"/>
-        <rect x="115" y="115" width="403" height="149" fill="#AAD5F7"/>
-        <rect x="220" y="71"  width="194" height="88"  fill="#AAD5F7"/>
-        <rect x="251" y="47"  width="132" height="47"  fill="#AAD5F7"/>
-        <rect x="-17" y="151" width="647" height="245" fill="#AAD5F7"/>
-        <path d="M316.5 25C321.558 25 326.448 26.7991 330.297 30.0713C402.288 92.9147 506.317 143.647 593.438 143.647C597.304 143.647 601.009 145.183 603.739 147.912C606.469 150.64 608 154.338 608 158.191V434.995C608 527.247 575.991 595.151 525.294 647.14C473.95 699.792 402.324 737.203 321.886 765.243C318.724 766.303 315.293 766.248 312.167 765.084L311.602 764.881L307.826 763.568C228.683 735.863 158.348 698.881 107.739 647.074C57.009 595.143 25.0001 527.248 25 434.995V158.191C25 154.338 26.5312 150.64 29.2607 147.912C31.9054 145.269 35.4655 143.745 39.2002 143.652L39.5625 143.647C126.703 143.647 231.127 92.5018 302.699 30.0742C306.549 26.8 311.441 25 316.5 25Z" stroke="#0A2D7B" stroke-width="50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
+      <img class="app-icon" src="images/logo-reddblocker.svg" alt="" aria-hidden="true">
 
-      <h1>Blocked by Fristed</h1>
+      <h1>Blocked by ReDD Blocker</h1>
       <p class="subtitle">This site is on your current blocklist.</p>
 
       <div id="pill-wrap" hidden>
