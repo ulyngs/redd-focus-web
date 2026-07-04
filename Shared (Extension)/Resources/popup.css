@@ -601,6 +601,29 @@ button[id$="AddElementButton"].active:hover {
     background-color: var(--btn-custom-hide-hover-bg);
 }
 
+.grayscale-toggle-row {
+    position: relative;
+    padding-left: calc(30px + var(--selector-gap, 9px));
+    min-height: 18px;
+    margin: 8px 0 var(--selector-row-spacing, 9px) 0;
+    text-align: left;
+}
+
+.grayscale-toggle-row .switch {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+}
+
+/* ID selector needed to out-rank the shared checkbox-label rule further
+   down (which sets line-height to the 16px checkbox height). The switch
+   is 18px tall, so the label's line box must match for true centering. */
+#grayscale-toggle-row .grayscale-label {
+    line-height: 18px;
+}
+
 .ordinary-checkbox [type="checkbox"] {
     width: 15px;
     height: 15px;
@@ -1958,7 +1981,8 @@ footer .friction-customisation {
 /* Line box matches checkbox height so label text centers on the control
    (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
 .hide-checkboxes .a-toggle label,
-.hide-checkboxes .a-toggle .multi-state-label {
+.hide-checkboxes .a-toggle .multi-state-label,
+.grayscale-toggle-row .grayscale-label {
     display: inline-block;
     margin: 0;
     padding: 0;

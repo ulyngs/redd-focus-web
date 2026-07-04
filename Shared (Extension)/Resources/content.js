@@ -34,6 +34,7 @@
 
         // Helper function to inject or update a style element in a given root
         function injectStyle(root, styleId, css) {
+            if (!root) return;
             let styleElement = root.querySelector("#" + styleId);
             if (!styleElement) {
                 styleElement = document.createElement("style");
@@ -47,8 +48,9 @@
             }
         }
 
-        // Always inject into document.head (for regular DOM elements)
-        injectStyle(document.head, some_style_id, some_css);
+        // document.head may not exist yet at document_start
+        const styleRoot = document.head || document.documentElement;
+        injectStyle(styleRoot, some_style_id, some_css);
 
         // Additionally inject into shadow root if element is in shadowSelectors
         if (elementToHide in shadowSelectors) {
@@ -641,6 +643,59 @@
         });
     }
 
+    const GRAYSCALE_STYLE_ID = 'siteGrayscaleStyle';
+    const GRAYSCALE_OVERLAY_ID = 'redd-focus-grayscale-overlay';
+
+    function ensureGrayscaleCssInjected() {
+        createStyleElement(GRAYSCALE_STYLE_ID, `
+            html.redd-focus-grayscale {
+                -webkit-filter: grayscale(100%) !important;
+                filter: grayscale(100%) !important;
+            }
+            #${GRAYSCALE_OVERLAY_ID} {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                pointer-events: none !important;
+                z-index: 2147483646 !important;
+                backdrop-filter: grayscale(100%) !important;
+                -webkit-backdrop-filter: grayscale(100%) !important;
+                background: transparent !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+        `);
+    }
+
+    function applyGrayscaleStyle(enabled) {
+        ensureGrayscaleCssInjected();
+        document.documentElement.classList.toggle('redd-focus-grayscale', !!enabled);
+
+        const mountOverlay = function () {
+            let overlay = document.getElementById(GRAYSCALE_OVERLAY_ID);
+            if (enabled) {
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = GRAYSCALE_OVERLAY_ID;
+                    overlay.setAttribute('aria-hidden', 'true');
+                    (document.body || document.documentElement).appendChild(overlay);
+                }
+            } else if (overlay) {
+                overlay.remove();
+            }
+        };
+
+        if (enabled && !document.body) {
+            document.addEventListener('DOMContentLoaded', mountOverlay, { once: true });
+        } else {
+            mountOverlay();
+        }
+    }
+
     function applyCustomElementStyles(siteIdentifier, selectors) {
         const styleId = `customHidden_${siteIdentifier.replace(/\./g, '_')}Style`;
         // Support both old format (string) and new format (object with name and selector)
@@ -812,6 +867,16 @@
                     stopSelecting(false);
                 }
             });
+
+            // Check grayscale setting
+            const grayscaleStatusKey = `${currentSiteIdentifier}GrayscaleStatus`;
+            chrome.storage.sync.get(grayscaleStatusKey, function (result) {
+                let grayscaleEnabled = result[grayscaleStatusKey] === true;
+                if (Object.prototype.hasOwnProperty.call(sessionOverrides, grayscaleStatusKey)) {
+                    grayscaleEnabled = sessionOverrides[grayscaleStatusKey] === true;
+                }
+                applyGrayscaleStyle(grayscaleEnabled);
+            });
         }
     }
 
@@ -835,7 +900,8 @@
             if (currentSiteIdentifier) {
                 const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
                 const selectionKey = `${currentSiteIdentifier}SelectionActive`;
-                if (changes[customStorageKey] || changes[selectionKey]) {
+                const grayscaleStatusKey = `${currentSiteIdentifier}GrayscaleStatus`;
+                if (changes[customStorageKey] || changes[selectionKey] || changes[grayscaleStatusKey]) {
                     hasRelevantChanges = true;
                 }
             }
@@ -848,6 +914,13 @@
                 // Apply changes immediately
                 setTimeout(applySettingsFromStorage, 100);
             }
+
+            if (currentSiteIdentifier) {
+                const grayscaleStatusKey = `${currentSiteIdentifier}GrayscaleStatus`;
+                if (changes[grayscaleStatusKey]) {
+                    applyGrayscaleStyle(changes[grayscaleStatusKey].newValue === true);
+                }
+            }
         }
     });
 
@@ -859,7 +932,13 @@
         if (!message || !message.type) return;
         if (message.type === 'sessionOverride') {
             sessionOverrides[message.key] = message.value;
+            if (typeof message.key === 'string' && message.key.endsWith('GrayscaleStatus')) {
+                applyGrayscaleStyle(message.value === true);
+            }
             setTimeout(applySettingsFromStorage, 50);
+        } else if (message.type === 'setGrayscale') {
+            applyGrayscaleStyle(message.enabled === true);
+            sendResponse({ success: true });
         } else if (message.type === 'getSessionOverrides') {
             const customKey = `${currentSiteIdentifier}CustomHiddenElements`;
             chrome.storage.sync.get(customKey, function (result) {
@@ -1032,6 +1111,11 @@
             if (merged.length > 0) {
                 console.log(`Applied ${merged.length} custom rules for ${currentSiteIdentifier}`);
             }
+        });
+
+        const grayscaleStatusKey = `${currentSiteIdentifier}GrayscaleStatus`;
+        chrome.storage.sync.get(grayscaleStatusKey, function (result) {
+            applyGrayscaleStyle(result[grayscaleStatusKey] === true);
         });
     }
 

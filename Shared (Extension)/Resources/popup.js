@@ -742,6 +742,56 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Updated container content for', containerId, ':', container.innerHTML);
         }
 
+        function setupGrayscaleToggle(siteIdentifier) {
+            const platformSpecific = platformsWeTarget.includes(siteIdentifier);
+            const anchorContainer = platformSpecific
+                ? document.querySelector(`.dropdown.${siteIdentifier} .toggle-group`)
+                : document.querySelector('#generic-site-options .toggle-group');
+            if (!anchorContainer) return;
+
+            const existing = document.getElementById('grayscale-toggle-row');
+            if (existing) existing.remove();
+
+            const row = document.createElement('div');
+            row.id = 'grayscale-toggle-row';
+            row.className = 'a-toggle grayscale-toggle-row';
+            row.innerHTML = `
+                <label class="switch">
+                    <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle">
+                    <span class="slider round"></span>
+                </label>
+                <label for="grayscaleToggle" class="grayscale-label">Grayscale</label>`;
+
+            const controls = anchorContainer.querySelector('.custom-elements-controls');
+            if (controls) {
+                controls.insertAdjacentElement('afterend', row);
+            } else {
+                anchorContainer.prepend(row);
+            }
+
+            const toggle = document.getElementById('grayscaleToggle');
+            if (!toggle) return;
+
+            const storageKey = `${siteIdentifier}GrayscaleStatus`;
+            chrome.storage.sync.get(storageKey, function (result) {
+                toggle.checked = result[storageKey] === true;
+            });
+
+            toggle.addEventListener('change', function () {
+                const enabled = toggle.checked;
+                applySettingChange(`${siteIdentifier}Grayscale`, enabled);
+                // Tell the active tab to apply immediately. Relying on storage
+                // sync alone is too slow/unreliable from the popup.
+                chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                    if (!tabs || !tabs[0]) return;
+                    chrome.tabs.sendMessage(tabs[0].id, { type: 'setGrayscale', enabled: enabled }, function () {
+                        // Content script may not be loaded on this tab yet — ignore.
+                        void chrome.runtime.lastError;
+                    });
+                });
+            });
+        }
+
         function addCustomSelector(siteIdentifier, name, selector) {
             const storageKey = `${siteIdentifier}CustomHiddenElements`;
             chrome.storage.sync.get(storageKey, function (result) {
@@ -969,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Now that we know the site identifier, set up friction delay per-site
             if (currentSiteIdentifier) {
                 setupFrictionDelay(currentSiteIdentifier);
+                setupGrayscaleToggle(currentSiteIdentifier);
             }
 
             // Setup Remember settings UI now that we know the site identifier
@@ -1072,6 +1123,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function applyOverridesToUI(overrides) {
             if (!overrides) return;
+            // Apply grayscale override (available on all sites)
+            const grayscaleKey = `${currentSiteIdentifier}GrayscaleStatus`;
+            if (Object.prototype.hasOwnProperty.call(overrides, grayscaleKey)) {
+                const grayscaleToggle = document.getElementById('grayscaleToggle');
+                if (grayscaleToggle) grayscaleToggle.checked = overrides[grayscaleKey] === true;
+            }
             // Apply platform status override
             if (currentPlatform) {
                 const platformKey = `${currentPlatform}Status`;
