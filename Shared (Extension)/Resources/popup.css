@@ -262,6 +262,11 @@ body.modal-open {
     margin-bottom: 2rem;
 }
 
+/* Hide entire popup until site settings + lock state are loaded (see inline head style too). */
+body.popup-loading:not(.eula-gate-active) {
+    visibility: hidden;
+}
+
 body.popup-showing-blocked-page {
     width: 330px;
     min-width: 330px;

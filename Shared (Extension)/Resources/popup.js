@@ -349,13 +349,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function captureProtectedHiddenSnapshot() {
             protectedHiddenAtLock.clear();
-            if (!currentPlatform) return;
-            elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
-                const toggleEl = document.getElementById(item + 'Toggle');
-                if (isElementHidden(item, toggleEl)) {
-                    protectedHiddenAtLock.add(item);
+            if (currentPlatform) {
+                elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                    const toggleEl = document.getElementById(item + 'Toggle');
+                    if (isElementHidden(item, toggleEl)) {
+                        protectedHiddenAtLock.add(item);
+                    }
+                });
+            }
+            if (currentSiteIdentifier) {
+                const grayscaleToggle = document.getElementById('grayscaleToggle');
+                if (grayscaleToggle && grayscaleToggle.checked) {
+                    protectedHiddenAtLock.add(`${currentSiteIdentifier}Grayscale`);
                 }
-            });
+            }
         }
 
         function updateLockIcon() {
@@ -381,16 +388,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function updateLockProtectedUI() {
-            if (!currentPlatform) return;
-            elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
-                const toggleEl = document.getElementById(item + 'Toggle');
-                const row = toggleEl ? toggleEl.closest('.a-toggle') : null;
-                if (!row) return;
-                const shouldProtect = isSettingsLocked &&
-                    protectedHiddenAtLock.has(item) &&
-                    isElementHidden(item, toggleEl);
-                row.classList.toggle('lock-protected', shouldProtect);
-            });
+            if (currentPlatform) {
+                elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                    const toggleEl = document.getElementById(item + 'Toggle');
+                    const row = toggleEl ? toggleEl.closest('.a-toggle') : null;
+                    if (!row) return;
+                    const shouldProtect = isSettingsLocked &&
+                        protectedHiddenAtLock.has(item) &&
+                        isElementHidden(item, toggleEl);
+                    row.classList.toggle('lock-protected', shouldProtect);
+                });
+            }
+            if (currentSiteIdentifier) {
+                const grayscaleToggle = document.getElementById('grayscaleToggle');
+                const grayscaleRow = document.getElementById('grayscale-toggle-row');
+                if (grayscaleToggle && grayscaleRow) {
+                    const grayscaleKey = `${currentSiteIdentifier}Grayscale`;
+                    const shouldProtect = isSettingsLocked &&
+                        protectedHiddenAtLock.has(grayscaleKey) &&
+                        grayscaleToggle.checked;
+                    grayscaleRow.classList.toggle('lock-protected', shouldProtect);
+                }
+            }
         }
 
         function persistLockState(siteIdentifier) {
@@ -476,24 +495,108 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         }
 
+        function applyToggleStateFromValue(item, value) {
+            const toggleEl = document.getElementById(item + 'Toggle');
+            if (!toggleEl) return;
+            if (item === 'youtubeThumbnails') {
+                toggleEl.setAttribute('data-state', value || 'On');
+            } else {
+                toggleEl.checked = !!value;
+            }
+        }
+
+        function dismissPopupLoading() {
+            document.body.classList.remove('popup-loading', 'lock-state-pending');
+        }
+
+        function revealPopupContent() {
+            if (isSettingsLocked) {
+                captureProtectedHiddenSnapshot();
+                updateLockProtectedUI();
+            }
+
+            const popupContainer = document.getElementById('popup-content');
+            const messageContainer = document.getElementById('delay-content');
+            const errorContainer = document.getElementById('error-prompt');
+            if (popupContainer) popupContainer.style.display = 'block';
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+                messageContainer.classList.remove('show');
+            }
+            if (errorContainer) errorContainer.style.display = 'none';
+            updateSaveFooterVisibility();
+            dismissPopupLoading();
+        }
+
+        function initializePopupUI() {
+            const lockKey = `${currentSiteIdentifier}SettingsLocked`;
+            const rememberKey = `${currentSiteIdentifier}RememberSettings`;
+            const grayscaleKey = `${currentSiteIdentifier}GrayscaleStatus`;
+            const storageKeys = [lockKey, rememberKey, grayscaleKey, 'themePreference'];
+
+            if (currentPlatform) {
+                elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                    storageKeys.push(item + 'Status');
+                });
+            }
+
+            chrome.storage.sync.get(storageKeys, function (result) {
+                isSettingsLocked = result[lockKey] === true;
+                rememberSettingsEnabled = result[rememberKey] !== false;
+
+                const themePref = result.themePreference || 'system';
+                applyTheme(themePref);
+                const themeTriggerText = document.getElementById('themeSelectTriggerText');
+                if (themeTriggerText) {
+                    themeTriggerText.textContent = THEME_LABELS[themePref] || THEME_LABELS.system;
+                }
+
+                if (currentPlatform) {
+                    elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
+                        applyToggleStateFromValue(item, result[item + 'Status']);
+                    });
+                }
+
+                const grayscaleToggle = document.getElementById('grayscaleToggle');
+                if (grayscaleToggle) {
+                    grayscaleToggle.checked = result[grayscaleKey] === true;
+                }
+
+                const rememberToggle = document.getElementById('rememberSettingsToggle');
+                if (rememberToggle) {
+                    rememberToggle.checked = rememberSettingsEnabled;
+                }
+
+                updateLockIcon();
+                updateSaveFooterVisibility();
+
+                if (!rememberSettingsEnabled) {
+                    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                        if (!tabs || !tabs[0]) {
+                            revealPopupContent();
+                            return;
+                        }
+                        chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
+                            if (response && response.overrides) {
+                                applyOverridesToUI(response.overrides);
+                            }
+                            if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
+                                updateCustomElementsList(currentSiteIdentifier, response.customSelectors);
+                            }
+                            revealPopupContent();
+                        });
+                    });
+                } else {
+                    revealPopupContent();
+                }
+            });
+        }
+
         function setupSettingsLock(siteIdentifier) {
             const lockBtn = document.getElementById('settings-lock-btn');
             if (!lockBtn || !siteIdentifier) return;
 
             lockBtn.style.display = currentPlatform ? '' : 'none';
-
-            const lockKey = `${siteIdentifier}SettingsLocked`;
-            chrome.storage.sync.get(lockKey, function (result) {
-                isSettingsLocked = result[lockKey] === true;
-                updateLockIcon();
-
-                if (isSettingsLocked) {
-                    setTimeout(function () {
-                        captureProtectedHiddenSnapshot();
-                        updateLockProtectedUI();
-                    }, 150);
-                }
-            });
 
             lockBtn.addEventListener('click', function () {
                 if (!isSettingsLocked) {
@@ -929,12 +1032,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!toggle) return;
 
             const storageKey = `${siteIdentifier}GrayscaleStatus`;
-            chrome.storage.sync.get(storageKey, function (result) {
-                toggle.checked = result[storageKey] === true;
-            });
+            // Initial checked state is applied in initializePopupUI() before the popup is shown.
 
             toggle.addEventListener('change', function () {
                 const enabled = toggle.checked;
+                const protectKey = `${siteIdentifier}Grayscale`;
+                if (isSettingsLocked && protectedHiddenAtLock.has(protectKey) && !enabled) {
+                    toggle.checked = true;
+                    return;
+                }
                 applySettingChange(`${siteIdentifier}Grayscale`, enabled);
                 // Tell the active tab to apply immediately. Relying on storage
                 // sync alone is too slow/unreliable from the popup.
@@ -945,6 +1051,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         void chrome.runtime.lastError;
                     });
                 });
+                updateLockProtectedUI();
             });
         }
 
@@ -1071,6 +1178,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 frame.src = blockedPageUrl;
             }
             popupContainer.appendChild(frame);
+            dismissPopupLoading();
         }
 
         chrome.tabs.query({ active: true, currentWindow: true }, function (tab) {
@@ -1079,6 +1187,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('popup-content').innerHTML = "<p class='error-message'>Could not get tab information. Try reloading the page.</p>";
                 document.getElementById('popup-content').style.display = 'block';
                 document.getElementById('delay-content').style.display = 'none';
+                dismissPopupLoading();
                 return;
             }
 
@@ -1090,6 +1199,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('popup-content').innerHTML = `<p class='error-message'>Cannot run on this page (${tab[0].url.split('/')[0]}...).</p>`;
                 document.getElementById('popup-content').style.display = 'block';
                 document.getElementById('delay-content').style.display = 'none';
+                dismissPopupLoading();
                 return;
             }
 
@@ -1160,34 +1270,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (websiteToggles2) websiteToggles2.style.display = 'none';
                 document.getElementById('generic-site-options').style.display = 'none';
                 document.getElementById('currentSiteInfo').style.display = 'block';
+                dismissPopupLoading();
             }
 
-            if (currentPlatform) {
-                elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(item => {
-                    if (item === "youtubeThumbnails") {
-                        setButtonStateFour(item, item + "Toggle");
-                    } else {
-                        setCheckboxState(item, item + "Toggle");
-                    }
-                });
-            }
-
-            // Now that we know the site identifier, set up friction delay per-site
             if (currentSiteIdentifier) {
                 setupFrictionDelay(currentSiteIdentifier);
                 setupGrayscaleToggle(currentSiteIdentifier);
                 setupSettingsLock(currentSiteIdentifier);
-
-                const popupContainer = document.getElementById('popup-content');
-                const messageContainer = document.getElementById('delay-content');
-                const errorContainer = document.getElementById('error-prompt');
-                if (popupContainer) popupContainer.style.display = 'block';
-                if (messageContainer) {
-                    messageContainer.style.display = 'none';
-                    messageContainer.classList.remove('show');
-                }
-                if (errorContainer) errorContainer.style.display = 'none';
-                updateSaveFooterVisibility();
+                initializePopupUI();
             }
 
             // Setup Remember settings UI now that we know the site identifier
@@ -1196,33 +1286,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const saveBtn = document.getElementById('saveButton');
             const saveStatus = document.getElementById('saveStatus');
             if (rememberToggle && saveFooter) {
-                const rememberKey = `${currentSiteIdentifier}RememberSettings`;
-                chrome.storage.sync.get(rememberKey, function (result) {
-                    rememberSettingsEnabled = result[rememberKey] !== false; // default true
-                    rememberToggle.checked = rememberSettingsEnabled;
-                    updateSaveFooterVisibility();
-                    if (!rememberSettingsEnabled) {
-                        // If not remembering, sync UI with current session overrides and session-hidden elements
-                        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                            if (!tabs || !tabs[0]) return;
-                            chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
-                                if (response && response.overrides) {
-                                    applyOverridesToUI(response.overrides);
-                                }
-                                if (isSettingsLocked) {
-                                    setTimeout(function () {
-                                        captureProtectedHiddenSnapshot();
-                                        updateLockProtectedUI();
-                                    }, 50);
-                                }
-                                // Also update custom elements list with session selectors
-                                if (response && response.customSelectors && Array.isArray(response.customSelectors)) {
-                                    updateCustomElementsList(currentSiteIdentifier, response.customSelectors);
-                                }
-                            });
-                        });
-                    }
-                });
                 rememberToggle.addEventListener('change', function () {
                     rememberSettingsEnabled = rememberToggle.checked;
                     updateSaveFooterVisibility();

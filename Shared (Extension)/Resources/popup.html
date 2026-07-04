@@ -4,13 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Prevent footer/background flash before JS loads site-specific UI */
+        body.popup-loading:not(.eula-gate-active) {
+            visibility: hidden;
+        }
+    </style>
     <link rel="stylesheet" href="popup.css">
     <script src="shared_data.js"></script>
     <script src="review_store_url.js"></script>
     <script src="popup.js"></script>
 </head>
 
-<body>
+<body class="popup-loading">
     <div id="eula-overlay" class="eula-overlay" style="display: none;">
         <div class="screen-container eula-screen-container">
             <div class="top-bar top-bar-no-border">
