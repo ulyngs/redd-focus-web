@@ -567,6 +567,40 @@ button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
 }
 
+/* "+" button for manually entering a CSS selector; matches the surface of the hide button */
+.manual-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    background-color: var(--btn-custom-hide-bg);
+    color: var(--btn-custom-hide-text);
+    border: none;
+    border-radius: 8px;
+    padding: 0 7px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.manual-add-btn:hover {
+    background-color: var(--btn-custom-hide-hover-bg);
+}
+
+.manual-add-btn svg {
+    display: block;
+    stroke: currentColor;
+}
+
+.dark-mode .manual-add-btn {
+    background-color: var(--btn-custom-hide-bg);
+    color: var(--btn-custom-hide-text);
+}
+
+.dark-mode .manual-add-btn:hover {
+    background-color: var(--btn-custom-hide-hover-bg);
+}
+
 .ordinary-checkbox [type="checkbox"] {
     width: 15px;
     height: 15px;

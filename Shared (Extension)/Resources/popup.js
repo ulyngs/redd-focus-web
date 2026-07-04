@@ -502,7 +502,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function setupPlatformSwitchListener() { /* removed */ }
 
-        function showEditDialog(siteIdentifier, selector, name, onSave) {
+        function showEditDialog(siteIdentifier, selector, name, onSave, options) {
+            options = options || {};
+            const dialogTitle = options.title || 'Edit Custom Element';
+            const saveLabel = options.saveLabel || 'Save';
+
             // Create overlay
             const overlay = document.createElement('div');
             overlay.className = 'edit-dialog-overlay';
@@ -512,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function () {
             dialog.className = 'edit-dialog';
 
             dialog.innerHTML = `
-                <h3>Edit Custom Element</h3>
+                <h3>${dialogTitle}</h3>
                 <div class="edit-dialog-field">
                     <label for="element-name">Name (optional):</label>
                     <input type="text" id="element-name" class="shadcn-input" placeholder="e.g., Reels button" value="${name || ''}">
@@ -532,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div class="edit-dialog-buttons">
                     <button id="cancel-edit" class="secondary-btn">Cancel</button>
-                    <button id="save-edit" class="primary-btn">Save</button>
+                    <button id="save-edit" class="primary-btn">${saveLabel}</button>
                 </div>
             `;
 
@@ -543,11 +547,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.add('modal-open');
             document.body.style.minHeight = '350px';
 
-            // Focus name input
+            // Focus the selector field when adding manually, otherwise the name input
             setTimeout(() => {
-                const nameInput = document.getElementById('element-name');
-                if (nameInput) {
-                    nameInput.focus();
+                const fieldToFocus = document.getElementById(options.focusSelector ? 'element-selector' : 'element-name');
+                if (fieldToFocus) {
+                    fieldToFocus.focus();
                 }
             }, 50);
 
@@ -564,6 +568,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!newSelector) {
                     alert('CSS Selector cannot be empty');
+                    return;
+                }
+
+                try {
+                    document.querySelector(newSelector);
+                } catch (err) {
+                    alert('This is not a valid CSS selector');
                     return;
                 }
 
@@ -731,6 +742,42 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Updated container content for', containerId, ':', container.innerHTML);
         }
 
+        function addCustomSelector(siteIdentifier, name, selector) {
+            const storageKey = `${siteIdentifier}CustomHiddenElements`;
+            chrome.storage.sync.get(storageKey, function (result) {
+                let currentSelectors = result[storageKey] || [];
+                if (!Array.isArray(currentSelectors)) currentSelectors = [];
+
+                const alreadyExists = currentSelectors.some(s =>
+                    (typeof s === 'string' ? s : s.selector) === selector
+                );
+                if (alreadyExists) {
+                    alert('This selector is already in the list');
+                    return;
+                }
+
+                currentSelectors.push({ name: name, selector: selector });
+                chrome.storage.sync.set({ [storageKey]: currentSelectors }, function () {
+                    // The content script picks up the storage change and hides the
+                    // element; ask it for the merged list (storage + session) so the
+                    // popup list stays in sync.
+                    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                        if (!tabs || !tabs[0]) {
+                            updateCustomElementsList(siteIdentifier, currentSelectors);
+                            return;
+                        }
+                        chrome.tabs.sendMessage(tabs[0].id, { type: 'getSessionOverrides' }, function (response) {
+                            if (chrome.runtime.lastError || !response || !Array.isArray(response.customSelectors)) {
+                                updateCustomElementsList(siteIdentifier, currentSelectors);
+                            } else {
+                                updateCustomElementsList(siteIdentifier, response.customSelectors);
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
         function setupCustomElementControls(siteIdentifier) {
             const platformSpecific = platformsWeTarget.includes(siteIdentifier);
             const addButtonId = platformSpecific ? `${siteIdentifier}AddElementButton` : 'genericAddElementButton';
@@ -751,6 +798,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
             } else { console.error("Add button not found:", addButtonId); }
+
+            const manualAddButtonId = platformSpecific ? `${siteIdentifier}ManualAddButton` : 'genericManualAddButton';
+            const manualAddButton = document.getElementById(manualAddButtonId);
+
+            if (manualAddButton) {
+                manualAddButton.addEventListener('click', function () {
+                    showEditDialog(siteIdentifier, '', '', function (newName, newSelector) {
+                        addCustomSelector(siteIdentifier, newName, newSelector);
+                    }, { title: 'Add Custom Element', saveLabel: 'Add', focusSelector: true });
+                });
+            } else { console.error("Manual add button not found:", manualAddButtonId); }
         }
 
         function isBlockedPageUrl(url) {
