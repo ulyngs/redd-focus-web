@@ -18,6 +18,7 @@
   const originalUrl = params.get("u") || "";
   const blocklistId = params.get("id");
   const blocklistName = params.get("name");
+  const blockMode = params.get("mode");
   const emoji = params.get("emoji");
   const color = params.get("color");
   const source = params.get("source");
@@ -38,6 +39,20 @@
   function show(id) {
     const el = document.getElementById(id);
     if (el) el.hidden = false;
+  }
+
+  const da = (navigator.language || "").toLowerCase().startsWith("da");
+  const subtitleEl = document.getElementById("subtitle");
+  if (subtitleEl) {
+    if (blockMode === "allowlist") {
+      subtitleEl.textContent = da
+        ? "Dette websted er ikke på din nuværende tilladelsesliste."
+        : "This site is not on your current allowlist.";
+    } else {
+      subtitleEl.textContent = da
+        ? "Dette websted er på din nuværende blokeringsliste."
+        : "This site is on your current blocklist.";
+    }
   }
 
   // ---- Blocklist pill -------------------------------------------------
