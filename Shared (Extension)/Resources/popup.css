@@ -52,9 +52,9 @@
     --btn-secondary-text: var(--redd-navy);
     --btn-secondary-hover: #e8e4de;
 
-    /* "Click to hide element": calm surface + teal ring; .active uses accent */
+    /* "Click to hide element": calm surface + section stroke; .active uses accent */
     --btn-custom-hide-bg: var(--redd-subtle);
-    --btn-custom-hide-border: var(--redd-teal);
+    --btn-custom-hide-border: var(--border-color-medium);
     --btn-custom-hide-text: var(--redd-navy);
     --btn-custom-hide-hover-bg: var(--redd-teal-soft);
 
@@ -115,91 +115,96 @@
 
 /* ========================================
    Theme Variables - Dark Mode
+   Mirrors redd-block inverted-cream: deep navy canvas, warm cream text.
    ======================================== */
 .dark-mode {
     color-scheme: dark;
+
+    /* Canonical palette */
+    --redd-canvas: #14202c;
+    --redd-subtle: #1a2735;
+    --redd-card: #1e2d3e;
+    --redd-navy: #f5f0e8;
+    --redd-body: #e6e2d8;
+    --redd-muted: #9aa3b0;
+    --redd-border-subtle: rgba(255, 255, 255, 0.10);
+    --redd-teal: #399e90;
+    --redd-teal-hover: #4ec0b0;
+    --redd-teal-soft: rgba(57, 158, 144, 0.16);
+    --redd-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2);
+
     /* Background colors */
-    --bg-primary: #1e293b;
-    --bg-secondary: #1e293b;
-    /* Slightly darker for depth */
-    --bg-tertiary: #334155;
-    --bg-hover: #475569;
-    --bg-input: #0f172a;
+    --bg-primary: var(--redd-canvas);
+    --bg-secondary: var(--redd-card);
+    --bg-tertiary: var(--redd-subtle);
+    --bg-hover: rgba(255, 255, 255, 0.08);
+    --bg-input: rgba(255, 255, 255, 0.04);
 
     /* Text colors */
-    --text-primary: #e2e8f0;
-    --text-secondary: #f8fafc;
-    --text-muted: #94a3b8;
-    --text-subtle: #64748b;
-    --text-link: #94a3b8;
-    --text-link-hover: #e2e8f0;
+    --text-primary: var(--redd-navy);
+    --text-secondary: var(--redd-body);
+    --text-muted: var(--redd-muted);
+    --text-subtle: rgba(245, 240, 232, 0.65);
+    --text-link: var(--redd-muted);
+    --text-link-hover: var(--redd-navy);
 
     /* Border colors */
-    --border-color: #334155;
-    --border-hover: #475569;
-    --border-input: #334155;
-    --border-focus: #3dbfb0;
+    --border-color: var(--redd-border-subtle);
+    --border-hover: rgba(255, 255, 255, 0.16);
+    --border-input: var(--redd-border-subtle);
+    --border-focus: var(--redd-teal);
+    --border-color-medium: var(--border-input);
 
-    /* Accent colors (teal on dark) */
-    --accent-primary: #3dbfb0;
-    --accent-hover: #2a9d8f;
-    --accent-secondary: #4a90e2;
+    /* Accent colors */
+    --accent-primary: var(--redd-teal);
+    --accent-hover: var(--redd-teal-hover);
+    --accent-secondary: #6aa9ea;
 
     /* Button colors */
-    --btn-primary-bg: #2a9d8f;
+    --btn-primary-bg: var(--redd-teal);
     --btn-primary-text: #ffffff;
-    --btn-primary-hover: #248a7e;
-    --btn-secondary-bg: #334155;
-    --btn-secondary-text: #fafafa;
-    --btn-secondary-hover: #475569;
+    --btn-primary-hover: var(--redd-teal-hover);
+    --btn-secondary-bg: var(--redd-subtle);
+    --btn-secondary-text: var(--redd-navy);
+    --btn-secondary-hover: rgba(255, 255, 255, 0.08);
 
-    --btn-custom-hide-bg: #334155;
-    --btn-custom-hide-border: #3dbfb0;
-    --btn-custom-hide-text: #e2e8f0;
-    --btn-custom-hide-hover-bg: #3d4f63;
+    --btn-custom-hide-bg: var(--redd-subtle);
+    --btn-custom-hide-border: var(--border-color-medium);
+    --btn-custom-hide-text: var(--redd-navy);
+    --btn-custom-hide-hover-bg: rgba(255, 255, 255, 0.08);
 
     /* Toggle/Checkbox colors */
-    --toggle-bg: #475569;
-    --toggle-bg-checked: #2a9d8f;
-    --checkbox-bg: #3d4b5f;
-    --checkbox-border: #475569;
+    --toggle-bg: rgba(255, 255, 255, 0.06);
+    --toggle-bg-checked: var(--redd-teal);
+    --checkbox-bg: rgba(255, 255, 255, 0.04);
+    --checkbox-border: var(--redd-border-subtle);
     --checkbox-check-color: #ffffff;
 
     /* Footer */
-    --footer-bg: #1e293b;
-    --footer-text: #94a3b8;
-    --footer-border: #334155;
+    --footer-bg: var(--redd-canvas);
+    --footer-text: var(--redd-muted);
+    --footer-border: var(--redd-border-subtle);
 
     /* Modal/Dialog */
-    --modal-bg: #1e293b;
+    --modal-bg: var(--bg-primary);
     --modal-overlay: rgba(0, 0, 0, 0.7);
     --modal-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
+    /* Settings panel */
+    --settings-panel-bg: var(--redd-subtle);
+
     /* Icon colors */
-    --icon-color: #94a3b8;
-    --icon-hover: #e2e8f0;
+    --icon-color: var(--redd-muted);
+    --icon-hover: var(--redd-navy);
 
     /* Misc */
     --dropdown-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.4);
-    --message-bg: #1e293b;
+    --message-bg: var(--redd-canvas);
 
-    --link-color: #89b9f2;
-    --link-hover: #72cfc3;
+    --link-color: #6aa9ea;
+    --link-hover: var(--redd-teal);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-}
-
-/* Settings (gear): same surface as “Click to hide element”; no border */
-.dark-mode #help-icon-btn {
-    background-color: var(--btn-custom-hide-bg);
-}
-
-.dark-mode #help-icon-btn:hover {
-    background-color: var(--btn-custom-hide-hover-bg);
-}
-
-.dark-mode #help-icon-btn svg {
-    stroke: var(--text-secondary);
 }
 
 html {
@@ -484,26 +489,6 @@ input:checked+.slider:before {
     background-color: var(--accent-hover);
 }
 
-.dark-mode #saveButton {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-}
-
-.dark-mode #saveButton:hover {
-    background-color: var(--bg-hover);
-}
-
-.dark-mode #saveButton.is-success {
-    background-color: var(--accent-primary);
-    color: var(--btn-primary-text);
-    border-color: var(--accent-primary);
-}
-
-.dark-mode #saveButton.is-success:hover {
-    background-color: var(--accent-hover);
-}
-
 button[id$="ManualAddButton"] {
     display: none;
 }
@@ -512,12 +497,13 @@ body.manual-css-enabled button[id$="ManualAddButton"] {
     display: block;
 }
 
-/* Click to hide element / Add CSS selector: subtle surface; selection mode = filled teal; no border */
+/* Click to hide element / Add CSS selector: subtle surface + teal stroke; .active = filled teal */
 button[id$="AddElementButton"],
 button[id$="ManualAddButton"] {
     background-color: var(--btn-custom-hide-bg);
     color: var(--btn-custom-hide-text);
-    border: none;
+    border: 1px solid var(--btn-custom-hide-border);
+    box-sizing: border-box;
     padding: 7px 10px;
     text-align: center;
     font-size: 0.95em;
@@ -525,7 +511,7 @@ button[id$="ManualAddButton"] {
     font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 body.manual-css-enabled button[id$="AddElementButton"],
@@ -542,31 +528,12 @@ button[id$="ManualAddButton"]:hover {
 button[id$="AddElementButton"].active {
     background-color: var(--accent-primary);
     color: #ffffff;
+    border-color: var(--accent-primary);
 }
 
 button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
-}
-
-.dark-mode button[id$="AddElementButton"],
-.dark-mode button[id$="ManualAddButton"] {
-    background-color: var(--btn-custom-hide-bg);
-    color: var(--btn-custom-hide-text);
-    border: none;
-}
-
-.dark-mode button[id$="AddElementButton"]:hover,
-.dark-mode button[id$="ManualAddButton"]:hover {
-    background-color: var(--btn-custom-hide-hover-bg);
-}
-
-.dark-mode button[id$="AddElementButton"].active {
-    background-color: var(--accent-primary);
-    color: #ffffff;
-}
-
-.dark-mode button[id$="AddElementButton"].active:hover {
-    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .grayscale-controls {
@@ -651,7 +618,7 @@ button[id$="AddElementButton"].active:hover {
     box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.28);
 }
 
-body.dark-mode .shadcn-input:focus {
+.dark-mode .shadcn-input:focus {
     box-shadow: 0 0 0 2px rgba(61, 191, 176, 0.35);
 }
 
@@ -664,8 +631,8 @@ select.shadcn-input {
     background-position: right 8px center;
 }
 
-body.dark-mode select.shadcn-input {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+.dark-mode select.shadcn-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa3b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 /* Theme control: same closed look as native select; options use FAQ row hover (var(--bg-tertiary)) */
@@ -695,7 +662,7 @@ body.dark-mode select.shadcn-input {
 }
 
 .dark-mode .theme-select-root .theme-select-trigger {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa3b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 .theme-select-menu {
@@ -883,54 +850,33 @@ footer .toggle-group {
     margin-top: 2px;
 }
 
-/* Dark Mode specific overrides (controlled by body.dark-mode class) */
-body.dark-mode .colored-font {
+/* Dark Mode specific overrides (controlled by html.dark-mode class) */
+.dark-mode .colored-font {
     color: var(--text-subtle);
 }
 
-body.dark-mode .friction-customisation input {
+.dark-mode .friction-customisation input {
     background-color: var(--bg-input);
     color: var(--text-secondary);
 }
 
-body.dark-mode #sites-arrow path {
+.dark-mode #sites-arrow path {
     fill: var(--icon-color);
 }
 
-body.dark-mode #sites-arrow-right path,
-body.dark-mode #sites-arrow-down path,
-body.dark-mode #how-to-arrow-right path,
-body.dark-mode #how-to-arrow-down path,
-body.dark-mode #how-to-arrow-right-not-mobile path,
-body.dark-mode #how-to-arrow-down-not-mobile path {
+.dark-mode #sites-arrow-right path,
+.dark-mode #sites-arrow-down path,
+.dark-mode #how-to-arrow-right path,
+.dark-mode #how-to-arrow-down path,
+.dark-mode #how-to-arrow-right-not-mobile path,
+.dark-mode #how-to-arrow-down-not-mobile path {
     fill: var(--icon-color);
 }
 
-body.dark-mode #faq-dropdown {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-    color: var(--text-secondary);
-    --settings-panel-bg: var(--bg-tertiary);
-}
-
-body.dark-mode .faq-item {
-    border-bottom-color: var(--border-color);
-}
-
-body.dark-mode .faq-trigger {
-    color: var(--text-primary);
-}
-
-body.dark-mode .faq-trigger:hover {
-    background-color: var(--bg-tertiary);
-}
-
-body.dark-mode .faq-chevron {
-    stroke: var(--icon-color);
-}
-
-body.dark-mode .faq-content p {
-    color: var(--text-muted);
+.dark-mode .settings-number-input,
+.dark-mode .settings-text-input,
+.dark-mode #faq-dropdown .settings-select-trigger {
+    background-color: var(--bg-input);
 }
 
 /* YouTube preview rows: chevron sits in the same 16px column as selector checkboxes; label uses selector tokens. */
@@ -1551,21 +1497,6 @@ footer .friction-customisation {
     display: block;
 }
 
-.dark-mode .header-icon-btn,
-.dark-mode #settings-lock-btn {
-    background-color: var(--btn-custom-hide-bg);
-}
-
-.dark-mode .header-icon-btn:hover,
-.dark-mode #settings-lock-btn:hover {
-    background-color: var(--btn-custom-hide-hover-bg);
-}
-
-.dark-mode .header-icon-btn svg,
-.dark-mode #settings-lock-btn svg {
-    stroke: var(--text-secondary);
-}
-
 /* Settings overlay — ReDD Blocker card layout */
 #faq-dropdown {
     display: none;
@@ -1810,7 +1741,7 @@ footer .friction-customisation {
 }
 
 .dark-mode #faq-dropdown .settings-select-trigger {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-4.5 5 4.5'/%3E%3Cpath d='M7 14l5 4.5 5-4.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa3b0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-4.5 5 4.5'/%3E%3Cpath d='M7 14l5 4.5 5-4.5'/%3E%3C/svg%3E");
 }
 
 #faq-dropdown .theme-select-menu {
@@ -1986,12 +1917,6 @@ footer .friction-customisation {
     font-size: 14px;
     color: var(--text-muted);
     line-height: 1.5;
-}
-
-.dark-mode .settings-number-input,
-.dark-mode .settings-text-input,
-.dark-mode #faq-dropdown .settings-select-trigger {
-    background-color: var(--bg-input);
 }
 
 #faq-close-btn {
