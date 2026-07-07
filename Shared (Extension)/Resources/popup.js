@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const waitSecs = parseInt(unlockWaitTime, 10) || 10;
                     showConfirmDialog(
                         'Lock settings?',
-                        `While locked, you won\u2019t be able to turn off hiding for elements that are already hidden. You can still hide new elements and undo those during this session. To unlock, you\u2019ll need to wait ${waitSecs} seconds.`,
+                        `While locked, you won\u2019t be able to toggle elements that are already hidden on. You can still toggle other elements on and off. To unlock, you\u2019ll need to wait ${waitSecs} seconds.`,
                         'Lock',
                         function () {
                             captureProtectedHiddenSnapshot();
