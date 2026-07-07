@@ -494,12 +494,20 @@ button[id$="ManualAddButton"] {
 }
 
 body.manual-css-enabled button[id$="ManualAddButton"] {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Click to hide element / Add CSS selector: subtle surface + teal stroke; .active = filled teal */
 button[id$="AddElementButton"],
 button[id$="ManualAddButton"] {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-color: var(--btn-custom-hide-bg);
     color: var(--btn-custom-hide-text);
     border: 1px solid var(--btn-custom-hide-border);
@@ -512,12 +520,6 @@ button[id$="ManualAddButton"] {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-body.manual-css-enabled button[id$="AddElementButton"],
-body.manual-css-enabled button[id$="ManualAddButton"] {
-    flex: 1;
-    min-width: 0;
 }
 
 button[id$="AddElementButton"]:hover,
@@ -1055,9 +1057,13 @@ p.how-to-description {
 /* Style for custom elements controls container */
 .custom-elements-controls {
     display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 /* Style for refresh symbol */
