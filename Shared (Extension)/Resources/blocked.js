@@ -46,8 +46,8 @@
   if (subtitleEl) {
     if (blockMode === "allowlist") {
       subtitleEl.textContent = da
-        ? "Dette websted er ikke på din nuværende tilladelsesliste."
-        : "This site is not on your current allowlist.";
+        ? "Dette websted er ikke et af dem, du har givet dig selv lov til at bruge."
+        : "This site isn't one of the ones you've allowed yourself to use.";
     } else {
       subtitleEl.textContent = da
         ? "Dette websted er på din nuværende blokeringsliste."
