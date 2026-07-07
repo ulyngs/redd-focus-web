@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             if (isMobile) {
-                const themeSettings = document.getElementById('theme-settings');
-                if (themeSettings) themeSettings.style.display = 'none';
+                const generalSection = document.getElementById('general-section');
+                if (generalSection) generalSection.style.display = 'none';
                 chrome.storage.sync.set({ themePreference: 'system' });
                 applyTheme('system');
                 return;
