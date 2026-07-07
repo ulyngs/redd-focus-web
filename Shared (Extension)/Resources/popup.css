@@ -52,7 +52,7 @@
     --btn-secondary-text: var(--redd-navy);
     --btn-secondary-hover: #e8e4de;
 
-    /* "Hide custom element": calm surface + teal ring; .active uses accent */
+    /* "Click to hide element": calm surface + teal ring; .active uses accent */
     --btn-custom-hide-bg: var(--redd-subtle);
     --btn-custom-hide-border: var(--redd-teal);
     --btn-custom-hide-text: var(--redd-navy);
@@ -189,7 +189,7 @@
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Settings (gear): same surface as “Hide custom element”; no border */
+/* Settings (gear): same surface as “Click to hide element”; no border */
 .dark-mode #help-icon-btn {
     background-color: var(--btn-custom-hide-bg);
 }
@@ -504,8 +504,11 @@ input:checked+.slider:before {
     background-color: var(--accent-hover);
 }
 
-/* Hide custom element: subtle surface; selection mode = filled teal; no border */
-button[id$="AddElementButton"] {
+/* Click to hide element / Add CSS selector: subtle surface; selection mode = filled teal; no border */
+button[id$="AddElementButton"],
+button[id$="ManualAddButton"] {
+    flex: 1;
+    min-width: 0;
     background-color: var(--btn-custom-hide-bg);
     color: var(--btn-custom-hide-text);
     border: none;
@@ -519,7 +522,8 @@ button[id$="AddElementButton"] {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-button[id$="AddElementButton"]:hover {
+button[id$="AddElementButton"]:hover,
+button[id$="ManualAddButton"]:hover {
     background-color: var(--btn-custom-hide-hover-bg);
 }
 
@@ -532,13 +536,15 @@ button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
 }
 
-.dark-mode button[id$="AddElementButton"] {
+.dark-mode button[id$="AddElementButton"],
+.dark-mode button[id$="ManualAddButton"] {
     background-color: var(--btn-custom-hide-bg);
     color: var(--btn-custom-hide-text);
     border: none;
 }
 
-.dark-mode button[id$="AddElementButton"]:hover {
+.dark-mode button[id$="AddElementButton"]:hover,
+.dark-mode button[id$="ManualAddButton"]:hover {
     background-color: var(--btn-custom-hide-hover-bg);
 }
 
@@ -549,40 +555,6 @@ button[id$="AddElementButton"].active:hover {
 
 .dark-mode button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
-}
-
-/* "+" button for manually entering a CSS selector; matches the surface of the hide button */
-.manual-add-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    background-color: var(--btn-custom-hide-bg);
-    color: var(--btn-custom-hide-text);
-    border: none;
-    border-radius: 8px;
-    padding: 0 7px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.manual-add-btn:hover {
-    background-color: var(--btn-custom-hide-hover-bg);
-}
-
-.manual-add-btn svg {
-    display: block;
-    stroke: currentColor;
-}
-
-.dark-mode .manual-add-btn {
-    background-color: var(--btn-custom-hide-bg);
-    color: var(--btn-custom-hide-text);
-}
-
-.dark-mode .manual-add-btn:hover {
-    background-color: var(--btn-custom-hide-hover-bg);
 }
 
 .grayscale-controls {
@@ -1125,7 +1097,8 @@ p.how-to-description {
 /* Style for custom elements controls container */
 .custom-elements-controls {
     display: flex;
-    align-items: center;
+    flex-wrap: nowrap;
+    align-items: stretch;
     gap: 8px;
 }
 
@@ -1370,7 +1343,7 @@ p.how-to-description {
     stroke: var(--accent-primary);
 }
 
-/* Dark: same cell hover as “Hide custom element”; icon stays teal (not indigo from --accent-primary) */
+/* Dark: same cell hover as “Click to hide element”; icon stays teal (not indigo from --accent-primary) */
 .dark-mode .edit-symbol:hover {
     background-color: var(--btn-custom-hide-hover-bg);
     border-color: var(--redd-teal);

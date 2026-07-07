@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (addButton) {
                     isSelectionModeActive = false;
                     addButton.classList.remove('active');
-                    addButton.textContent = 'Hide custom element';
+                    addButton.textContent = 'Click to hide element';
                 }
             }
         });
@@ -1021,11 +1021,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             wrapper.appendChild(row);
 
-            const controls = anchorContainer.querySelector('.custom-elements-controls');
-            if (controls) {
-                controls.insertAdjacentElement('afterend', wrapper);
+            const customElementsList = anchorContainer.querySelector('.custom-elements');
+            if (customElementsList) {
+                customElementsList.insertAdjacentElement('afterend', wrapper);
             } else {
-                anchorContainer.prepend(wrapper);
+                const controls = anchorContainer.querySelector('.custom-elements-controls');
+                if (controls) {
+                    controls.insertAdjacentElement('afterend', wrapper);
+                } else {
+                    anchorContainer.prepend(wrapper);
+                }
             }
 
             const toggle = document.getElementById('grayscaleToggle');
@@ -1101,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (isSelectionModeActive) {
                         isSelectionModeActive = false;
                         addButton.classList.remove('active');
-                        addButton.textContent = 'Hide custom element';
+                        addButton.textContent = 'Click to hide element';
                         chrome.storage.sync.set({ [`${siteIdentifier}SelectionActive`]: false });
                     } else {
                         isSelectionModeActive = true;
@@ -1502,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             addButton.textContent = 'Click/Tap element to hide';
                         } else {
                             addButton.classList.remove('active');
-                            addButton.textContent = 'Hide custom element';
+                            addButton.textContent = 'Click to hide element';
                         }
                     }
                 }
