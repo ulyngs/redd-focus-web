@@ -82,7 +82,7 @@
     --faq-question-response-gap: 2px;
     /* Space below the “FAQ” title before the first question row (see also .faq-trigger padding) */
     --settings-faq-title-below: 1px;
-    /* Nudge the “Theme:” label on the y-axis (negative = up). Does not move the dropdown. */
+    /* Nudge the “Appearance:” label on the y-axis (negative = up). Does not move the dropdown. */
     --settings-theme-label-nudge-y: -1px;
     /* Nudge the current value text inside the theme button (see #themeSelectTriggerText; negative = up) */
     --settings-theme-trigger-text-nudge-y: -1px;
@@ -504,11 +504,17 @@ input:checked+.slider:before {
     background-color: var(--accent-hover);
 }
 
+button[id$="ManualAddButton"] {
+    display: none;
+}
+
+body.manual-css-enabled button[id$="ManualAddButton"] {
+    display: block;
+}
+
 /* Click to hide element / Add CSS selector: subtle surface; selection mode = filled teal; no border */
 button[id$="AddElementButton"],
 button[id$="ManualAddButton"] {
-    flex: 1;
-    min-width: 0;
     background-color: var(--btn-custom-hide-bg);
     color: var(--btn-custom-hide-text);
     border: none;
@@ -520,6 +526,12 @@ button[id$="ManualAddButton"] {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body.manual-css-enabled button[id$="AddElementButton"],
+body.manual-css-enabled button[id$="ManualAddButton"] {
+    flex: 1;
+    min-width: 0;
 }
 
 button[id$="AddElementButton"]:hover,

@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             if (isMobile) {
-                const appearanceSection = document.getElementById('appearance-section');
-                if (appearanceSection) appearanceSection.style.display = 'none';
+                const themeSettings = document.getElementById('theme-settings');
+                if (themeSettings) themeSettings.style.display = 'none';
                 chrome.storage.sync.set({ themePreference: 'system' });
                 applyTheme('system');
                 return;
@@ -143,6 +143,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Setup theme immediately
         setupTheme();
+
+        const MANUAL_CSS_SELECTORS_KEY = 'manualCssSelectorsEnabled';
+
+        function applyManualCssSelectorsEnabled(enabled) {
+            document.body.classList.toggle('manual-css-enabled', enabled);
+        }
+
+        function setupManualCssSelectors() {
+            const toggle = document.getElementById('manualCssSelectorsToggle');
+            if (!toggle) return;
+
+            chrome.storage.sync.get(MANUAL_CSS_SELECTORS_KEY, function (result) {
+                const enabled = result[MANUAL_CSS_SELECTORS_KEY] === true;
+                toggle.checked = enabled;
+                applyManualCssSelectorsEnabled(enabled);
+            });
+
+            toggle.addEventListener('change', function () {
+                const enabled = toggle.checked;
+                chrome.storage.sync.set({ [MANUAL_CSS_SELECTORS_KEY]: enabled });
+                applyManualCssSelectorsEnabled(enabled);
+            });
+        }
+
+        setupManualCssSelectors();
 
         // ========================================
         // EULA (ReDD 2FA parity: revision + storage.local)
@@ -1111,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         isSelectionModeActive = true;
                         addButton.classList.add('active');
-                        addButton.textContent = 'Click/Tap element to hide';
+                        addButton.textContent = 'Click any element';
                         chrome.storage.sync.set({ [`${siteIdentifier}SelectionActive`]: true });
                     }
                 });
@@ -1504,7 +1529,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (addButton) {
                         if (isActive) {
                             addButton.classList.add('active');
-                            addButton.textContent = 'Click/Tap element to hide';
+                            addButton.textContent = 'Click any element';
                         } else {
                             addButton.classList.remove('active');
                             addButton.textContent = 'Click to hide element';

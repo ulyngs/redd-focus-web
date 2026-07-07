@@ -115,13 +115,13 @@
                     </div>
 
                     <div class="settings-stack">
-                        <section id="appearance-section" class="settings-section">
-                            <h4 id="appearance-heading" class="settings-section-heading">Appearance</h4>
+                        <section id="general-section" class="settings-section">
+                            <h4 id="general-heading" class="settings-section-heading">General</h4>
                             <div class="settings-panel">
                                 <div class="settings-panel-rows">
                                     <div id="theme-settings" class="settings-row">
                                         <label id="theme-settings-label" class="settings-row-label"
-                                            for="themeSelectTrigger">Theme</label>
+                                            for="themeSelectTrigger">Appearance</label>
                                         <div class="settings-row-control">
                                             <div class="theme-select-root" id="themeSelectRoot">
                                                 <button type="button" id="themeSelectTrigger"
@@ -139,6 +139,18 @@
                                                         data-value="dark">Dark</li>
                                                 </ul>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div class="settings-row-copy">
+                                            <span class="settings-row-label">Manually add CSS selectors</span>
+                                        </div>
+                                        <div class="settings-row-control">
+                                            <label class="enforcement-switch" for="manualCssSelectorsToggle">
+                                                <input type="checkbox" id="manualCssSelectorsToggle"
+                                                    name="manualCssSelectorsToggle">
+                                                <span class="enforcement-slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
