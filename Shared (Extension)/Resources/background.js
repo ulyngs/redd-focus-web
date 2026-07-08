@@ -1,14 +1,15 @@
 // Optional redd-block bridge. The extension must keep working on its own
 // if this fails — all ReDD Focus features (content scripts, hiding UI)
 // are independent of this code path. The only side effect of a successful
-// connection is that `blocklist` becomes non-empty and matching URLs get
-// redirected to blocked.html.
+// connection is that website rules arrive from redd-block and matching URLs
+// get redirected to blocked.html.
 //
 // Native-host payload contract (current):
 //   { "blocklist": ["twitter.com", "x.com", ...],
 //     "blocks": [
 //       { "blocklistId": "...", "name": "No Twitter", "emoji": "🐦",
-//         "color": "#A0CED9", "domains": ["twitter.com","x.com"],
+//         "color": "#A0CED9", "mode": "blocklist" | "allowlist",
+//         "domains": ["twitter.com","x.com"],
 //         "source": "schedule", "endsAt": 1745123400000,
 //         "startedAt": 1745087400000 }, ...
 //     ] }
@@ -46,11 +47,93 @@ function domainMatches(host, domain) {
   return host === domain || host.endsWith("." + domain);
 }
 
+const PROTECTED_HOSTS = [
+  "localhost",
+  "localhost.localdomain",
+  "127.0.0.1",
+  "0.0.0.0",
+  "::1",
+  "broadcasthost",
+  "local",
+  "reddfocus.org",
+  "www.reddfocus.org",
+  "ulyngs.github.io",
+];
+
+function isProtectedHost(host) {
+  const lower = String(host || "").toLowerCase();
+  return PROTECTED_HOSTS.some(p => lower === p || lower.endsWith("." + p));
+}
+
+function blockModeIsAllowlist(mode) {
+  return String(mode || "").toLowerCase() === "allowlist";
+}
+
+function blockHasDomains(block) {
+  return !!(block && Array.isArray(block.domains) && block.domains.length > 0);
+}
+
+function activeWebsiteBlocks() {
+  return activeBlocks.filter(blockHasDomains);
+}
+
+function allowlistWebsiteBlocks() {
+  return activeWebsiteBlocks().filter(b => blockModeIsAllowlist(b.mode));
+}
+
+function websiteRulesSignature(domains, blocks) {
+  const normalizedDomains = Array.isArray(domains)
+    ? domains.map(d => String(d).toLowerCase())
+    : [];
+  const normalizedBlocks = Array.isArray(blocks)
+    ? blocks
+        .filter(blockHasDomains)
+        .map(b => ({
+          id: b.blocklistId || "",
+          mode: blockModeIsAllowlist(b.mode) ? "allowlist" : "blocklist",
+          domains: b.domains.map(d => String(d).toLowerCase()),
+        }))
+    : [];
+  return JSON.stringify({
+    blocklist: normalizedDomains,
+    blocks: normalizedBlocks,
+  });
+}
+
+function webEnforcementActive() {
+  if (activeWebsiteBlocks().length > 0) return true;
+  return blocklist.length > 0;
+}
+
 function isBlocked(url) {
-  if (!url || blocklist.length === 0) return false;
+  if (!url || !webEnforcementActive()) return false;
   const host = hostnameOf(url);
   if (!host) return false;
-  return blocklist.some(d => domainMatches(host, d));
+  if (isProtectedHost(host)) return false;
+
+  const websiteBlocks = activeWebsiteBlocks();
+  if (websiteBlocks.length === 0) {
+    return blocklist.some(d => domainMatches(host, d));
+  }
+
+  for (const block of websiteBlocks) {
+    if (blockModeIsAllowlist(block.mode)) continue;
+    if (block.domains.some(d => domainMatches(host, d))) {
+      return true;
+    }
+  }
+
+  const allowlistBlocks = websiteBlocks.filter(b => blockModeIsAllowlist(b.mode));
+  if (allowlistBlocks.length > 0) {
+    const allowed = allowlistBlocks.some(block =>
+      block.domains.some(d => domainMatches(host, d))
+    );
+    if (!allowed) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function isHttpUrl(url) {
@@ -93,11 +176,7 @@ function shouldRedirectTab(tabId, url) {
   if (!isHttpUrl(url)) {
     return false;
   }
-  const host = hostnameOf(url);
-  const matchedDomain = host
-    ? blocklist.find(d => domainMatches(host, d))
-    : null;
-  if (!matchedDomain) {
+  if (!isBlocked(url)) {
     return false;
   }
 
@@ -123,20 +202,30 @@ function updateTabToBlocked(tabId, url) {
 }
 
 // Pick the most salient active block for a given URL. When a domain
-// sits in multiple active blocklists, prefer the one ending soonest
-// (matches the sort order emitted by the native host) — that's the
-// "when do I regain access" the user actually cares about.
+// sits in multiple active rules, mirror the native-host / Automation rulebook:
+// blocklist hits win, otherwise attribute allowlist-caused redirects to the
+// earliest-started active allowlist that excludes the host.
 function blockInfoForUrl(url) {
   if (!url || activeBlocks.length === 0) return null;
+  if (!isBlocked(url)) return null;
   const host = hostnameOf(url);
   if (!host) return null;
-  for (const block of activeBlocks) {
-    if (!block || !Array.isArray(block.domains)) continue;
+  for (const block of activeWebsiteBlocks()) {
+    if (blockModeIsAllowlist(block.mode)) continue;
     if (block.domains.some(d => domainMatches(host, d))) {
       return block;
     }
   }
-  return null;
+  return allowlistWebsiteBlocks()
+    .filter(block => !block.domains.some(d => domainMatches(host, d)))
+    .sort((a, b) => {
+      const aStarted = Number.isFinite(a.startedAt) ? a.startedAt : Number.MAX_SAFE_INTEGER;
+      const bStarted = Number.isFinite(b.startedAt) ? b.startedAt : Number.MAX_SAFE_INTEGER;
+      if (aStarted !== bStarted) return aStarted - bStarted;
+      const aEnds = Number.isFinite(a.endsAt) ? a.endsAt : Number.MAX_SAFE_INTEGER;
+      const bEnds = Number.isFinite(b.endsAt) ? b.endsAt : Number.MAX_SAFE_INTEGER;
+      return aEnds - bEnds;
+    })[0] || null;
 }
 
 // Build the blocked-page URL with as much context as the native host
@@ -148,6 +237,7 @@ function buildBlockedUrl(originalUrl) {
   const info = blockInfoForUrl(originalUrl);
   if (info) {
     if (info.blocklistId) params.set("id", info.blocklistId);
+    if (info.mode) params.set("mode", info.mode);
     if (info.name) params.set("name", info.name);
     if (info.emoji) params.set("emoji", info.emoji);
     if (info.color) params.set("color", info.color);
@@ -159,39 +249,40 @@ function buildBlockedUrl(originalUrl) {
 }
 
 function applyNativePayload(msg) {
-  let domainsChanged = false;
+  const beforeSignature = websiteRulesSignature(blocklist, activeBlocks);
   if (msg && Array.isArray(msg.blocklist)) {
     const next = msg.blocklist.map(d => String(d).toLowerCase());
-    const before = blocklist.join("|");
-    const after = next.join("|");
-    if (before !== after) domainsChanged = true;
     blocklist = next;
     backoffMs = 5_000;
   }
   if (msg && Array.isArray(msg.blocks)) {
     activeBlocks = msg.blocks.map(b => ({
       ...b,
+      mode: blockModeIsAllowlist(b.mode) ? "allowlist" : "blocklist",
       domains: Array.isArray(b.domains)
         ? b.domains.map(d => String(d).toLowerCase())
         : [],
     }));
+  } else {
+    activeBlocks = [];
   }
-  if (domainsChanged) {
+  const afterSignature = websiteRulesSignature(blocklist, activeBlocks);
+  if (beforeSignature !== afterSignature) {
     sweepAllTabsForBlocks();
     restoreUnblockedTabs();
   }
 }
 
 // Sweep every open tab and redirect any whose current URL matches the
-// blocklist. `chrome.tabs.onUpdated` only fires on *navigations*, so a
-// tab that was loaded to twitter.com *before* the blocklist arrived
+// current website rules. `chrome.tabs.onUpdated` only fires on *navigations*, so a
+// tab that was loaded to twitter.com *before* the native-host rules arrived
 // (e.g. the user had it open, then re-enabled the extension) would
 // otherwise stay visible until a manual refresh. Invoked every time the
-// blocklist's domain set actually changes — not on every native-host
-// frame, because `blocks` carries a live countdown that changes each
-// frame without the set of blocked domains changing.
+// effective website rule set actually changes — not on every native-host
+// frame, because `blocks` carries live timing metadata that can change
+// without altering which sites should be blocked.
 function sweepAllTabsForBlocks() {
-  if (blocklist.length === 0) return;
+  if (!webEnforcementActive()) return;
   if (!chrome.tabs || typeof chrome.tabs.query !== "function") return;
   chrome.tabs.query({}, tabs => {
     if (chrome.runtime.lastError) {
@@ -310,8 +401,8 @@ function connectNative() {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   refreshSafariBlocklist();
-  // Cheap early-out when standalone (empty blocklist).
-  if (blocklist.length === 0) {
+  // Cheap early-out when standalone (no active website rules).
+  if (!webEnforcementActive()) {
     return;
   }
   const url = changeInfo.url || (changeInfo.status === "loading" ? tab.url : null);
