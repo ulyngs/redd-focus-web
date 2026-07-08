@@ -1,30 +1,24 @@
-new features:
+New features
 
-1. YouTube: related/up next videos now includes the recommended videos at the end of a video
-2. YouTube: "History" selector now hides watch history in 'You' tabs
-3. Youtube: "Explore" and "More from YouTube" now hide relevant elements in mobile's collapsible sidebar
-4. WhatsApp: added ability to hide archived chats
-5. Facebook: added ability to hide the 'Open app' prompt on mobile 
-6. Facebook: added separate selectors for notifications button and notification badges
-7. Twitter/X: added ability to hide 'News' sections (also hides the news stories in different tabs like 'Sports' and 'Entertainment')
-8. Instagram: desktop website now has selector for the 'Explore' grid, allowing users to just use that for search functionality and avoid distracting Reels/posts
+- Per-site grayscale toggle to desaturate the entire page
+- Manual CSS selector entry: add custom hidden elements by typing a selector (enable via Settings > General)
+- Per-site settings lock: prevent turning off elements that are already hidden, with a timed unlock flow (replaces the old open-delay friction)
 
+Bug fixes and improvements
 
-bug fixes and improvements:
+- Restyled settings panel with a card-based layout aligned to ReDD Blocker
+- Reorganized settings into General (Appearance theme picker and off-by-default manual CSS toggle) and Accountability sections
+- Added a Custom section heading grouping custom hide controls and the grayscale toggle
+- Grayscale stays protected while settings are locked if it was enabled when locked
+- Fixed a flash when opening the popup
+- Improved custom element button labels ("Click to hide element" / "Click any element") and styling, including a subtle teal stroke
+- Fixed custom hide button layout wrapping on narrow popup widths
+- Fixed dark mode styling (theme class is on html, not body)
+- Manual CSS selector setting hidden on iOS, consistent with the theme picker
+- Clearer confirmation copy when locking settings
 
-1. Add EULA (End-user License Agreement) onboarding step
-2. Design overhaul and improvements!
-1. Fixed all selectors
-2. Reddit: fixed rendering issue of main and subreddit feeds on reddit on iPad and iOS
-3. Reddit: allowed feed on Reddit's 'popular' page to be hidden
-4. Reddit: removed "All" button selector the button was removed by Reddit
-5. LinkedIn: fixed all selectors (LinkedIn restructured it's website)
-6. LinkedIn: rename "Notification counts" to "Notification badges" for consistency
-7. YouTube: expanded like numbers, view numbers, account images, and other selectors to include more relevant elements
-8. YouTube: removed Blur and Black as view options for notifications as unecessary
-9. Twitter/X: harden selector for timeline to only hide Tweets and media in 'Media' tab
-10. Twitter/X: rename "Trends" to "Trending" to match current website 
-11. Instagram: fix issue on desktop where suggested follows was hiding account information
-12. Instagram: "Comments" selector now also hides comments in desktop Reels tab and on mobile posts, without hiding user captions
-13. Reddit: removed "Trending topics" selector as depracated and now moved into 'Popular' tab
+ReDD Blocker integration
 
+- Enforces allowlist-mode website blocks from ReDD Blocker via the native host
+- Blocked page shows allowlist-specific copy when a site is blocked because it is not on your allowed list
+- Improved blocked-page wording with more positive framing (English and Danish)
