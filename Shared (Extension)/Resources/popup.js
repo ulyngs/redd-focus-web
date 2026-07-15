@@ -442,40 +442,91 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.sync.set({ [lockKey]: isSettingsLocked });
         }
 
-        function showConfirmDialog(title, message, confirmLabel, onConfirm) {
+        function openSettingsPanel(options) {
+            const faqDropdown = document.getElementById('faq-dropdown');
+            const faqOverlay = document.getElementById('faq-overlay');
+            if (!faqDropdown || !faqOverlay) return;
+
+            faqDropdown.style.display = 'block';
+            faqOverlay.style.display = 'block';
+            document.body.classList.add('modal-open');
+
+            const scrollToId = options && options.scrollToId;
+            if (scrollToId) {
+                const target = document.getElementById(scrollToId);
+                if (target) {
+                    requestAnimationFrame(function () {
+                        target.scrollIntoView({ block: 'nearest' });
+                        const focusId = options && options.focusId;
+                        if (focusId) {
+                            const focusEl = document.getElementById(focusId);
+                            if (focusEl && !focusEl.disabled) focusEl.focus();
+                        }
+                    });
+                }
+            }
+        }
+
+        function showLockStartDialog(waitSecs, onConfirm) {
+            const secs = parseInt(waitSecs, 10) || 10;
+            const waitLabel = secs === 1 ? '1 second' : `${secs} seconds`;
+
             const overlay = document.createElement('div');
-            overlay.className = 'edit-dialog-overlay';
+            overlay.className = 'edit-dialog-overlay lock-start-overlay';
 
             const dialog = document.createElement('div');
-            dialog.className = 'edit-dialog confirm-dialog';
+            dialog.className = 'lock-start-dialog';
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-labelledby', 'lock-start-title');
             dialog.innerHTML = `
-                <h3>${title}</h3>
-                <p class="confirm-dialog-message">${message}</p>
-                <div class="edit-dialog-buttons">
-                    <button id="cancel-confirm" class="secondary-btn">Cancel</button>
-                    <button id="accept-confirm" class="primary-btn">${confirmLabel}</button>
-                </div>`;
+                <div class="lock-start-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h3 id="lock-start-title">Commit to staying focused?</h3>
+                <p class="lock-start-message">Your hidden elements stay hidden until you unlock — and to unlock you will have to wait <strong>${waitLabel}</strong>.</p>
+                <button type="button" id="accept-lock-start" class="lock-start-primary-btn">Lock in</button>
+                <button type="button" id="cancel-lock-start" class="lock-start-secondary-btn">Not now</button>
+                <p class="lock-start-footer">Change the wait time in <button type="button" id="lock-start-settings-link" class="lock-start-settings-link">Settings</button>.</p>`;
 
             overlay.appendChild(dialog);
             document.body.appendChild(overlay);
             document.body.classList.add('modal-open');
 
-            const closeDialog = function () {
-                document.body.removeChild(overlay);
-                document.body.classList.remove('modal-open');
+            const onLockStartKeydown = function (e) {
+                if (e.key === 'Escape') closeDialog();
             };
 
-            document.getElementById('accept-confirm').addEventListener('click', function () {
+            const closeDialog = function (options) {
+                document.removeEventListener('keydown', onLockStartKeydown);
+                if (overlay.parentNode) document.body.removeChild(overlay);
+                if (!(options && options.keepModalOpen)) {
+                    document.body.classList.remove('modal-open');
+                }
+            };
+
+            document.getElementById('accept-lock-start').addEventListener('click', function () {
                 closeDialog();
                 onConfirm();
             });
-            document.getElementById('cancel-confirm').addEventListener('click', closeDialog);
+            document.getElementById('cancel-lock-start').addEventListener('click', closeDialog);
+            document.getElementById('lock-start-settings-link').addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeDialog({ keepModalOpen: true });
+                // Defer so the originating click cannot immediately dismiss Settings.
+                setTimeout(function () {
+                    openSettingsPanel({ scrollToId: 'accountability-section', focusId: 'waitTime' });
+                }, 0);
+            });
             overlay.addEventListener('click', function (e) {
                 if (e.target === overlay) closeDialog();
             });
-            overlay.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeDialog();
-            });
+            document.addEventListener('keydown', onLockStartKeydown);
+
+            document.getElementById('accept-lock-start').focus();
         }
 
         function runUnlockCountdown(onComplete) {
@@ -626,18 +677,13 @@ document.addEventListener('DOMContentLoaded', function () {
             lockBtn.addEventListener('click', function () {
                 if (!isSettingsLocked) {
                     const waitSecs = parseInt(unlockWaitTime, 10) || 10;
-                    showConfirmDialog(
-                        'Lock settings?',
-                        `While locked, you won\u2019t be able to toggle elements that are already hidden on. You can still toggle other elements on and off. To unlock, you\u2019ll need to wait ${waitSecs} seconds.`,
-                        'Lock',
-                        function () {
-                            captureProtectedHiddenSnapshot();
-                            isSettingsLocked = true;
-                            persistLockState(siteIdentifier);
-                            updateLockIcon();
-                            updateLockProtectedUI();
-                        }
-                    );
+                    showLockStartDialog(waitSecs, function () {
+                        captureProtectedHiddenSnapshot();
+                        isSettingsLocked = true;
+                        persistLockState(siteIdentifier);
+                        updateLockIcon();
+                        updateLockProtectedUI();
+                    });
                 } else {
                     runUnlockCountdown(function () {
                         isSettingsLocked = false;
@@ -1293,13 +1339,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             } else {
-                document.getElementById('popup-content').innerHTML = `<p class='error-message'>Extension cannot modify this page (${currentURL.protocol}//...).</p>`;
-                document.getElementById('popup-content').style.display = 'block';
-                document.getElementById('delay-content').style.display = 'none';
-                const websiteToggles2 = document.getElementById('website-toggles');
-                if (websiteToggles2) websiteToggles2.style.display = 'none';
-                document.getElementById('generic-site-options').style.display = 'none';
-                document.getElementById('currentSiteInfo').style.display = 'block';
+                const popupContent = document.getElementById('popup-content');
+                const delayContent = document.getElementById('delay-content');
+                if (popupContent) {
+                    popupContent.innerHTML = `<p class='error-message'>Extension cannot modify this page (${currentURL.protocol}//...).</p>`;
+                    popupContent.style.display = 'block';
+                }
+                if (delayContent) delayContent.style.display = 'none';
                 dismissPopupLoading();
             }
 

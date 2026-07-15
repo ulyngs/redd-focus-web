@@ -1231,6 +1231,117 @@ p.how-to-description {
     color: var(--text-primary);
 }
 
+.lock-start-overlay {
+    align-items: center;
+    padding: 16px;
+}
+
+.lock-start-dialog {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 28px 24px 22px;
+    max-width: 90%;
+    width: 300px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+
+.lock-start-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--redd-teal-soft);
+    color: var(--redd-teal);
+}
+
+.lock-start-dialog h3 {
+    margin: 0 0 10px;
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-primary);
+}
+
+.lock-start-message {
+    margin: 0 0 22px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.lock-start-message strong {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lock-start-primary-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.lock-start-primary-btn:hover {
+    background-color: var(--btn-primary-hover);
+}
+
+.lock-start-secondary-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.lock-start-secondary-btn:hover {
+    color: var(--text-primary);
+}
+
+.lock-start-footer {
+    margin: 18px 0 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-subtle);
+}
+
+.lock-start-settings-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.lock-start-settings-link:hover {
+    text-decoration: none;
+    color: var(--text-link-hover);
+}
+
 .edit-dialog-buttons {
     display: flex;
     gap: 8px;
