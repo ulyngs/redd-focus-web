@@ -1257,13 +1257,24 @@ document.addEventListener('DOMContentLoaded', function () {
             dismissPopupLoading();
         }
 
+        function showUnsupportedPageMessage(message) {
+            const popupContent = document.getElementById('popup-content');
+            const delayContent = document.getElementById('delay-content');
+            const errorContainer = document.getElementById('error-prompt');
+            // Hide the "needs to initialise" fallback — this is an intentional unsupported-page state.
+            if (errorContainer) errorContainer.style.display = 'none';
+            if (popupContent) {
+                popupContent.innerHTML = `<p class='error-message'>${message}</p>`;
+                popupContent.style.display = 'block';
+            }
+            if (delayContent) delayContent.style.display = 'none';
+            dismissPopupLoading();
+        }
+
         chrome.tabs.query({ active: true, currentWindow: true }, function (tab) {
             if (chrome.runtime.lastError || !tab || tab.length === 0 || !tab[0].url) {
                 console.error("Could not get active tab information.");
-                document.getElementById('popup-content').innerHTML = "<p class='error-message'>Could not get tab information. Try reloading the page.</p>";
-                document.getElementById('popup-content').style.display = 'block';
-                document.getElementById('delay-content').style.display = 'none';
-                dismissPopupLoading();
+                showUnsupportedPageMessage('Could not get tab information. Try reloading the page.');
                 return;
             }
 
@@ -1272,10 +1283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 currentURL = new URL(tab[0].url);
             } catch (e) {
                 console.warn("Invalid URL:", tab[0].url);
-                document.getElementById('popup-content').innerHTML = `<p class='error-message'>Cannot run on this page (${tab[0].url.split('/')[0]}...).</p>`;
-                document.getElementById('popup-content').style.display = 'block';
-                document.getElementById('delay-content').style.display = 'none';
-                dismissPopupLoading();
+                showUnsupportedPageMessage(`Cannot run on this page (${tab[0].url.split('/')[0]}...).`);
                 return;
             }
 
@@ -1339,14 +1347,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             } else {
-                const popupContent = document.getElementById('popup-content');
-                const delayContent = document.getElementById('delay-content');
-                if (popupContent) {
-                    popupContent.innerHTML = `<p class='error-message'>Extension cannot modify this page (${currentURL.protocol}//...).</p>`;
-                    popupContent.style.display = 'block';
-                }
-                if (delayContent) delayContent.style.display = 'none';
-                dismissPopupLoading();
+                showUnsupportedPageMessage(`Extension cannot modify this page (${currentURL.protocol}//...).`);
             }
 
             if (currentSiteIdentifier) {
