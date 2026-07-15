@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const lockBtn = document.getElementById('settings-lock-btn');
             if (!lockBtn || !siteIdentifier) return;
 
-            lockBtn.style.display = currentPlatform ? '' : 'none';
+            lockBtn.style.display = '';
 
             lockBtn.addEventListener('click', function () {
                 if (!isSettingsLocked) {
