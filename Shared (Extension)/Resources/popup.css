@@ -499,7 +499,7 @@ body.manual-css-enabled button[id$="ManualAddButton"] {
     justify-content: center;
 }
 
-/* Click to hide element / Add CSS selector: subtle surface + teal stroke; .active = filled teal */
+/* Click to hide element / CSS +: subtle surface + teal stroke; .active = filled teal */
 button[id$="AddElementButton"],
 button[id$="ManualAddButton"] {
     flex: 0 0 auto;
@@ -520,6 +520,11 @@ button[id$="ManualAddButton"] {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+button[id$="ManualAddButton"] {
+    white-space: nowrap;
+    padding: 7px 8px;
 }
 
 button[id$="AddElementButton"]:hover,
