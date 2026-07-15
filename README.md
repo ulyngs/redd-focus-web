@@ -3,14 +3,14 @@
 **Plain sailing in the distracting digital world**
 
 <p align="center">
-  <img src="https://github.com/ulyngs/mindshield-open-source/blob/main/Shared%20(Extension)/Resources/images/icon-512.png?raw=true" alt="Viking Focus Icon" width="120" />
+  <img src="https://github.com/ulyngs/mindshield-open-source/blob/main/Shared%20(Extension)/Resources/images/icon-512.png?raw=true" alt="ReDD Focus Icon" width="120" />
 </p>
 
 Source code for the Safari, Chrome, and Firefox extension **ReDD Focus**, available for Mac, iOS, and other devices.
 
 **Hide distractions on any website** (e.g., YouTube, Instagram, LinkedIn, Google Search, etc.). Works on any website in any browser, with pre-configured options for popular platforms.
 
-ReDD Focus is **open source**, developed by the [Reduce Digital Distraction Project](https://reddfocus.org), and [backed by research](https://arxiv.org/pdf/2001.04180.pdf).
+ReDD Focus is **open source**, developed by the [Centre for Digital Habit](https://digitalhabits.org), and [backed by research](https://arxiv.org/pdf/2001.04180.pdf).
 
 ## Features
 
