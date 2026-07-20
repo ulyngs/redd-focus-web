@@ -52,11 +52,11 @@
     --btn-secondary-text: var(--redd-navy);
     --btn-secondary-hover: #e8e4de;
 
-    /* "Click to hide element": calm surface + section stroke; .active uses accent */
-    --btn-custom-hide-bg: var(--redd-subtle);
-    --btn-custom-hide-border: var(--border-color-medium);
+    /* "Hide element" / "Add CSS": white outlined chips; .active uses accent */
+    --btn-custom-hide-bg: var(--redd-card);
+    --btn-custom-hide-border: var(--border-color);
     --btn-custom-hide-text: var(--redd-navy);
-    --btn-custom-hide-hover-bg: var(--redd-teal-soft);
+    --btn-custom-hide-hover-bg: var(--redd-subtle);
 
     /* Toggle/Checkbox colors */
     --toggle-bg: #c8c4be;
@@ -168,8 +168,8 @@
     --btn-secondary-text: var(--redd-navy);
     --btn-secondary-hover: rgba(255, 255, 255, 0.08);
 
-    --btn-custom-hide-bg: var(--redd-subtle);
-    --btn-custom-hide-border: var(--border-color-medium);
+    --btn-custom-hide-bg: var(--redd-card);
+    --btn-custom-hide-border: var(--border-color);
     --btn-custom-hide-text: var(--redd-navy);
     --btn-custom-hide-hover-bg: rgba(255, 255, 255, 0.08);
 
@@ -233,8 +233,8 @@ body {
 /* Section labels (e.g. “Watch page”) */
 .toggle-group h2 {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.95em;
-    font-weight: 500;
+    font-size: 0.88em;
+    font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #4d4d57;
@@ -489,22 +489,15 @@ input:checked+.slider:before {
     background-color: var(--accent-hover);
 }
 
-button[id$="ManualAddButton"] {
-    display: none;
-}
-
-body.manual-css-enabled button[id$="ManualAddButton"] {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Click to hide element / CSS +: subtle surface + teal stroke; .active = filled teal */
+/* Hide element / Add CSS: white outlined chips with leading icons; .active = filled teal */
 button[id$="AddElementButton"],
 button[id$="ManualAddButton"] {
     flex: 0 0 auto;
     width: auto;
     max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -512,19 +505,41 @@ button[id$="ManualAddButton"] {
     color: var(--btn-custom-hide-text);
     border: 1px solid var(--btn-custom-hide-border);
     box-sizing: border-box;
-    padding: 7px 10px;
+    padding: 9px 14px;
     text-align: center;
-    font-size: 0.95em;
+    font-size: 0.9em;
     font-weight: 600;
     font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
-    border-radius: 8px;
+    line-height: 1.2;
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-button[id$="ManualAddButton"] {
-    white-space: nowrap;
-    padding: 7px 8px;
+button[id$="AddElementButton"]::before,
+button[id$="ManualAddButton"]::before {
+    content: "";
+    display: block;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+button[id$="AddElementButton"]::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 3 7.07 16.97 2.51-7.39L21.17 9.6z'/%3E%3Cpath d='M13 13l6 6'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 3 7.07 16.97 2.51-7.39L21.17 9.6z'/%3E%3Cpath d='M13 13l6 6'/%3E%3C/svg%3E");
+}
+
+button[id$="ManualAddButton"]::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='16 18 22 12 16 6'/%3E%3Cpolyline points='8 6 2 12 8 18'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='16 18 22 12 16 6'/%3E%3Cpolyline points='8 6 2 12 8 18'/%3E%3C/svg%3E");
 }
 
 button[id$="AddElementButton"]:hover,
@@ -541,6 +556,19 @@ button[id$="AddElementButton"].active {
 button[id$="AddElementButton"].active:hover {
     background-color: var(--accent-hover);
     border-color: var(--accent-hover);
+}
+
+button[id$="AddElementButton"] {
+    display: inline-flex;
+}
+
+button[id$="ManualAddButton"] {
+    display: none;
+    white-space: nowrap;
+}
+
+body.manual-css-enabled button[id$="ManualAddButton"] {
+    display: inline-flex;
 }
 
 .grayscale-controls {
@@ -1064,7 +1092,7 @@ p.how-to-description {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -1165,11 +1193,15 @@ p.how-to-description {
 .edit-dialog h3 {
     margin: 0 0 16px 0;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.95em;
-    font-weight: 700;
+    font-size: 0.88em;
+    font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-primary);
+    color: #4d4d57;
+}
+
+.dark-mode .edit-dialog h3 {
+    color: var(--text-muted);
 }
 
 .edit-dialog-field {
@@ -1423,7 +1455,7 @@ p.how-to-description {
     stroke: var(--accent-primary);
 }
 
-/* Dark: same cell hover as “Click to hide element”; icon stays teal (not indigo from --accent-primary) */
+/* Dark: same cell hover as “Hide element”; icon stays teal (not indigo from --accent-primary) */
 .dark-mode .edit-symbol:hover {
     background-color: var(--btn-custom-hide-hover-bg);
     border-color: var(--redd-teal);

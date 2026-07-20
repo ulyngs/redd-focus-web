@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (addButton) {
                     isSelectionModeActive = false;
                     addButton.classList.remove('active');
-                    addButton.textContent = 'Click to hide element';
+                    addButton.textContent = 'Hide element';
                 }
             }
         });
@@ -1177,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (isSelectionModeActive) {
                         isSelectionModeActive = false;
                         addButton.classList.remove('active');
-                        addButton.textContent = 'Click to hide element';
+                        addButton.textContent = 'Hide element';
                         chrome.storage.sync.set({ [`${siteIdentifier}SelectionActive`]: false });
                     } else {
                         isSelectionModeActive = true;
@@ -1579,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             addButton.textContent = 'Click any element';
                         } else {
                             addButton.classList.remove('active');
-                            addButton.textContent = 'Click to hide element';
+                            addButton.textContent = 'Hide element';
                         }
                     }
                 }

@@ -162,6 +162,20 @@
     // Listen for theme changes specifically
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
 
+    function getMountParent() {
+        // Content script runs at document_start; body can be missing briefly (and on some SPA navigations).
+        return document.body || document.documentElement;
+    }
+
+    function ensureMounted(el) {
+        const parent = getMountParent();
+        if (!parent || !el) return false;
+        if (el.parentNode !== parent) {
+            parent.appendChild(el);
+        }
+        return true;
+    }
+
     function createHighlightOverlay() {
         if (!highlightOverlay) {
             highlightOverlay = document.createElement('div');
@@ -173,8 +187,8 @@
             highlightOverlay.style.margin = '0';
             highlightOverlay.style.padding = '0';
             highlightOverlay.style.boxSizing = 'border-box';
-            document.body.appendChild(highlightOverlay);
         }
+        return ensureMounted(highlightOverlay);
     }
 
     function createSelectionCaptureLayer() {
@@ -187,8 +201,8 @@
             selectionCaptureLayer.style.background = 'transparent';
             selectionCaptureLayer.style.cursor = 'crosshair';
             selectionCaptureLayer.style.touchAction = 'auto';
-            document.body.appendChild(selectionCaptureLayer);
         }
+        return ensureMounted(selectionCaptureLayer);
     }
 
     function getEventClientPosition(event) {
@@ -235,8 +249,8 @@
             selectorDisplay.style.textOverflow = 'ellipsis';
             selectorDisplay.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1)';
             selectorDisplay.style.backdropFilter = 'blur(4px)';
-            document.body.appendChild(selectorDisplay);
         }
+        return ensureMounted(selectorDisplay);
     }
 
     function createFeedbackContainer() {
@@ -270,33 +284,49 @@
             feedbackContainer.style.maxWidth = '400px';
             feedbackContainer.style.flexWrap = 'nowrap';
             feedbackContainer.style.transition = 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease';
-            document.body.appendChild(feedbackContainer);
-            // Get initial count if elements are already hidden
-            if (currentSiteIdentifier) {
-                const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
-                const rememberKey = `${currentSiteIdentifier}RememberSettings`;
-                chrome.storage.sync.get([customStorageKey, rememberKey], function (result) {
-                    let customSelectors = result[customStorageKey] || [];
-                    if (!Array.isArray(customSelectors)) customSelectors = [];
-                    const rememberEnabled = result[rememberKey] !== false;
-                    const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
-                    updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length, !rememberEnabled);
-                });
-            } else {
-                updateFeedbackMessage('Click element to hide it');
-            }
-            setupDragEvents();
         }
+        if (!ensureMounted(feedbackContainer)) {
+            return false;
+        }
+        if (feedbackContainer.dataset.reddInitialized === '1') {
+            return true;
+        }
+        feedbackContainer.dataset.reddInitialized = '1';
+        // Get initial count if elements are already hidden
+        if (currentSiteIdentifier) {
+            const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
+            const rememberKey = `${currentSiteIdentifier}RememberSettings`;
+            chrome.storage.sync.get([customStorageKey, rememberKey], function (result) {
+                let customSelectors = result[customStorageKey] || [];
+                if (!Array.isArray(customSelectors)) customSelectors = [];
+                const rememberEnabled = result[rememberKey] !== false;
+                const merged = Array.from(new Set([...customSelectors, ...sessionHiddenSelectors]));
+                updateFeedbackMessage('Click element to hide it', merged.length > 0, merged.length, !rememberEnabled);
+            });
+        } else {
+            updateFeedbackMessage('Click element to hide it');
+        }
+        setupDragEvents();
+        return true;
     }
 
+    let cleanupDragEvents = null;
+
     function setupDragEvents() {
+        if (cleanupDragEvents) {
+            cleanupDragEvents();
+        }
+
         let isDragging = false;
         let currentX;
         let currentY;
         let initialX;
         let initialY;
+        const dragTarget = feedbackContainer;
+        if (!dragTarget) return;
 
         function startDragging(e) {
+            if (!feedbackContainer) return;
             if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
             initialX = (e.clientX || e.touches[0].clientX) - currentX;
             initialY = (e.clientY || e.touches[0].clientY) - currentY;
@@ -305,7 +335,7 @@
         }
 
         function drag(e) {
-            if (!isDragging) return;
+            if (!isDragging || !feedbackContainer) return;
             e.preventDefault();
             let clientX = e.clientX || (e.touches && e.touches[0].clientX);
             let clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -319,17 +349,29 @@
 
         function stopDragging() {
             isDragging = false;
-            feedbackContainer.style.transition = 'all 0.2s ease';
+            if (feedbackContainer) {
+                feedbackContainer.style.transition = 'all 0.2s ease';
+            }
         }
 
-        currentX = parseInt(feedbackContainer.style.left) || 10;
-        currentY = parseInt(feedbackContainer.style.top) || 10;
-        feedbackContainer.addEventListener('mousedown', startDragging);
+        currentX = parseInt(dragTarget.style.left) || 10;
+        currentY = parseInt(dragTarget.style.top) || 10;
+        dragTarget.addEventListener('mousedown', startDragging);
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', stopDragging);
-        feedbackContainer.addEventListener('touchstart', startDragging, { passive: false });
+        dragTarget.addEventListener('touchstart', startDragging, { passive: false });
         document.addEventListener('touchmove', drag, { passive: false });
         document.addEventListener('touchend', stopDragging);
+
+        cleanupDragEvents = () => {
+            dragTarget.removeEventListener('mousedown', startDragging);
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDragging);
+            dragTarget.removeEventListener('touchstart', startDragging);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', stopDragging);
+            cleanupDragEvents = null;
+        };
     }
 
     function styleFeedbackButton(button, variant = 'primary') {
@@ -492,11 +534,29 @@
 
     function startSelecting() {
         if (isSelecting) return;
+
+        // Wait until we have a mount point (body may be null at document_start).
+        if (!getMountParent()) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (!isSelecting) startSelecting();
+                }, { once: true });
+            }
+            return;
+        }
+
+        const mounted =
+            createHighlightOverlay() &&
+            createSelectionCaptureLayer() &&
+            createSelectorDisplay() &&
+            createFeedbackContainer();
+
+        if (!mounted || !selectionCaptureLayer) {
+            // Avoid sticky isSelecting=true with no UI if mounting somehow failed.
+            return;
+        }
+
         isSelecting = true;
-        createHighlightOverlay();
-        createSelectionCaptureLayer();
-        createSelectorDisplay();
-        createFeedbackContainer();
         selectionCaptureLayer.addEventListener('mousemove', highlightElement);
         selectionCaptureLayer.addEventListener('touchstart', highlightElement, { passive: true });
         selectionCaptureLayer.addEventListener('touchmove', highlightElement, { passive: true });
@@ -519,6 +579,7 @@
         selectionCaptureLayer?.removeEventListener('click', selectElementOnClick);
         selectionCaptureLayer?.removeEventListener('touchend', selectElementOnTap);
         document.removeEventListener('keydown', handleKeydown, { capture: true });
+        if (cleanupDragEvents) cleanupDragEvents();
         if (selectionCaptureLayer) selectionCaptureLayer.remove();
         if (feedbackContainer) feedbackContainer.remove();
         if (highlightOverlay) highlightOverlay.remove();
