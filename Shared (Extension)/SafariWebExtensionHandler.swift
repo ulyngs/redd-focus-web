@@ -11,8 +11,18 @@
 //
 //   host -> extension: { "blocklist": ["x.com", ...],
 //                        "blocks": [ { blocklistId, name, emoji, color,
+//                                      mode: "blocklist" | "allowlist",
 //                                      domains, source, endsAt,
 //                                      startedAt }, ... ] }
+//
+// `blocklist` keeps the legacy flat semantics: only blocklist-mode
+// domains belong there. Allowlist (focus space) sessions ship their
+// allowed domains in `blocks[].domains` with mode "allowlist" —
+// background.js blocks everything *except* the allowlist union, with
+// blocklist hits winning on overlap. Putting allowlist domains into
+// the flat `blocklist` would invert enforcement (block exactly the
+// allowed sites), so the mode split here must stay in lockstep with
+// the Rust `derive_payload`.
 //
 // On Safari there is no length-prefix framing — each `beginRequest`
 // invocation delivers exactly one message and we reply with one
@@ -122,14 +132,18 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let active = root["activeBlocks"] as? [[String: Any]] ?? []
         let schedules = root["schedules"] as? [[String: Any]] ?? []
 
-        // (name, emoji, color, websites_lowercased) for the matching id.
-        func meta(for id: String) -> (String?, String?, String?, [String])? {
+        // (name, emoji, color, websites_lowercased, mode) for the matching id.
+        // `mode` is normalized to exactly "blocklist" or "allowlist", the
+        // same values background.js switches on.
+        func meta(for id: String) -> (String?, String?, String?, [String], String)? {
             guard let b = blocklists.first(where: { ($0["id"] as? String) == id }) else { return nil }
             let name = b["name"] as? String
             let emoji = b["emoji"] as? String
             let color = b["color"] as? String
             let websites = (b["websites"] as? [String] ?? []).map { $0.lowercased() }
-            return (name, emoji, color, websites)
+            let mode = ((b["mode"] as? String) ?? "blocklist").lowercased() == "allowlist"
+                ? "allowlist" : "blocklist"
+            return (name, emoji, color, websites, mode)
         }
 
         var domainSet = Set<String>()
@@ -142,9 +156,14 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             if paused || nowMs < start || nowMs >= end { continue }
             guard let id = ab["blocklistId"] as? String,
                   let m = meta(for: id) else { continue }
-            for w in m.3 { domainSet.insert(w) }
+            // Flat blocklist is legacy blacklist semantics — allowlist
+            // domains must never land there (see header comment).
+            if m.4 != "allowlist" {
+                for w in m.3 { domainSet.insert(w) }
+            }
             var entry: [String: Any] = [
                 "blocklistId": id,
+                "mode": m.4,
                 "domains": m.3,
                 "source": "activeBlock",
                 "endsAt": NSNumber(value: end),
@@ -160,9 +179,12 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             guard let match = matchScheduleNow(sch, nowMs: nowMs) else { continue }
             guard let id = sch["blocklistId"] as? String,
                   let m = meta(for: id) else { continue }
-            for w in m.3 { domainSet.insert(w) }
+            if m.4 != "allowlist" {
+                for w in m.3 { domainSet.insert(w) }
+            }
             var entry: [String: Any] = [
                 "blocklistId": id,
+                "mode": m.4,
                 "domains": m.3,
                 "source": "schedule",
             ]
@@ -192,12 +214,18 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     /// If any segment of `schedule` is active at `nowMs`, return its
     /// absolute start/end epoch-ms. Mirrors the Rust
     /// `match_schedule_now` and the frontend
-    /// `isScheduleSegmentActiveNow` exactly.
+    /// `isScheduleSegmentActiveNow` exactly — including the
+    /// `resolvedSegments` precedence: one-shot ("repeat: no") schedules
+    /// carry their absolute enforcement window in
+    /// `activeFromTimestampMs` / `activeUntilTimestampMs`, and the
+    /// weekly `segments` shape must not be consulted when resolved
+    /// segments are present.
     private func matchScheduleNow(_ schedule: [String: Any], nowMs: UInt64) -> ScheduleMatch? {
         let paused = schedule["isPaused"] as? Bool ?? false
         let pauseEnd = (schedule["pauseEndTime"] as? NSNumber)?.uint64Value ?? 0
         if paused && pauseEnd > nowMs { return nil }
-        guard let segments = schedule["segments"] as? [[String: Any]] else { return nil }
+        guard let segments = (schedule["resolvedSegments"] as? [[String: Any]])
+            ?? (schedule["segments"] as? [[String: Any]]) else { return nil }
 
         var cal = Calendar(identifier: .gregorian)
         cal.timeZone = .current
@@ -221,6 +249,16 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let yesterdayMidnightMs = midnightTodayMs &- 86_400_000
 
         for seg in segments {
+            // Resolved segment: absolute epoch-ms window wins over the
+            // hour/minute/day fields (same rule as the Rust matcher).
+            if let from = (seg["activeFromTimestampMs"] as? NSNumber)?.uint64Value,
+               let until = (seg["activeUntilTimestampMs"] as? NSNumber)?.uint64Value {
+                if nowMs >= from && nowMs < until {
+                    return ScheduleMatch(startedAt: from, endsAt: until)
+                }
+                continue
+            }
+
             let sh = (seg["startHour"] as? NSNumber)?.uint32Value ?? 0
             let sm = (seg["startMinute"] as? NSNumber)?.uint32Value ?? 0
             let eh = (seg["endHour"] as? NSNumber)?.uint32Value ?? 0
