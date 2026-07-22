@@ -1090,11 +1090,24 @@ p.how-to-description {
 }
 
 /******* HIDE IRRELEVANT TOGGLES ******/
-/* iPhone */
+/* iPhone / iOS extension sheet */
 @media only screen and (max-device-width: 768px) {
     /* Tighter space between “Auto-playing previews” / how-to title and subtext (Safari iOS was reading too open vs desktop). */
     :root {
         --previews-how-to-gap: 2px;
+    }
+
+    /*
+     * iOS Safari presents the popup as a bottom sheet with its own viewport height.
+     * The desktop 600px cap makes the document taller than the sheet, so gestures
+     * resize/drag the sheet instead of scrolling #popup-content, and the in-flow
+     * footer sits below the fold until the sheet is expanded. Fill the sheet and
+     * scroll inside instead.
+     */
+    html {
+        height: 100%;
+        max-height: none;
+        overflow: hidden;
     }
 
     footer .footer-bottom-row {
@@ -1106,7 +1119,42 @@ p.how-to-description {
     }
 
     body {
-        width: 100%
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        min-height: 0;
+    }
+
+    /* EULA min-heights are for desktop host auto-sizing — don't force taller-than-sheet docs on iOS. */
+    html.eula-gate-active,
+    html:has(body.eula-gate-active),
+    body.eula-gate-active,
+    body.modal-open {
+        min-height: 0;
+        height: 100%;
+    }
+
+    #popup-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overscroll-behavior-y: contain;
+        touch-action: pan-y;
+    }
+
+    footer {
+        /* Always visible at the bottom of the sheet; never grow with sheet height */
+        flex: 0 0 auto;
+        flex-grow: 0;
+        flex-shrink: 0;
+        font-size: 0.8em;
+        padding: 10px 0;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* iOS uses overlay scrollbars — no classic gutter inset needed */
+    #help-container {
+        right: 8px;
     }
 
     #delay-content {

@@ -8,6 +8,35 @@ document.addEventListener('DOMContentLoaded', function () {
         const paymentField = document.getElementById('payment-status');
         paymentField.style.display = 'none';
 
+        /**
+         * iOS Safari extension sheets often don't resolve height:100% to the visible
+         * sheet viewport. Pin html/body to the visual viewport so #popup-content can
+         * scroll and the footer stays on-screen without drag-to-resize.
+         */
+        function syncIosPopupSheetLayout() {
+            const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (!isIos) return;
+
+            const apply = function () {
+                const viewport = window.visualViewport;
+                const height = Math.round((viewport && viewport.height) || window.innerHeight || 0);
+                if (!height) return;
+                const px = height + 'px';
+                document.documentElement.style.height = px;
+                document.documentElement.style.maxHeight = px;
+                document.body.style.height = px;
+                document.body.style.maxHeight = px;
+            };
+
+            apply();
+            window.addEventListener('resize', apply);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', apply);
+            }
+        }
+        syncIosPopupSheetLayout();
+
         // ========================================
         // Theme Management
         // ========================================
