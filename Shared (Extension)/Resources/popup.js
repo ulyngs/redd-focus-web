@@ -336,7 +336,17 @@ document.addEventListener('DOMContentLoaded', function () {
             noThanksButton.addEventListener('click', dismissReviewPromptPermanently);
         }
         if (reviewLink) {
-            reviewLink.addEventListener('click', dismissReviewPromptPermanently);
+            // tabs.create: <a target="_blank"> can navigate the iOS Safari popup itself.
+            // Prefer getReviewStoreUrl() — reviewLink.href expands "#" to an invalid extension URL.
+            reviewLink.addEventListener('click', function (event) {
+                event.preventDefault();
+                dismissReviewPromptPermanently();
+                const url = typeof window.getReviewStoreUrl === 'function'
+                    ? window.getReviewStoreUrl()
+                    : '';
+                if (!url || !/^https?:/i.test(url)) return;
+                chrome.tabs.create({ url });
+            });
         }
         const reviewDismissButton = document.getElementById('reviewDismissButton');
         if (reviewDismissButton) {
@@ -1336,6 +1346,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Extension pages aren't sites (Safari uses the extension UUID as hostname).
+            if (/^(chrome|chrome-extension|moz-extension|safari-web-extension|about):/.test(currentURL.protocol)) {
+                showUnsupportedPageMessage('Open a website tab to use ReDD Focus.');
+                return;
+            }
+
             const currentHost = currentURL.hostname;
             const displayHost = currentHost.replace(/^www\./, '');
             const currentSiteNameEl = document.getElementById('currentSiteName');
@@ -1372,7 +1388,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateCustomElementsList(currentPlatform, result[storageKey] || []);
                 });
 
-            } else if (currentHost && !currentURL.protocol.startsWith('chrome') && !currentURL.protocol.startsWith('about')) {
+            } else if (currentHost) {
                 currentSiteIdentifier = currentHost;
                 const websiteToggles = document.getElementById('website-toggles');
                 if (websiteToggles) websiteToggles.style.display = 'none';
