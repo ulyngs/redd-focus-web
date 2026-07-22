@@ -1197,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         isSelectionModeActive = true;
                         addButton.classList.add('active');
-                        addButton.textContent = 'Click any element';
+                        addButton.textContent = 'Click to hide';
                         chrome.storage.sync.set({ [`${siteIdentifier}SelectionActive`]: true });
                     }
                 });
@@ -1591,7 +1591,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (addButton) {
                         if (isActive) {
                             addButton.classList.add('active');
-                            addButton.textContent = 'Click any element';
+                            addButton.textContent = 'Click to hide';
                         } else {
                             addButton.classList.remove('active');
                             addButton.textContent = 'Hide element';
