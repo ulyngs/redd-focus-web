@@ -292,11 +292,27 @@ document.addEventListener('DOMContentLoaded', function () {
             var reviewPrompt = document.getElementById('reviewPrompt');
             if (reviewPrompt) reviewPrompt.style.display = 'block';
         }
-        document.getElementById('noThanksButton').addEventListener('click', function () {
-            localStorage.setItem('noThanksClicked', 'true');
+        function hideReviewPrompt() {
             var reviewPrompt = document.getElementById('reviewPrompt');
             if (reviewPrompt) reviewPrompt.style.display = 'none';
-        });
+        }
+
+        function dismissReviewPromptPermanently() {
+            localStorage.setItem('noThanksClicked', 'true');
+            hideReviewPrompt();
+        }
+
+        const noThanksButton = document.getElementById('noThanksButton');
+        if (noThanksButton) {
+            noThanksButton.addEventListener('click', dismissReviewPromptPermanently);
+        }
+        if (reviewLink) {
+            reviewLink.addEventListener('click', dismissReviewPromptPermanently);
+        }
+        const reviewDismissButton = document.getElementById('reviewDismissButton');
+        if (reviewDismissButton) {
+            reviewDismissButton.addEventListener('click', hideReviewPrompt);
+        }
 
         function setupUnlockSettings(siteIdentifier) {
             if (!siteIdentifier) return;
@@ -835,43 +851,46 @@ document.addEventListener('DOMContentLoaded', function () {
             const dialogTitle = options.title || 'Edit Custom Element';
             const saveLabel = options.saveLabel || 'Save';
 
-            // Create overlay
+            // Full-bleed panel (same pattern as settings #faq-dropdown)
             const overlay = document.createElement('div');
-            overlay.className = 'edit-dialog-overlay';
+            overlay.className = 'edit-panel-overlay';
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
 
-            // Create dialog
-            const dialog = document.createElement('div');
-            dialog.className = 'edit-dialog';
-
-            dialog.innerHTML = `
-                <h3>${dialogTitle}</h3>
-                <div class="edit-dialog-field">
-                    <label for="element-name">Name (optional):</label>
-                    <input type="text" id="element-name" class="shadcn-input" placeholder="e.g., Reels button" value="${name || ''}">
-                </div>
-                <div class="edit-dialog-field">
-                    <label for="element-selector">
-                        CSS Selector:
-                        <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics" target="_blank" class="help-icon" title="Learn about CSS selectors">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                        </a>
-                    </label>
-                    <textarea id="element-selector" class="shadcn-input" rows="3" placeholder="e.g., div.class-name">${selector}</textarea>
+            overlay.innerHTML = `
+                <div class="edit-dialog-scroll">
+                    <div class="edit-dialog-header">
+                        <h3 id="edit-dialog-title">${dialogTitle}</h3>
+                    </div>
+                    <div class="edit-dialog-field">
+                        <label for="element-name">Name (optional)</label>
+                        <input type="text" id="element-name" class="shadcn-input" placeholder="e.g., Reels button" value="${name || ''}">
+                    </div>
+                    <div class="edit-dialog-field">
+                        <label for="element-selector">
+                            CSS Selector
+                            <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics" target="_blank" rel="noopener noreferrer" class="help-icon" aria-label="Learn about CSS selectors from Mozilla">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                                <span class="help-icon-tooltip" role="tooltip">
+                                    Learn about CSS selectors from Mozilla
+                                </span>
+                            </a>
+                        </label>
+                        <textarea id="element-selector" class="shadcn-input" rows="3" placeholder="e.g., div.class-name">${selector}</textarea>
+                    </div>
                 </div>
                 <div class="edit-dialog-buttons">
-                    <button id="cancel-edit" class="secondary-btn">Cancel</button>
-                    <button id="save-edit" class="primary-btn">${saveLabel}</button>
+                    <button type="button" id="cancel-edit" class="secondary-btn">Cancel</button>
+                    <button type="button" id="save-edit" class="primary-btn">${saveLabel}</button>
                 </div>
             `;
+            overlay.setAttribute('aria-labelledby', 'edit-dialog-title');
 
-            overlay.appendChild(dialog);
             document.body.appendChild(overlay);
-
-            // Expand popup to accommodate dialog - force a specific height
             document.body.classList.add('modal-open');
             document.body.style.minHeight = '350px';
 
@@ -883,11 +902,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 50);
 
+            const onEditKeydown = function (e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeDialog();
+                }
+            };
+
             const closeDialog = function () {
-                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', onEditKeydown);
+                if (overlay.parentNode) document.body.removeChild(overlay);
                 document.body.classList.remove('modal-open');
                 document.body.style.minHeight = '';
             };
+
+            document.addEventListener('keydown', onEditKeydown);
 
             // Handle save
             document.getElementById('save-edit').addEventListener('click', function () {
@@ -912,20 +941,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Handle cancel
             document.getElementById('cancel-edit').addEventListener('click', closeDialog);
-
-            // Handle escape key
-            overlay.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    closeDialog();
-                }
-            });
-
-            // Close on overlay click
-            overlay.addEventListener('click', function (e) {
-                if (e.target === overlay) {
-                    closeDialog();
-                }
-            });
         }
 
         function updateCustomElementsList(siteIdentifier, selectors) {
@@ -1195,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 manualAddButton.addEventListener('click', function () {
                     showEditDialog(siteIdentifier, '', '', function (newName, newSelector) {
                         addCustomSelector(siteIdentifier, newName, newSelector);
-                    }, { title: 'Add Custom Element', saveLabel: 'Add', focusSelector: true });
+                    }, { title: 'Add CSS Selector', saveLabel: 'Add', focusSelector: true });
                 });
             } else { console.error("Manual add button not found:", manualAddButtonId); }
         }

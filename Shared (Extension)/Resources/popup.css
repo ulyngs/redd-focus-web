@@ -245,10 +245,22 @@ body {
     color: var(--text-muted);
 }
 
-#currentSiteInfo strong {
-    font-family: inherit;
+/* Site name + Settings / Add CSS Selector panel titles */
+#currentSiteInfo strong,
+#settings-modal-title,
+.edit-panel-overlay #edit-dialog-title {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
     font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--text-primary);
+}
+
+#settings-modal-title,
+.edit-panel-overlay #edit-dialog-title {
+    margin: 0;
 }
 
 #payment-status p {
@@ -507,7 +519,7 @@ button[id$="ManualAddButton"] {
     box-sizing: border-box;
     padding: 9px 14px;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.95em;
     font-weight: 600;
     font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
     line-height: 1.2;
@@ -572,7 +584,7 @@ body.manual-css-enabled button[id$="ManualAddButton"] {
 }
 
 .grayscale-controls {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .ordinary-checkbox [type="checkbox"] {
@@ -828,7 +840,7 @@ footer {
     bottom: 0;
     left: 0;
     text-align: center;
-    font-style: italic;
+    font-style: normal;
     padding: 10px 0;
     font-size: 0.8em;
     border-top: 1px solid var(--footer-border);
@@ -841,12 +853,13 @@ footer {
 footer a,
 footer a:visited {
     color: var(--footer-text);
-    text-decoration: underline;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 footer a:hover,
 footer a:visited:hover {
-    text-decoration: none;
+    text-decoration: underline;
     color: var(--text-link-hover);
 }
 
@@ -1165,6 +1178,7 @@ p.how-to-description {
     box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
 }
 
+/* Dimmed centered modal (lock-start commitment dialog) */
 .edit-dialog-overlay {
     position: fixed;
     top: 0;
@@ -1180,28 +1194,42 @@ p.how-to-description {
     z-index: 10000;
 }
 
-.edit-dialog {
-    background: var(--modal-bg);
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 90%;
-    width: 360px;
-    box-shadow: var(--modal-shadow);
+/* Add/Edit CSS selector — full-bleed panel like settings (#faq-dropdown) */
+.edit-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    background-color: var(--modal-bg);
+    color: var(--text-secondary);
     text-align: left;
+    box-sizing: border-box;
 }
 
-.edit-dialog h3 {
-    margin: 0 0 16px 0;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.88em;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #4d4d57;
+.edit-dialog-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--settings-overlay-padding-y) var(--settings-overlay-padding-x) 8px;
+    box-sizing: border-box;
 }
 
-.dark-mode .edit-dialog h3 {
-    color: var(--text-muted);
+.edit-dialog-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .edit-dialog-field {
@@ -1210,10 +1238,17 @@ p.how-to-description {
 
 .edit-dialog-field label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
+    margin: 0 0 5px 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.88em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #4d4d57;
+}
+
+.dark-mode .edit-dialog-field label {
+    color: var(--text-muted);
 }
 
 .edit-dialog-field label .help-icon {
@@ -1228,11 +1263,43 @@ p.how-to-description {
     transition: color 0.2s;
 }
 
-.edit-dialog-field label .help-icon:hover {
+.edit-dialog-field label .help-icon:hover,
+.edit-dialog-field label .help-icon:focus-visible {
     color: var(--text-secondary);
 }
 
 .edit-dialog-field label .help-icon svg {
+    display: block;
+}
+
+.edit-dialog-field label .help-icon-tooltip {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 20;
+    display: none;
+    width: max-content;
+    max-width: min(240px, calc(100vw - 2rem));
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    box-shadow: var(--dropdown-shadow);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    font-style: normal;
+    letter-spacing: normal;
+    line-height: 1.4;
+    text-transform: none;
+    text-align: left;
+    white-space: normal;
+    pointer-events: none;
+}
+
+.edit-dialog-field label .help-icon:hover .help-icon-tooltip,
+.edit-dialog-field label .help-icon:focus-visible .help-icon-tooltip {
     display: block;
 }
 
@@ -1380,10 +1447,21 @@ p.how-to-description {
 }
 
 .edit-dialog-buttons {
+    flex-shrink: 0;
     display: flex;
     gap: 8px;
-    justify-content: flex-end;
-    margin-top: 16px;
+    padding: 12px var(--settings-overlay-padding-x);
+    border-top: 1px solid var(--border-color-medium);
+    background: var(--modal-bg);
+    box-sizing: border-box;
+}
+
+.edit-panel-overlay .edit-dialog-buttons .primary-btn,
+.edit-panel-overlay .edit-dialog-buttons .secondary-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 15px;
 }
 
 .primary-btn,
@@ -1697,15 +1775,6 @@ footer .friction-customisation {
     margin-bottom: 14px;
 }
 
-#settings-modal-title {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.45rem;
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--text-primary);
-}
-
 .settings-current-version {
     flex-shrink: 0;
     margin-left: auto;
@@ -1731,9 +1800,13 @@ footer .friction-customisation {
     padding: 0 2px;
     font-family: var(--font-body);
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: #4d4d57;
+}
+
+.dark-mode .settings-section-heading {
     color: var(--text-muted);
 }
 
@@ -2080,43 +2153,102 @@ footer .friction-customisation {
 }
 
 
-/* Review Prompt Container */
+/* Review prompt card */
+#reviewPrompt {
+    margin: 0 0 14px;
+    text-align: left;
+}
+
 .review-prompt-content {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.1em;
-    text-align: left;
-    margin-bottom: 1em;
+    gap: 10px;
+    padding: 14px 16px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--bg-secondary);
+    box-shadow: var(--redd-shadow-card);
+    box-sizing: border-box;
 }
 
-.review-prompt-content p {
-    margin-block-end: 0.1em;
-    font-style: italic;
-    margin-top: 0;
+.review-prompt-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
-/* Shadcn-inspired Standard Button for Review Link */
-.review-link {
-    margin-top: 0.5em;
+.review-prompt-stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: #e0a100;
+}
+
+.review-prompt-stars svg {
+    display: block;
+    fill: currentColor;
+}
+
+.review-prompt-dismiss {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
+    margin: -4px -6px 0 0;
+    padding: 4px;
+    border: none;
     border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
+    background: transparent;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.review-prompt-dismiss:hover {
+    background-color: var(--bg-tertiary);
     color: var(--text-secondary);
+}
+
+.review-prompt-content p {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.95em;
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.review-prompt-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.review-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--btn-primary-bg);
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .review-link:hover {
-    background-color: var(--bg-tertiary);
-    border-color: var(--border-hover);
+    background-color: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
+    color: var(--btn-primary-text);
 }
 
 .review-link:focus-visible {
@@ -2124,39 +2256,30 @@ footer .friction-customisation {
     outline-offset: 2px;
 }
 
-.review-link:active {
-    background-color: var(--bg-hover);
-}
-
-/* Shadcn-inspired Ghost Button for No Thanks */
 #noThanksButton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.25rem;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    background-color: transparent;
-    color: var(--icon-color);
+    color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: color 0.15s ease;
 }
 
 #noThanksButton:hover {
-    background-color: var(--bg-tertiary);
     color: var(--text-secondary);
 }
 
 #noThanksButton:focus-visible {
     outline: 2px solid var(--border-focus);
     outline-offset: 2px;
-}
-
-#noThanksButton:active {
-    background-color: var(--bg-hover);
+    border-radius: 4px;
 }
 
 
@@ -2670,12 +2793,26 @@ body.eula-gate-active {
     margin-bottom: 10px;
 }
 
-.eula-overlay .assurance-copy {
+.eula-overlay .eula-footer {
     margin: auto 0 0 0;
-    padding-top: 32px;
+    padding-top: 24px;
+    width: 100%;
+    max-width: 34rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.eula-overlay .assurance-copy {
+    margin: 0 0 6px;
     font-size: 0.82em;
-    line-height: 1.6;
+    line-height: 1.55;
+    font-style: italic;
     color: var(--text-muted);
+}
+
+.eula-overlay .assurance-copy:last-child,
+.eula-overlay .assurance-copy-secondary {
+    margin-bottom: 0;
 }
 
 .eula-overlay .assurance-copy a {
