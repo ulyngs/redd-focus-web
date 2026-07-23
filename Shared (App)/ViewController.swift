@@ -28,7 +28,17 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         self.webView.navigationDelegate = self
 
 #if os(iOS)
-        self.webView.scrollView.isScrollEnabled = false
+        // Edge-to-edge webview: paint the home-indicator / status-bar strips the
+        // same canvas colour as the sticky HTML footer (--redd-canvas / #faf8f5).
+        let canvas = UIColor(red: 0xFA / 255.0, green: 0xF8 / 255.0, blue: 0xF5 / 255.0, alpha: 1)
+        view.backgroundColor = canvas
+        webView.backgroundColor = canvas
+        webView.isOpaque = false
+        webView.scrollView.backgroundColor = canvas
+        if #available(iOS 15.0, *) {
+            webView.underPageBackgroundColor = canvas
+        }
+        webView.scrollView.isScrollEnabled = false
 #elseif os(macOS)
         addTitlebarDragArea()
 #endif

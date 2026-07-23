@@ -31,6 +31,7 @@
     /* Mac setup: side inset for .mac-main. Window min width = this*2 + CTA min-width. */
     --mac-side-padding: 28px;
     --mac-cta-min-width: 400px;
+    --ios-side-padding: 16px;
     --accent: var(--redd-teal);
     --accent-hover: var(--redd-teal-hover);
     --primary-blue: var(--redd-teal);    /* legacy alias — now teal */
@@ -49,8 +50,11 @@
     --footer-text: var(--redd-muted);
     --footer-border: var(--redd-border-subtle);
 
-    /* Fixed entrance footer — space reserved in scroll areas */
+    /* Fixed entrance footer — space reserved in scroll areas.
+       iOS overrides via --app-entrance-footer-block when platform is set. */
     --app-entrance-footer-block: calc(21px + 1.4em);
+    --app-entrance-footer-pad-top: 10px;
+    --app-entrance-footer-pad-bottom: 10px;
 }
 
 h1 {
@@ -72,11 +76,6 @@ html, body {
     background-color: var(--bg-primary);
 }
 
-/* iOS: entire column scrolls — pad so the last content clears the fixed footer */
-.scrollable-content.platform-ios {
-    padding-bottom: calc(var(--app-entrance-footer-block) + env(safe-area-inset-bottom, 0px));
-}
-
 /* Fixed footer — matches extension popup.css `footer` */
 footer.app-entrance-footer {
     position: fixed;
@@ -89,8 +88,10 @@ footer.app-entrance-footer {
     margin: 0;
     text-align: center;
     font-style: normal;
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding:
+        var(--app-entrance-footer-pad-top)
+        16px
+        calc(var(--app-entrance-footer-pad-bottom) + env(safe-area-inset-bottom, 0px));
     font-size: 0.8em;
     line-height: 1.4;
     border-top: 1px solid var(--footer-border);
@@ -117,6 +118,23 @@ footer.app-entrance-footer a:hover,
 footer.app-entrance-footer a:visited:hover {
     text-decoration: underline;
     color: var(--text-link-hover);
+}
+
+/* iOS: sit the attribution just above the home-indicator safe area
+   (same pattern as Redd Blocker `body.ios .footer`). */
+body.platform-ios {
+    --app-entrance-footer-pad-top: 8px;
+    --app-entrance-footer-pad-bottom: 2px;
+    --app-entrance-footer-block: calc(
+        var(--app-entrance-footer-pad-top)
+        + 1.4em
+        + var(--app-entrance-footer-pad-bottom)
+    );
+}
+
+body.platform-ios footer.app-entrance-footer {
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 body.platform-mac footer.app-entrance-footer {
@@ -155,7 +173,7 @@ body.platform-ios .platform-mac {
     display: none;
 }
 
-/* iPad/iPhone specific image display */
+/* iPad/iPhone specific image display — legacy; new iOS shots are shared */
 body.platform-ipad .platform-iphone.step-image {
     display: none;
 }
@@ -190,340 +208,318 @@ body.platform-mac button.platform-ios {
 }
 
 /* ============================================
-   iPhone Redesign Styles
+   iOS Styles — setup redesign (mirrors Mac cards)
    ============================================ */
 
-/* Header Section */
-.app-header.platform-ios.platform-iphone {
-    background-color: var(--header-bg);
-    padding: 12px 16px;
+.scrollable-content.platform-ios {
+    padding: 0;
+    padding-bottom: calc(var(--app-entrance-footer-block) + env(safe-area-inset-bottom, 0px));
+    min-height: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg-primary);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Sticky empty safe-area strip — clears the status bar / notch */
+.ios-safe-header.platform-ios {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+    height: env(safe-area-inset-top, 0px);
+    min-height: env(safe-area-inset-top, 0px);
+    background-color: var(--bg-primary);
+}
+
+.ios-main.platform-ios {
+    display: flex;
+    flex-direction: column;
+    padding: 16px var(--ios-side-padding) 8px;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.ios-intro {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    border-radius: 0;
-    position: relative;
+    margin-bottom: 16px;
 }
 
-.app-logo {
+.ios-intro-logo {
     width: 40px;
     height: 40px;
     border-radius: 10px;
     flex-shrink: 0;
 }
 
-.app-header-text {
+.ios-intro-text {
     display: flex;
     flex-direction: column;
+    gap: 2px;
+    min-width: 0;
     flex: 1;
 }
 
-.app-title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.app-header .app-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--text-dark);
-    margin: 0 0 2px 0;
-    padding: 0;
-}
-
-.app-header .app-description {
-    font-size: 13px;
-    font-style: italic;
-    color: var(--text-dark);
+.ios-intro-title {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--redd-navy);
+    letter-spacing: -0.01em;
     margin: 0;
     padding: 0;
-    white-space: nowrap;
+    line-height: 1.2;
+    text-align: left;
 }
 
-.get-started-badge {
-    background-color: var(--redd-teal-soft);
-    color: var(--redd-teal);
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    flex-shrink: 0;
-    align-self: center;
+.ios-intro-subtitle {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--redd-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1.35;
 }
 
-/* Steps Container */
-.steps-container.platform-ios.platform-iphone {
-    padding: 12px 16px;
+.steps-container.platform-ios {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
     background-color: transparent;
 }
 
-.step {
-    margin-bottom: 20px;
+.steps-container.platform-ios .step-card {
+    background: var(--redd-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    box-sizing: border-box;
 }
 
-/* Two-column layout for steps 1 and 2 */
-.step-two-column {
+.steps-container.platform-ios .step-card-heading {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.step-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    margin-bottom: 0;
-}
-
-.step-columns {
-    display: flex;
-    gap: 12px;
     align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
-.step-content {
-    flex: 0 0 33.33%;
-    min-width: 0;
-}
-/* Step Visuals */
-.step-visuals {
+.steps-container.platform-ios .step-card-copy {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 4px;
-    flex: 0 0 66.67%;
     min-width: 0;
+    flex: 1;
 }
 
-.step-badge {
+.steps-container.platform-ios .step-badge {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: var(--primary-blue);
+    background-color: var(--redd-teal);
     color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-.step-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--text-dark);
-    margin: 0;
-    padding: 0;
-}
-
-.step-instruction {
+    font-family: var(--font-body);
     font-size: 13px;
-    color: var(--text-dark);
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transform: translateY(-2px);
 }
 
-.step-image {
+.steps-container.platform-ios .step-title {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--redd-navy);
+    letter-spacing: -0.01em;
+    margin: 0;
+    padding: 0;
+    line-height: 1.25;
+}
+
+.steps-container.platform-ios .step-instruction {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--redd-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1.45;
+    text-align: left;
     width: 100%;
+}
+
+.steps-container.platform-ios .step-visuals {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.steps-container.platform-ios .step-image {
+    width: 100%;
+    max-width: 100%;
     height: auto;
-    border-radius: 6px;
+    object-fit: contain;
     display: block;
+    border-radius: 6px;
     box-shadow: none;
     background: transparent;
 }
 
-.arrow-down {
-    font-size: 14px;
-    color: var(--text-light);
+.steps-container.platform-ios .step-arrow {
+    font-size: 16px;
+    color: var(--redd-muted);
     line-height: 1;
+    flex: 0 0 auto;
+    opacity: 0.7;
 }
 
-.toggle-off {
-    width: 44px;
-    height: 26px;
-    background-color: #D1D5DB;
-    border-radius: 13px;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.toggle-off::after {
-    content: '';
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    background-color: var(--white);
-    border-radius: 50%;
-    top: 2px;
-    left: 2px;
-    transition: left 0.2s;
-}
-
-.warning-icon {
-    font-size: 18px;
-    color: #F59E0B;
-}
-
-.permission-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 320px;
-}
-
-.permission-btn {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
+.steps-container.platform-ios .step-footnote {
+    margin: 12px 0 0;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--redd-muted);
+    line-height: 1.4;
     text-align: left;
 }
 
-.permission-btn.allow-one-day {
-    background-color: var(--primary-blue);
-    color: var(--white);
-}
-
-.permission-btn.always-allow,
-.permission-btn.cancel {
-    background-color: #F3F4F6;
-    color: var(--text-dark);
-}
-
-/* Callout Box */
-.callout-box {
+/* Screen Time callout — full card width, outside step cards */
+.ios-screentime-callout {
+    width: 100%;
+    box-sizing: border-box;
     background-color: var(--callout-bg);
-    border-radius: 6px;
-    padding: 8px 10px;
+    border: 1px solid #f0c4c4;
+    border-radius: var(--radius-card);
+    padding: 12px 14px;
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    width: calc(100% - 16px);
+    gap: 10px;
 }
 
-.callout-icon {
-    width: 16px;
-    height: 16px;
+.ios-screentime-callout .callout-icon {
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background-color: var(--callout-text);
     color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: 700;
     font-style: normal;
     flex-shrink: 0;
+    margin-top: 1px;
 }
 
-.callout-box p {
-    font-size: 11px;
+.ios-screentime-callout p {
+    font-size: 12px;
     color: var(--callout-text);
     margin: 0;
     padding: 0;
-    line-height: 1.4;
+    line-height: 1.45;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    hyphens: auto;
 }
 
-/* Open Safari Button */
-.open-safari-btn.platform-ios.platform-iphone {
-    width: auto;
-    min-width: 280px;
-    margin: 8px auto 24px auto;
-    padding: 11px 24px;
+.ios-screentime-callout strong {
+    font-weight: 700;
+}
+
+button.platform-ios.open-safari-btn {
+    width: 100%;
+    margin: 20px 0 16px;
+    padding: 14px 20px;
     background-color: var(--accent);
     color: var(--white);
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     display: block;
+    box-sizing: border-box;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.open-safari-btn.platform-ios.platform-iphone:hover {
+button.platform-ios.open-safari-btn:hover {
     background-color: var(--accent-hover);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
-.open-safari-btn.platform-ios.platform-iphone:active {
+button.platform-ios.open-safari-btn:active {
     background-color: var(--accent-hover);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     transform: translateY(1px);
 }
 
-.open-safari-btn.platform-ios.platform-iphone:focus {
+button.platform-ios.open-safari-btn:focus {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
-/* Optional Section */
-.optional-section.platform-ios.platform-iphone {
-    margin: 20px;
-    border: 1px solid #E5E7EB;
-    border-radius: 12px;
+.optional-section.platform-ios {
+    margin: 0 0 8px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
     overflow: hidden;
-    background-color: var(--white);
+    background-color: var(--redd-card);
 }
 
 .optional-header {
-    padding: 16px 20px;
+    padding: 14px 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
-    flex-wrap: wrap;
-    position: relative;
-}
-
-.optional-header .optional-title {
-    flex: 1;
-    min-width: 0;
+    flex-wrap: nowrap;
 }
 
 .optional-badge {
     background-color: var(--optional-badge);
     color: var(--white);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
     font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     flex-shrink: 0;
 }
 
 .optional-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--text-dark);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--redd-navy);
+    letter-spacing: -0.01em;
     margin: 0;
     padding: 0;
     flex: 1;
+    min-width: 0;
 }
 
 .chevron-icon {
-    font-size: 20px;
-    color: var(--text-light);
+    font-size: 16px;
+    color: var(--redd-muted);
     transition: transform 0.3s ease;
     flex-shrink: 0;
     display: inline-block;
 }
 
-/* When collapsed, chevron points down (no rotation needed since ⌃ points up by default) */
 .optional-section.collapsed .chevron-icon {
     transform: rotate(180deg);
 }
@@ -535,37 +531,31 @@ body.platform-mac button.platform-ios {
 }
 
 .optional-section:not(.collapsed) .optional-content {
-    max-height: 2000px;
+    max-height: 4000px;
 }
 
 .optional-description {
-    padding: 0 20px 16px 20px;
-    font-size: 14px;
-    color: var(--text-light);
+    padding: 0 16px 12px;
+    font-size: 13px;
+    color: var(--redd-muted);
     margin: 0;
+    line-height: 1.4;
 }
 
 .optional-content-inner {
-    padding: 0 20px 20px 20px;
+    padding: 0 16px 16px;
     display: flex;
     flex-direction: row;
-    gap: 16px;
+    gap: 14px;
     align-items: flex-start;
-}
-
-.example-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin: 0 0 8px 0;
 }
 
 .shortcuts-list {
     margin: 0;
     padding-left: 0;
-    font-size: 14px;
-    color: var(--text-dark);
-    line-height: 1.6;
+    font-size: 13px;
+    color: var(--redd-navy);
+    line-height: 1.5;
     list-style: none;
     counter-reset: shortcut-counter;
 }
@@ -588,10 +578,10 @@ body.platform-mac button.platform-ios {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 .shortcuts-instructions {
@@ -602,26 +592,14 @@ body.platform-mac button.platform-ios {
 .video-container {
     flex: 1;
     min-width: 0;
-    position: relative;
 }
 
 .video-container video {
     width: 100%;
+    height: auto;
     border-radius: 8px;
-}
-
-.video-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 20px);
-    font-size: 14px;
-    color: var(--text-dark);
-    margin: 0;
-    padding: 4px 12px;
-    font-weight: 600;
-    background-color: transparent;
-    pointer-events: none;
+    display: block;
+    background: var(--redd-navy);
 }
 
 
@@ -885,135 +863,99 @@ button.platform-mac.open-safari-btn:focus {
 }
 
 /* ============================================
-   iPhone Media Query Adjustments
+   iPad / larger iOS — dual-column steps
    ============================================ */
 
-@media only screen and (max-device-width: 428px) {
-    .scrollable-content {
-        padding: 0;
-    }
-}
-
-/* ============================================
-   iPad Media Query Adjustments
-   ============================================ */
-
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-    .step-content {
-        flex: 0 0 50%;
-    }
-    
-    .step-visuals {
-        flex: 0 0 50%;
-    }
-    
-    body {
-        justify-content: flex-start;
-    }
-    
-    .scrollable-content {
-        padding: 0;
-        margin: 0;
-    }
-    
-    .app-header.platform-ios.platform-iphone {
-        margin-top: 0;
-    }
-    
-    .steps-container.platform-ios.platform-iphone {
-        padding: 32px;
-    }
-    
-    /* Font size increases (31% larger) */
-    .app-header .app-title {
-        font-size: 26px;
-    }
-    
-    .app-header .app-description {
-        font-size: 17px;
-    }
-    
-    .get-started-badge {
-        font-size: 16px;
-        padding: 5px 13px;
-    }
-    
-    .step-badge {
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
-    }
-    
-    .step-title {
-        font-size: 21px;
-    }
-    
-    .step-instruction {
-        font-size: 17px;
-    }
-    
-    .arrow-down {
-        font-size: 18px;
-    }
-
+@media only screen and (min-device-width: 768px) {
     :root {
+        --ios-side-padding: 32px;
         --app-entrance-footer-block: calc(26px + 1.45em);
     }
-    
-    .callout-icon {
-        width: 21px;
-        height: 21px;
-        font-size: 13px;
+
+    .ios-intro-title {
+        font-size: 28px;
     }
-    
-    .callout-box p {
+
+    .ios-intro-subtitle {
+        font-size: 15px;
+    }
+
+    .ios-intro-logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+    }
+
+    /* Step 1 | Step 2 side-by-side; Screen Time callout full-width under both */
+    .steps-container.platform-ios {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: start;
+    }
+
+    .steps-container.platform-ios .step-card:first-child {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .steps-container.platform-ios .step-card:last-child {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .steps-container.platform-ios .ios-screentime-callout {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    .steps-container.platform-ios .step-card {
+        padding: 20px 22px;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .steps-container.platform-ios .step-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 15px;
+    }
+
+    .steps-container.platform-ios .step-title {
+        font-size: 18px;
+    }
+
+    .steps-container.platform-ios .step-instruction {
+        font-size: 15px;
+    }
+
+    .ios-screentime-callout p {
         font-size: 14px;
     }
-    
-    .open-safari-btn.platform-ios.platform-iphone {
-        font-size: 21px;
-        padding: 16px;
-    }
-    
-    .optional-badge {
-        font-size: 16px;
-        padding: 5px 13px;
-    }
-    
-    .optional-title {
-        font-size: 24px;
-    }
-    
-    .chevron-icon {
-        font-size: 26px;
-    }
-    
-    .optional-description {
-        font-size: 18px;
-    }
-    
-    .example-title {
-        font-size: 21px;
-    }
-    
-    .shortcuts-list {
-        font-size: 18px;
-    }
-    
-    .shortcuts-list li::before {
-        width: 26px;
-        height: 26px;
-        font-size: 16px;
-    }
-}
 
-/* iPad Landscape Orientation */
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
-    .step-content {
-        flex: 0 0 66.67%;
+    /* CTA centered under the two columns (not full-bleed) */
+    button.platform-ios.open-safari-btn {
+        width: auto;
+        min-width: 360px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 17px;
+        padding: 16px 28px;
     }
-    
-    .step-visuals {
-        flex: 0 0 33.33%;
+
+    .optional-title {
+        font-size: 18px;
+    }
+
+    .optional-description,
+    .shortcuts-list {
+        font-size: 15px;
+    }
+
+    .shortcuts-list li::before {
+        width: 24px;
+        height: 24px;
+        font-size: 13px;
     }
 }
