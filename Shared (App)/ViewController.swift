@@ -39,12 +39,23 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
     }
 
 #if os(macOS)
-    override func viewDidAppear() {
-        super.viewDidAppear()
-        configureWindowDragBehavior()
+    /// Opening size fits the CTA in the default viewport. Min width matches the
+    /// content floor where vertical scroll would otherwise break: side padding +
+    /// CTA min-width + side padding (Style.css `--mac-side-padding` /
+    /// `--mac-cta-min-width`). No min height — short windows scroll.
+    private enum MacSetupWindowMetrics {
+        static let defaultSize = NSSize(width: 820, height: 820)
+        static let sidePadding: CGFloat = 28
+        static let ctaMinWidth: CGFloat = 400
+        static let minWidth = sidePadding + ctaMinWidth + sidePadding
     }
 
-    private func configureWindowDragBehavior() {
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        configureWindowAppearance()
+    }
+
+    private func configureWindowAppearance() {
         guard let window = view.window else {
             return
         }
@@ -52,6 +63,16 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         window.isMovableByWindowBackground = true
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
+        window.contentMinSize = NSSize(width: MacSetupWindowMetrics.minWidth, height: 0)
+
+        let contentSize = window.contentView?.bounds.size ?? window.frame.size
+        if contentSize.width + 0.5 < MacSetupWindowMetrics.defaultSize.width
+            || contentSize.height + 0.5 < MacSetupWindowMetrics.defaultSize.height {
+            window.setContentSize(NSSize(
+                width: max(contentSize.width, MacSetupWindowMetrics.defaultSize.width),
+                height: max(contentSize.height, MacSetupWindowMetrics.defaultSize.height)
+            ))
+        }
     }
 
     /// The window uses fullSizeContentView with a transparent titlebar, so the

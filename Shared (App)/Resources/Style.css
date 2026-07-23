@@ -10,7 +10,7 @@
 
     --spacing: 20px;
 
-    /* ReDD design language (matches popup.css tokens) */
+    /* ReDD design language (matches popup.css / Redd Blocker tokens) */
     --redd-canvas: #faf8f5;
     --redd-card: #ffffff;
     --redd-navy: #1e2d3e;
@@ -20,8 +20,17 @@
     --redd-teal-hover: #248a7e;
     --redd-teal-soft: #e5f5f3;
 
+    --font-heading: Georgia, "Times New Roman", serif;
+    --font-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    --radius-card: 12px;
+
     --bg-primary: var(--redd-canvas);
     --header-bg: #f0ede8;
+    --title-bar-bg: #efede8;
+    --title-bar-height: 44px;
+    /* Mac setup: side inset for .mac-main. Window min width = this*2 + CTA min-width. */
+    --mac-side-padding: 28px;
+    --mac-cta-min-width: 400px;
     --accent: var(--redd-teal);
     --accent-hover: var(--redd-teal-hover);
     --primary-blue: var(--redd-teal);    /* legacy alias — now teal */
@@ -31,11 +40,17 @@
     --optional-badge: var(--redd-teal);
     --text-dark: var(--redd-navy);
     --text-light: var(--redd-muted);
+    --text-link-hover: var(--redd-navy);
     --border-subtle: var(--redd-border-subtle);
     --white: #FFFFFF;
 
-    /* Fixed entrance footer — space reserved in scroll areas (matches extension popup footer tokens) */
-    --app-entrance-footer-block: calc(22px + 1.4em);
+    /* Extension popup footer tokens */
+    --footer-bg: var(--redd-canvas);
+    --footer-text: var(--redd-muted);
+    --footer-border: var(--redd-border-subtle);
+
+    /* Fixed entrance footer — space reserved in scroll areas */
+    --app-entrance-footer-block: calc(21px + 1.4em);
 }
 
 h1 {
@@ -62,7 +77,7 @@ html, body {
     padding-bottom: calc(var(--app-entrance-footer-block) + env(safe-area-inset-bottom, 0px));
 }
 
-/* Fixed footer — same language as extension popup (popup.css footer) */
+/* Fixed footer — matches extension popup.css `footer` */
 footer.app-entrance-footer {
     position: fixed;
     bottom: 0;
@@ -73,13 +88,14 @@ footer.app-entrance-footer {
     width: 100%;
     margin: 0;
     text-align: center;
-    font-style: italic;
+    font-style: normal;
     padding: 10px 16px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     font-size: 0.8em;
     line-height: 1.4;
-    background-color: var(--bg-primary);
-    color: var(--text-light);
+    border-top: 1px solid var(--footer-border);
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
     -webkit-user-select: text;
     user-select: text;
     cursor: default;
@@ -91,21 +107,21 @@ body:not(.platform-mac, .platform-ios) footer.app-entrance-footer {
 
 footer.app-entrance-footer a,
 footer.app-entrance-footer a:visited {
-    color: var(--text-light);
-    text-decoration: underline;
+    color: var(--footer-text);
+    font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
 }
 
 footer.app-entrance-footer a:hover,
 footer.app-entrance-footer a:visited:hover {
-    text-decoration: none;
-    color: var(--text-dark);
+    text-decoration: underline;
+    color: var(--text-link-hover);
 }
 
 body.platform-mac footer.app-entrance-footer {
-    font-size: 0.85em;
-    padding: 12px 20px;
-    padding-bottom: 12px;
+    padding: 10px 0;
+    padding-bottom: 10px;
 }
 
 body {
@@ -116,7 +132,7 @@ body {
     gap: 0;
     margin: 0;
     height: 100%;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     text-align: left;
     background-color: var(--bg-primary);
@@ -611,99 +627,182 @@ body.platform-mac button.platform-ios {
 
 
 /* ============================================
-   macOS Styles
+   macOS Styles — setup redesign
    ============================================ */
 
 .scrollable-content.platform-mac {
     padding: 0;
     padding-bottom: var(--app-entrance-footer-block);
     height: 100vh;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg-primary);
 }
 
-.app-header.platform-mac {
-    background-color: var(--header-bg);
-    /* Top padding clears the macOS traffic-light buttons (window uses
-       fullSizeContentView + transparent titlebar so the header bleeds up under them). */
-    padding: 44px 24px 20px;
+/* Safe-zone title bar — same height as ViewController TitlebarDragView (44px).
+   Window uses fullSizeContentView + transparent titlebar; this strip sits under
+   the traffic lights and shows the centred product name. */
+.mac-title-bar.platform-mac {
+    flex-shrink: 0;
+    height: var(--title-bar-height);
+    background: var(--title-bar-bg);
+    box-shadow: inset 0 -1px 0 rgba(30, 45, 62, 0.08);
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    border-radius: 0;
-    position: relative;
-    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-.app-header.platform-mac .app-logo {
-    width: 51px;
-    height: 51px;
-    border-radius: 10px;
-    flex-shrink: 0;
-}
-
-.app-header.platform-mac .app-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--text-dark);
-    margin: 0 0 2px 0;
-    padding: 0;
-}
-
-.app-header.platform-mac .app-description {
+.mac-window-title {
+    font-family: var(--font-body);
     font-size: 13px;
-    font-style: italic;
-    color: var(--text-dark);
+    font-weight: 500;
+    color: var(--redd-muted);
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+
+.mac-main.platform-mac {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 28px var(--mac-side-padding) 0;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.mac-intro {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.mac-intro-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.mac-intro-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.mac-intro-title {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--redd-navy);
+    letter-spacing: -0.01em;
     margin: 0;
     padding: 0;
-    white-space: nowrap;
+    line-height: 1.15;
+    text-align: left;
 }
 
-.app-header.platform-mac .get-started-badge {
-    /* Inherits the soft pill style from .get-started-badge above. */
-    font-size: 10px;
-    padding: 2px 8px;
+.mac-intro-subtitle {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--redd-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1.35;
 }
 
 .steps-container.platform-mac {
-    padding: 24px;
-    padding-bottom: 0;
+    padding: 0;
     background-color: transparent;
     flex-shrink: 0;
-}
-
-.steps-container.platform-mac .step:last-child {
-    margin-bottom: 0;
-}
-
-.steps-container.platform-mac .step {
-    margin-bottom: 32px;
-}
-
-.steps-container.platform-mac .step-two-column {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
-.steps-container.platform-mac .step-header {
+.steps-container.platform-mac .step-card {
+    background: var(--redd-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: 20px 22px;
+    box-sizing: border-box;
+}
+
+.steps-container.platform-mac .step-card-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.steps-container.platform-mac .step-card-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.steps-container.platform-mac .step-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--redd-teal);
+    color: var(--white);
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: 100%;
-    margin-bottom: 0;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transform: translateY(-4px);
 }
 
-.steps-container.platform-mac .step-columns {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
+.steps-container.platform-mac .step-title {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--redd-navy);
+    letter-spacing: -0.01em;
+    margin: 0;
+    padding: 0;
+    line-height: 1.25;
 }
 
-.steps-container.platform-mac .step-content {
-    min-width: 0;
+.steps-container.platform-mac .step-instruction {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--redd-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1.45;
+    text-align: left;
+}
+
+.steps-container.platform-mac .step-instruction strong {
+    color: var(--redd-navy);
+    font-weight: 600;
+}
+
+.steps-container.platform-mac .inline-app-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    vertical-align: -3px;
+    display: inline-block;
 }
 
 .steps-container.platform-mac .step-visuals {
@@ -712,80 +811,54 @@ body.platform-mac button.platform-ios {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 16px;
     min-width: 0;
     width: 100%;
 }
 
-.steps-container.platform-mac .step-badge {
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-    background-color: var(--primary-blue);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-.steps-container.platform-mac .step-title {
-    font-size: 17px;
-    font-weight: bold;
-    color: var(--text-dark);
-    margin: 0;
-    padding: 0;
-}
-
-.steps-container.platform-mac .step-instruction {
-    font-size: 14px;
-    color: var(--text-dark);
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
-}
-
 .steps-container.platform-mac .step-image {
-    flex: 0 1 auto;
+    flex: 1 1 0;
     min-width: 0;
-    max-width: 100%;
-    max-height: 130px;
+    max-width: 46%;
     width: auto;
     height: auto;
+    max-height: none;
     object-fit: contain;
-
     display: block;
     box-shadow: none;
     background: transparent;
+    border-radius: 6px;
 }
 
-.steps-container.platform-mac .step-image[src$="mac-2-check.png"] {
-    max-height: 90px;
-}
-
-.steps-container.platform-mac .step-image[src$="mac-3-warning.png"] {
-    max-height: 110px;
-}
-
-.steps-container.platform-mac .arrow-down {
-    font-size: 22px;
-    color: var(--text-light);
+.steps-container.platform-mac .step-arrow {
+    font-size: 18px;
+    color: var(--redd-muted);
     line-height: 1;
     flex: 0 0 auto;
-    transform: rotate(-90deg);
+    opacity: 0.7;
+}
+
+.steps-container.platform-mac .step-footnote {
+    margin: 14px 0 0;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--redd-muted);
+    line-height: 1.4;
+    text-align: left;
 }
 
 button.platform-mac.open-safari-btn {
     width: auto;
-    min-width: 400px;
-    margin: 34px auto 16px;
+    min-width: var(--mac-cta-min-width);
+    max-width: 100%;
+    margin: 36px auto 20px;
     padding: 18px 36px;
     background-color: var(--accent);
     color: var(--white);
     border: none;
     border-radius: 10px;
+    font-family: var(--font-body);
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
