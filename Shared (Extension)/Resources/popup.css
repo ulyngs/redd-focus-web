@@ -2567,7 +2567,7 @@ footer .friction-customisation {
 }
 
 /* Steady-state icon: Ban (red) — single-state checked + multi-state "Off" */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"]:checked + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"]:checked + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Off"]::after {
     -webkit-mask-image: var(--selector-icon-ban);
     mask-image: var(--selector-icon-ban);
@@ -2599,8 +2599,9 @@ footer .friction-customisation {
 
 /* data-state="On" and unchecked single-state have no icon (opacity 0 base). */
 
-/* Grayscale toggle: gray checkmark when checked (not the hide ban icon) */
-.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::after {
+/* Grayscale / access-delay toggles: gray checkmark when checked (not the hide ban icon) */
+.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::after,
+.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::after {
     -webkit-mask-image: var(--selector-icon-check);
     mask-image: var(--selector-icon-check);
     -webkit-mask-size: 78% 78%;
@@ -2609,9 +2610,50 @@ footer .friction-customisation {
     opacity: 1;
 }
 
-.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::before {
+.grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::before,
+.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::before {
     background-color: var(--checkbox-bg);
     border-color: var(--selector-color-grayscale-check);
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-suffix {
+    display: inline;
+    font-size: var(--selector-font-size);
+    color: var(--text-primary);
+    line-height: var(--selector-box-size);
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-suffix[hidden] {
+    display: none;
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input {
+    box-sizing: border-box;
+    width: 3.25em;
+    margin: 0 0.25em;
+    padding: 1px 4px;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-size: inherit;
+    font-family: inherit;
+    line-height: 1.2;
+    text-align: center;
+    vertical-align: baseline;
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle.lock-protected .access-delay-seconds-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 /* Lock-protected toggles: greyed out, can't be clicked to unhide */
@@ -2645,19 +2687,19 @@ footer .friction-customisation {
      3. The destination icon (::after) fades in over the same duration and
         rotates in lockstep with the box (all icons: ban, cloud, black, refresh).
 */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::before,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::before,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     animation: selector-rotate var(--selector-rotate-duration) linear;
     box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
 }
 
-.dark-mode .hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::before,
+.dark-mode .hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::before,
 .dark-mode .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     box-shadow: 0 0 0 6px rgba(61, 191, 176, 0.28);
 }
 
 /* Fade + spin: same duration/timing as ::before so icon and box stay aligned. */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle) input[type="checkbox"].loading + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::after {
     animation: selector-rotate var(--selector-rotate-duration) linear,
         selector-icon-fade-in var(--selector-rotate-duration) ease-out both;

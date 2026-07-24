@@ -47,6 +47,16 @@
     "activeTab",
     "nativeMessaging"
   ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/calm.svg"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "mindshield@example.com",

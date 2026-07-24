@@ -442,6 +442,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (grayscaleToggle && grayscaleToggle.checked) {
                     protectedHiddenAtLock.add(`${currentSiteIdentifier}Grayscale`);
                 }
+                const accessDelayToggle = document.getElementById('accessDelayToggle');
+                if (accessDelayToggle && accessDelayToggle.checked) {
+                    protectedHiddenAtLock.add(`${currentSiteIdentifier}AccessDelay`);
+                }
             }
         }
 
@@ -488,6 +492,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         protectedHiddenAtLock.has(grayscaleKey) &&
                         grayscaleToggle.checked;
                     grayscaleRow.classList.toggle('lock-protected', shouldProtect);
+                }
+                const accessDelayToggle = document.getElementById('accessDelayToggle');
+                const accessDelayRow = document.getElementById('access-delay-toggle-row');
+                const accessDelaySeconds = document.getElementById('accessDelaySeconds');
+                if (accessDelayToggle && accessDelayRow) {
+                    const accessDelayKey = `${currentSiteIdentifier}AccessDelay`;
+                    const shouldProtect = isSettingsLocked &&
+                        protectedHiddenAtLock.has(accessDelayKey) &&
+                        accessDelayToggle.checked;
+                    accessDelayRow.classList.toggle('lock-protected', shouldProtect);
+                    if (accessDelaySeconds) accessDelaySeconds.disabled = shouldProtect;
                 }
             }
         }
@@ -663,7 +678,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const lockKey = `${currentSiteIdentifier}SettingsLocked`;
             const rememberKey = `${currentSiteIdentifier}RememberSettings`;
             const grayscaleKey = `${currentSiteIdentifier}GrayscaleStatus`;
-            const storageKeys = [lockKey, rememberKey, grayscaleKey, 'themePreference'];
+            const accessDelayKey = `${currentSiteIdentifier}AccessDelayStatus`;
+            const accessDelaySecondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
+            const storageKeys = [lockKey, rememberKey, grayscaleKey, accessDelayKey, accessDelaySecondsKey, 'themePreference'];
 
             if (currentPlatform) {
                 elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
@@ -691,6 +708,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 const grayscaleToggle = document.getElementById('grayscaleToggle');
                 if (grayscaleToggle) {
                     grayscaleToggle.checked = result[grayscaleKey] === true;
+                }
+
+                const accessDelayToggle = document.getElementById('accessDelayToggle');
+                const accessDelaySeconds = document.getElementById('accessDelaySeconds');
+                if (accessDelayToggle) {
+                    accessDelayToggle.checked = result[accessDelayKey] === true;
+                    updateAccessDelaySuffixVisibility();
+                }
+                if (accessDelaySeconds) {
+                    accessDelaySeconds.value = clampAccessDelaySeconds(
+                        result[accessDelaySecondsKey] !== undefined ? result[accessDelaySecondsKey] : 10
+                    );
                 }
 
                 const rememberToggle = document.getElementById('rememberSettingsToggle');
@@ -1133,6 +1162,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const existing = document.getElementById('grayscale-toggle-row');
             if (existing) existing.remove();
+            const existingDelay = document.getElementById('access-delay-toggle-row');
+            if (existingDelay) existingDelay.remove();
+            const existingWrapper = document.querySelector('.grayscale-controls');
+            if (existingWrapper) existingWrapper.remove();
 
             const wrapper = document.createElement('div');
             wrapper.className = 'hide-checkboxes grayscale-controls';
@@ -1158,10 +1191,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
+            setupAccessDelayToggle(siteIdentifier, wrapper);
+
             const toggle = document.getElementById('grayscaleToggle');
             if (!toggle) return;
 
-            const storageKey = `${siteIdentifier}GrayscaleStatus`;
             // Initial checked state is applied in initializePopupUI() before the popup is shown.
 
             toggle.addEventListener('change', function () {
@@ -1182,6 +1216,67 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 });
                 updateLockProtectedUI();
+            });
+        }
+
+        function updateAccessDelaySuffixVisibility() {
+            const toggle = document.getElementById('accessDelayToggle');
+            const suffix = document.getElementById('access-delay-suffix');
+            if (!toggle || !suffix) return;
+            suffix.hidden = !toggle.checked;
+        }
+
+        function clampAccessDelaySeconds(value) {
+            const parsed = parseInt(value, 10);
+            if (isNaN(parsed) || parsed < 1) return 1;
+            if (parsed > 600) return 600;
+            return parsed;
+        }
+
+        function setupAccessDelayToggle(siteIdentifier, wrapper) {
+            if (!wrapper) return;
+
+            const row = document.createElement('div');
+            row.id = 'access-delay-toggle-row';
+            row.className = 'a-toggle access-delay-toggle';
+            row.innerHTML = `
+                <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
+                <label for="accessDelayToggle">Delay opening the website</label>
+                <span id="access-delay-suffix" class="access-delay-suffix" hidden>
+                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="1" max="600" class="access-delay-seconds-input" aria-label="Delay seconds"> seconds
+                </span>`;
+            wrapper.appendChild(row);
+
+            const toggle = document.getElementById('accessDelayToggle');
+            const secondsInput = document.getElementById('accessDelaySeconds');
+            if (!toggle || !secondsInput) return;
+
+            const secondsKey = `${siteIdentifier}AccessDelaySeconds`;
+            chrome.storage.sync.get(secondsKey, function (result) {
+                secondsInput.value = clampAccessDelaySeconds(result[secondsKey] !== undefined ? result[secondsKey] : 10);
+            });
+
+            toggle.addEventListener('change', function () {
+                const enabled = toggle.checked;
+                const protectKey = `${siteIdentifier}AccessDelay`;
+                if (isSettingsLocked && protectedHiddenAtLock.has(protectKey) && !enabled) {
+                    toggle.checked = true;
+                    updateAccessDelaySuffixVisibility();
+                    return;
+                }
+                updateAccessDelaySuffixVisibility();
+                applySettingChange(`${siteIdentifier}AccessDelay`, enabled);
+                updateLockProtectedUI();
+            });
+
+            secondsInput.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+            secondsInput.addEventListener('input', function () {
+                if (isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`)) return;
+                const seconds = clampAccessDelaySeconds(this.value);
+                this.value = seconds;
+                chrome.storage.sync.set({ [secondsKey]: seconds });
             });
         }
 
@@ -1508,6 +1603,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (Object.prototype.hasOwnProperty.call(overrides, grayscaleKey)) {
                 const grayscaleToggle = document.getElementById('grayscaleToggle');
                 if (grayscaleToggle) grayscaleToggle.checked = overrides[grayscaleKey] === true;
+            }
+            const accessDelayKey = `${currentSiteIdentifier}AccessDelayStatus`;
+            if (Object.prototype.hasOwnProperty.call(overrides, accessDelayKey)) {
+                const accessDelayToggle = document.getElementById('accessDelayToggle');
+                if (accessDelayToggle) {
+                    accessDelayToggle.checked = overrides[accessDelayKey] === true;
+                    updateAccessDelaySuffixVisibility();
+                }
             }
             // Apply platform status override
             if (currentPlatform) {

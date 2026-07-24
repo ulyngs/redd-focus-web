@@ -757,6 +757,149 @@
         }
     }
 
+    const ACCESS_DELAY_STYLE_ID = 'reddFocusAccessDelayStyle';
+    const ACCESS_DELAY_OVERLAY_ID = 'redd-focus-access-delay';
+    let accessDelayActive = false;
+    let accessDelayTimerId = null;
+
+    function ensureAccessDelayCssInjected() {
+        createStyleElement(ACCESS_DELAY_STYLE_ID, `
+            html.redd-focus-access-delaying,
+            html.redd-focus-access-delaying body {
+                overflow: hidden !important;
+            }
+            #${ACCESS_DELAY_OVERLAY_ID} {
+                position: fixed !important;
+                inset: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                z-index: 2147483647 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+                padding: 24px !important;
+                background: ${REDD.canvas} !important;
+                color: ${REDD.body} !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+                text-align: center !important;
+                opacity: 0;
+                transition: opacity 0.35s ease-in-out;
+            }
+            #${ACCESS_DELAY_OVERLAY_ID}.show {
+                opacity: 1;
+            }
+            #${ACCESS_DELAY_OVERLAY_ID} img {
+                width: min(40vw, 180px) !important;
+                height: auto !important;
+                margin: 40px 0 !important;
+                animation: redd-focus-access-breathe 6s ease-in-out infinite;
+            }
+            #${ACCESS_DELAY_OVERLAY_ID} .redd-focus-access-delay-time {
+                margin: 0 !important;
+                color: ${REDD.muted} !important;
+                font-size: 1.5em !important;
+                font-weight: 600 !important;
+                line-height: 1.2 !important;
+            }
+            @keyframes redd-focus-access-breathe {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `);
+    }
+
+    function endAccessDelayGate() {
+        if (accessDelayTimerId) {
+            clearInterval(accessDelayTimerId);
+            accessDelayTimerId = null;
+        }
+        accessDelayActive = false;
+        document.documentElement.classList.remove('redd-focus-access-delaying');
+        const overlay = document.getElementById(ACCESS_DELAY_OVERLAY_ID);
+        if (overlay) overlay.remove();
+    }
+
+    function startAccessDelayGate(seconds) {
+        const countdownSeconds = Math.max(1, Math.min(600, parseInt(seconds, 10) || 10));
+        if (accessDelayActive) return;
+        accessDelayActive = true;
+        ensureAccessDelayCssInjected();
+        document.documentElement.classList.add('redd-focus-access-delaying');
+
+        const mountGate = function () {
+            if (!accessDelayActive) return;
+            let overlay = document.getElementById(ACCESS_DELAY_OVERLAY_ID);
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = ACCESS_DELAY_OVERLAY_ID;
+                overlay.setAttribute('role', 'dialog');
+                overlay.setAttribute('aria-live', 'polite');
+                overlay.setAttribute('aria-label', 'Opening site after a short delay');
+
+                const img = document.createElement('img');
+                img.src = chrome.runtime.getURL('images/calm.svg');
+                img.alt = '';
+                img.setAttribute('aria-hidden', 'true');
+
+                const timeEl = document.createElement('p');
+                timeEl.className = 'redd-focus-access-delay-time';
+                timeEl.textContent = String(countdownSeconds);
+
+                overlay.appendChild(img);
+                overlay.appendChild(timeEl);
+                (document.body || document.documentElement).appendChild(overlay);
+                requestAnimationFrame(function () {
+                    overlay.classList.add('show');
+                });
+
+                let countdown = countdownSeconds;
+                accessDelayTimerId = setInterval(function () {
+                    countdown -= 1;
+                    if (countdown >= 0) {
+                        timeEl.textContent = String(countdown);
+                    } else {
+                        endAccessDelayGate();
+                    }
+                }, 1000);
+            }
+        };
+
+        if (!document.body) {
+            // Cover immediately even before <body> exists, then remount into body when ready.
+            mountGate();
+            document.addEventListener('DOMContentLoaded', function () {
+                if (!accessDelayActive) return;
+                const existing = document.getElementById(ACCESS_DELAY_OVERLAY_ID);
+                if (existing && existing.parentElement !== document.body && document.body) {
+                    document.body.appendChild(existing);
+                } else if (!existing) {
+                    mountGate();
+                }
+            }, { once: true });
+        } else {
+            mountGate();
+        }
+    }
+
+    function maybeStartAccessDelayFromStorage() {
+        if (!currentSiteIdentifier || accessDelayActive) return;
+        const statusKey = `${currentSiteIdentifier}AccessDelayStatus`;
+        const secondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
+        chrome.storage.sync.get([statusKey, secondsKey], function (result) {
+            let enabled = result[statusKey] === true;
+            if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
+                enabled = sessionOverrides[statusKey] === true;
+            }
+            if (!enabled) return;
+            const seconds = result[secondsKey] !== undefined ? result[secondsKey] : 10;
+            startAccessDelayGate(seconds);
+        });
+    }
+
     function applyCustomElementStyles(siteIdentifier, selectors) {
         const styleId = `customHidden_${siteIdentifier.replace(/\./g, '_')}Style`;
         // Support both old format (string) and new format (object with name and selector)
@@ -1178,6 +1321,8 @@
         chrome.storage.sync.get(grayscaleStatusKey, function (result) {
             applyGrayscaleStyle(result[grayscaleStatusKey] === true);
         });
+
+        maybeStartAccessDelayFromStorage();
     }
 
 })();
