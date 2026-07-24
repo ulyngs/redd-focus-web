@@ -567,6 +567,11 @@ button.platform-ios.open-safari-btn:focus {
     gap: 8px;
 }
 
+.shortcuts-list li > span {
+    flex: 1;
+    min-width: 0;
+}
+
 .shortcuts-list li::before {
     content: counter(shortcut-counter);
     counter-increment: shortcut-counter;
@@ -587,6 +592,7 @@ button.platform-ios.open-safari-btn:focus {
 .shortcuts-instructions {
     flex: 1;
     min-width: 0;
+    width: 100%;
 }
 
 .video-container {
