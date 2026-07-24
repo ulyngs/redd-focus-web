@@ -30,6 +30,9 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
 #if os(iOS)
         // Edge-to-edge webview: paint the home-indicator / status-bar strips the
         // same canvas colour as the sticky HTML footer (--redd-canvas / #faf8f5).
+        // .never so UIKit doesn't also inset the scroll view — CSS env(safe-area-*)
+        // (viewport-fit=cover) owns the insets; automatic double-counts and leaves a
+        // huge empty band under the footer attribution.
         let canvas = UIColor(red: 0xFA / 255.0, green: 0xF8 / 255.0, blue: 0xF5 / 255.0, alpha: 1)
         view.backgroundColor = canvas
         webView.backgroundColor = canvas
@@ -38,6 +41,7 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         if #available(iOS 15.0, *) {
             webView.underPageBackgroundColor = canvas
         }
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.isScrollEnabled = false
 #elseif os(macOS)
         addTitlebarDragArea()

@@ -120,21 +120,26 @@ footer.app-entrance-footer a:visited:hover {
     color: var(--text-link-hover);
 }
 
-/* iOS: sit the attribution just above the home-indicator safe area
-   (same pattern as Redd Blocker `body.ios .footer`). */
+/* iOS: slim attribution bar — same idea as Redd Blocker `body.ios .footer`.
+   Safe-area is applied once (in padding-bottom); scroll clearance uses
+   --app-entrance-footer-block + the same inset. */
 body.platform-ios {
-    --app-entrance-footer-pad-top: 8px;
+    --app-entrance-footer-pad-top: 16px;
     --app-entrance-footer-pad-bottom: 2px;
     --app-entrance-footer-block: calc(
         var(--app-entrance-footer-pad-top)
-        + 1.4em
+        + 1.25em
         + var(--app-entrance-footer-pad-bottom)
     );
 }
 
 body.platform-ios footer.app-entrance-footer {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding:
+        var(--app-entrance-footer-pad-top)
+        16px
+        calc(var(--app-entrance-footer-pad-bottom) + env(safe-area-inset-bottom, 0px));
+    font-size: 13px;
+    line-height: 1.25;
 }
 
 body.platform-mac footer.app-entrance-footer {
