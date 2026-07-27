@@ -91,6 +91,8 @@
     /* How-to instruction copy under YouTube preview rows */
     --previews-how-to-font-size: 14px;
     --previews-how-to-line-height: 22px;
+    /* Space between “Delay opening the website” and the “by … seconds” row */
+    --access-delay-suffix-gap: 6px;
     /* Shared extension-popup height ceiling (Chrome / Firefox / Safari). Safari will
        not scroll the popup host past this — scroll must happen inside the page. */
     --popup-max-height: 600px;
@@ -2612,11 +2614,13 @@ footer .friction-customisation {
 }
 
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-suffix {
-    display: inline;
+    display: block;
+    margin: var(--access-delay-suffix-gap) 0 0 0;
+    padding: 0;
     font-size: var(--selector-font-size);
     color: var(--text-primary);
     line-height: var(--selector-box-size);
-    vertical-align: top;
+    text-align: left;
     white-space: nowrap;
 }
 
@@ -2626,18 +2630,27 @@ footer .friction-customisation {
 
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input {
     box-sizing: border-box;
-    width: 3.25em;
-    margin: 0 0.25em;
-    padding: 1px 4px;
+    /* border-box width = 6px pad + 32px for 3 digits + 6px pad + 2px border */
+    width: 46px;
+    margin: 0 4px 0 6px;
+    padding: 6px;
     border: 1px solid var(--border-input);
     border-radius: 6px;
     background-color: var(--bg-input);
     color: var(--text-primary);
     font-size: inherit;
     font-family: inherit;
-    line-height: 1.2;
-    text-align: center;
-    vertical-align: baseline;
+    line-height: 16px;
+    text-align: left;
+    vertical-align: middle;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input::-webkit-outer-spin-button,
+.grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input:focus {

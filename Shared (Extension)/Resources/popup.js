@@ -1242,9 +1242,9 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML = `
                 <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
                 <label for="accessDelayToggle">Delay opening the website</label>
-                <span id="access-delay-suffix" class="access-delay-suffix" hidden>
+                <div id="access-delay-suffix" class="access-delay-suffix" hidden>
                     by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="1" max="600" class="access-delay-seconds-input" aria-label="Delay seconds"> seconds
-                </span>`;
+                </div>`;
             wrapper.appendChild(row);
 
             const toggle = document.getElementById('accessDelayToggle');
