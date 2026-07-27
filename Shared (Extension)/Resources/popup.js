@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(timerId);
                     messageContainer.style.display = 'none';
                     messageContainer.classList.remove('show');
-                    popupContainer.style.display = 'block';
+                    popupContainer.style.display = 'flex';
                     if (helpContainer) helpContainer.style.display = '';
                     if (errorContainer) errorContainer.style.display = 'none';
                     updateSaveFooterVisibility();
@@ -733,7 +733,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const popupContainer = document.getElementById('popup-content');
             const messageContainer = document.getElementById('delay-content');
             const errorContainer = document.getElementById('error-prompt');
-            if (popupContainer) popupContainer.style.display = 'block';
+            if (popupContainer) popupContainer.style.display = 'flex';
             if (messageContainer) {
                 messageContainer.style.display = 'none';
                 messageContainer.classList.remove('show');

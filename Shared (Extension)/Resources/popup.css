@@ -267,6 +267,8 @@ body {
 #popup-content {
     flex: 1 1 auto;
     min-height: 0;
+    /* Cap below popup max so nested .popup-main-scroll gets a definite height and can scroll */
+    max-height: calc(var(--popup-max-height) - 48px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -419,6 +421,8 @@ body.popup-showing-blocked-page #popup-content {
     padding: 0;
     overflow: hidden;
     display: block;
+    max-height: none;
+    height: auto;
 }
 
 .website-toggle {
@@ -1174,6 +1178,7 @@ p.how-to-description {
     #popup-content {
         flex: 1 1 auto;
         min-height: 0;
+        max-height: none;
         overflow: hidden;
     }
 
