@@ -540,12 +540,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 const accessDelayToggle = document.getElementById('accessDelayToggle');
                 const accessDelayRow = document.getElementById('access-delay-toggle-row');
                 const accessDelaySeconds = document.getElementById('accessDelaySeconds');
+                const accessDelayDuration = document.getElementById('access-delay-duration');
                 if (accessDelayToggle && accessDelayRow) {
                     const accessDelayKey = `${currentSiteIdentifier}AccessDelay`;
                     const shouldProtect = isSettingsLocked &&
                         protectedHiddenAtLock.has(accessDelayKey) &&
                         accessDelayToggle.checked;
                     accessDelayRow.classList.toggle('lock-protected', shouldProtect);
+                    if (accessDelayDuration) {
+                        accessDelayDuration.classList.toggle('lock-protected-settings', shouldProtect);
+                    }
                     if (accessDelaySeconds) accessDelaySeconds.disabled = shouldProtect;
                 }
                 const redirectToggle = document.getElementById('redirectToggle');
@@ -1343,9 +1347,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateAccessDelaySuffixVisibility() {
             const toggle = document.getElementById('accessDelayToggle');
-            const suffix = document.getElementById('access-delay-suffix');
-            if (!toggle || !suffix) return;
-            suffix.hidden = !toggle.checked;
+            const duration = document.getElementById('access-delay-duration');
+            if (!toggle || !duration) return;
+            duration.hidden = !toggle.checked;
+        }
+
+        function getPopupDisplayHost() {
+            const el = document.getElementById('currentSiteName');
+            const name = el && el.textContent ? el.textContent.trim() : '';
+            return name || currentSiteIdentifier || 'this site';
         }
 
         function setupAccessDelayToggle(siteIdentifier) {
@@ -1353,20 +1363,60 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!mount) return;
             mount.innerHTML = '';
 
+            const enableGroup = document.createElement('div');
+            enableGroup.className = 'toggle-group hide-checkboxes grayscale-controls delay-enable-group';
+
             const row = document.createElement('div');
             row.id = 'access-delay-toggle-row';
             row.className = 'a-toggle access-delay-toggle';
-            row.innerHTML = `
-                <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
-                <label for="accessDelayToggle">Delay opening the website</label>
-                <div id="access-delay-suffix" class="access-delay-suffix" hidden>
-                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input compact-seconds-input" aria-label="Delay seconds"> seconds
-                </div>`;
-            mount.appendChild(row);
 
-            const toggle = document.getElementById('accessDelayToggle');
-            const secondsInput = document.getElementById('accessDelaySeconds');
-            if (!toggle || !secondsInput) return;
+            const toggle = document.createElement('input');
+            toggle.type = 'checkbox';
+            toggle.id = 'accessDelayToggle';
+            toggle.name = 'accessDelayToggle';
+
+            const label = document.createElement('label');
+            label.htmlFor = 'accessDelayToggle';
+            label.textContent = 'Delay opening ' + getPopupDisplayHost();
+
+            const help = document.createElement('p');
+            help.className = 'how-to-description delay-tab-help';
+            help.textContent = 'Show a countdown screen before the website loads';
+
+            row.appendChild(toggle);
+            row.appendChild(label);
+            row.appendChild(help);
+            enableGroup.appendChild(row);
+            mount.appendChild(enableGroup);
+
+            const durationGroup = document.createElement('div');
+            durationGroup.id = 'access-delay-duration';
+            durationGroup.className = 'toggle-group delay-duration-group';
+            durationGroup.hidden = true;
+
+            const howLongHeading = document.createElement('h2');
+            howLongHeading.textContent = 'How long';
+
+            const byRow = document.createElement('div');
+            byRow.className = 'access-delay-by-row';
+            byRow.appendChild(document.createTextNode('Delay by '));
+
+            const secondsInput = document.createElement('input');
+            secondsInput.type = 'number';
+            secondsInput.id = 'accessDelaySeconds';
+            secondsInput.name = 'accessDelaySeconds';
+            secondsInput.value = '10';
+            secondsInput.min = '5';
+            secondsInput.max = '600';
+            secondsInput.className = 'access-delay-seconds-input compact-seconds-input';
+            secondsInput.setAttribute('aria-label', 'Delay seconds');
+
+            byRow.appendChild(secondsInput);
+            byRow.appendChild(document.createTextNode(' seconds'));
+
+            durationGroup.appendChild(howLongHeading);
+            durationGroup.appendChild(byRow);
+            mount.appendChild(durationGroup);
 
             const secondsKey = `${siteIdentifier}AccessDelaySeconds`;
             chrome.storage.sync.get(secondsKey, function (result) {
