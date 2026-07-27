@@ -82,7 +82,7 @@
     --faq-question-response-gap: 2px;
     /* Space below the “FAQ” title before the first question row (see also .faq-trigger padding) */
     --settings-faq-title-below: 1px;
-    /* Nudge the “Appearance:” label on the y-axis (negative = up). Does not move the dropdown. */
+    /* Nudge the “Theme:” label on the y-axis (negative = up). Does not move the dropdown. */
     --settings-theme-label-nudge-y: -1px;
     /* Nudge the current value text inside the theme button (see #themeSelectTriggerText; negative = up) */
     --settings-theme-trigger-text-nudge-y: -1px;
