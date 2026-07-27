@@ -113,14 +113,14 @@
                             <div class="settings-panel">
                                 <div class="settings-panel-rows">
                                     <div id="theme-settings" class="settings-row">
-                                        <label id="theme-settings-label" class="settings-row-label"
-                                            for="themeSelectTrigger">Theme</label>
+                                        <label id="theme-settings-label" class="settings-row-label">Theme</label>
                                         <div class="settings-row-control">
                                             <div class="theme-select-root" id="themeSelectRoot">
                                                 <button type="button" id="themeSelectTrigger"
                                                     class="theme-select-trigger settings-select-trigger"
                                                     aria-haspopup="listbox" aria-expanded="false"
-                                                    aria-controls="themeSelectMenu">
+                                                    aria-controls="themeSelectMenu"
+                                                    aria-labelledby="theme-settings-label">
                                                     <span id="themeSelectTriggerText">Auto</span>
                                                 </button>
                                                 <ul id="themeSelectMenu" class="theme-select-menu" role="listbox" hidden>
@@ -163,9 +163,8 @@
                                     <div class="settings-row">
                                         <label for="waitTime" class="settings-row-label">Unlock wait (seconds)</label>
                                         <div class="settings-row-control">
-                                            <input type="number" id="waitTime" name="waitTime" value="10" min="1"
-                                                max="600" class="settings-number-input">
-                                            <p id="savedTextTime" class="settings-inline-error" hidden></p>
+                                            <input type="number" id="waitTime" name="waitTime" value="10" min="5"
+                                                max="600" class="settings-number-input compact-seconds-input">
                                         </div>
                                     </div>
                                     <div class="settings-row settings-row-multiline">

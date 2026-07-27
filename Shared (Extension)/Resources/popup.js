@@ -353,6 +353,54 @@ document.addEventListener('DOMContentLoaded', function () {
             reviewDismissButton.addEventListener('click', hideReviewPrompt);
         }
 
+        function clampSecondsField(value) {
+            const parsed = parseInt(value, 10);
+            if (isNaN(parsed) || parsed < 5) return 5;
+            if (parsed > 600) return 600;
+            return parsed;
+        }
+
+        function bindSecondsFieldCommit(input, options) {
+            if (!input) return;
+
+            function commit() {
+                if (options && typeof options.isProtected === 'function' && options.isProtected()) {
+                    if (options.getRestoreValue) {
+                        input.value = clampSecondsField(options.getRestoreValue());
+                    }
+                    return;
+                }
+                const seconds = clampSecondsField(input.value);
+                input.value = seconds;
+                if (options && typeof options.onCommit === 'function') {
+                    options.onCommit(seconds);
+                }
+            }
+
+            // Cap over-max immediately while typing; allow empty / under-min until commit.
+            input.addEventListener('input', function () {
+                if (options && typeof options.isProtected === 'function' && options.isProtected()) return;
+                if (input.value === '') return;
+                const parsed = parseInt(input.value, 10);
+                if (!isNaN(parsed) && parsed > 600) {
+                    input.value = 600;
+                    if (options && typeof options.onCommit === 'function') {
+                        options.onCommit(600);
+                    }
+                }
+            });
+
+            // Floor empty / under-min (and re-cap max) on commit.
+            input.addEventListener('change', commit);
+            input.addEventListener('blur', commit);
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    input.blur();
+                }
+            });
+        }
+
         function setupUnlockSettings(siteIdentifier) {
             if (!siteIdentifier) return;
 
@@ -366,7 +414,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const countdownBox = document.getElementById("delay-time");
 
                 unlockWaitText = (result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText) || "What's your intention?";
-                unlockWaitTime = (result[waitTimeKey] !== undefined ? result[waitTimeKey] : result.waitTime) || 10;
+                const storedWait = result[waitTimeKey] !== undefined
+                    ? result[waitTimeKey]
+                    : (result.waitTime !== undefined ? result.waitTime : 10);
+                unlockWaitTime = clampSecondsField(storedWait);
 
                 if (waitTextBox) waitTextBox.value = unlockWaitText;
                 if (waitTimeBox) waitTimeBox.value = unlockWaitTime;
@@ -376,29 +427,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const waitTimeInput = document.getElementById("waitTime");
             if (waitTimeInput) {
-                waitTimeInput.addEventListener('input', function () {
-                    if (isSettingsLocked) return;
-                    let waitValue = parseInt(this.value) || 10;
-                    const waitTimeKey = `${siteIdentifier}WaitTime`;
-                    unlockWaitTime = waitValue;
-                    chrome.storage.sync.set({ [waitTimeKey]: waitValue });
-                    const countdownBox = document.getElementById("delay-time");
-                    if (countdownBox) countdownBox.innerText = waitValue;
-
-                    const savedTextTime = document.getElementById("savedTextTime");
-                    const maxLimit = 600;
-                    const minLimit = 1;
-                    if (isNaN(waitValue) || waitValue < minLimit) {
-                        this.value = minLimit;
-                    } else if (waitValue > maxLimit) {
-                        if (savedTextTime) {
-                            savedTextTime.innerText = "Maximum is " + maxLimit;
-                            savedTextTime.hidden = false;
-                            setTimeout(() => { savedTextTime.hidden = true; }, 2500);
-                        }
-                        this.value = maxLimit;
-                    } else if (savedTextTime) {
-                        savedTextTime.hidden = true;
+                bindSecondsFieldCommit(waitTimeInput, {
+                    isProtected: function () { return isSettingsLocked; },
+                    getRestoreValue: function () { return unlockWaitTime; },
+                    onCommit: function (waitValue) {
+                        unlockWaitTime = waitValue;
+                        chrome.storage.sync.set({ [waitTimeKey]: waitValue });
+                        const countdownBox = document.getElementById("delay-time");
+                        if (countdownBox) countdownBox.innerText = waitValue;
                     }
                 });
             }
@@ -538,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function showLockStartDialog(waitSecs, onConfirm) {
-            const secs = parseInt(waitSecs, 10) || 10;
+            const secs = clampSecondsField(waitSecs);
             const waitLabel = secs === 1 ? '1 second' : `${secs} seconds`;
 
             const overlay = document.createElement('div');
@@ -614,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (messageBox) messageBox.innerText = unlockWaitText;
-            let countdown = parseInt(unlockWaitTime, 10) || 10;
+            let countdown = clampSecondsField(unlockWaitTime);
             countdownBox.innerText = countdown;
 
             popupContainer.style.display = 'none';
@@ -717,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateAccessDelaySuffixVisibility();
                 }
                 if (accessDelaySeconds) {
-                    accessDelaySeconds.value = clampAccessDelaySeconds(
+                    accessDelaySeconds.value = clampSecondsField(
                         result[accessDelaySecondsKey] !== undefined ? result[accessDelaySecondsKey] : 10
                     );
                 }
@@ -760,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             lockBtn.addEventListener('click', function () {
                 if (!isSettingsLocked) {
-                    const waitSecs = parseInt(unlockWaitTime, 10) || 10;
+                    const waitSecs = clampSecondsField(unlockWaitTime);
                     showLockStartDialog(waitSecs, function () {
                         captureProtectedHiddenSnapshot();
                         isSettingsLocked = true;
@@ -1226,13 +1262,6 @@ document.addEventListener('DOMContentLoaded', function () {
             suffix.hidden = !toggle.checked;
         }
 
-        function clampAccessDelaySeconds(value) {
-            const parsed = parseInt(value, 10);
-            if (isNaN(parsed) || parsed < 5) return 5;
-            if (parsed > 600) return 600;
-            return parsed;
-        }
-
         function setupAccessDelayToggle(siteIdentifier, wrapper) {
             if (!wrapper) return;
 
@@ -1243,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
                 <label for="accessDelayToggle">Delay opening the website</label>
                 <div id="access-delay-suffix" class="access-delay-suffix" hidden>
-                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input" aria-label="Delay seconds"> seconds
+                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input compact-seconds-input" aria-label="Delay seconds"> seconds
                 </div>`;
             wrapper.appendChild(row);
 
@@ -1253,17 +1282,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const secondsKey = `${siteIdentifier}AccessDelaySeconds`;
             chrome.storage.sync.get(secondsKey, function (result) {
-                secondsInput.value = clampAccessDelaySeconds(result[secondsKey] !== undefined ? result[secondsKey] : 10);
+                secondsInput.value = clampSecondsField(result[secondsKey] !== undefined ? result[secondsKey] : 10);
             });
-
-            function commitAccessDelaySeconds() {
-                if (isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`)) {
-                    return;
-                }
-                const seconds = clampAccessDelaySeconds(secondsInput.value);
-                secondsInput.value = seconds;
-                chrome.storage.sync.set({ [secondsKey]: seconds });
-            }
 
             toggle.addEventListener('change', function () {
                 const enabled = toggle.checked;
@@ -1281,13 +1301,13 @@ document.addEventListener('DOMContentLoaded', function () {
             secondsInput.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
-            // Allow clearing / partial entry while typing — only clamp + persist on commit.
-            secondsInput.addEventListener('change', commitAccessDelaySeconds);
-            secondsInput.addEventListener('blur', commitAccessDelaySeconds);
-            secondsInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    secondsInput.blur();
+            bindSecondsFieldCommit(secondsInput, {
+                isProtected: function () {
+                    return isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`);
+                },
+                getRestoreValue: function () { return secondsInput.value; },
+                onCommit: function (seconds) {
+                    chrome.storage.sync.set({ [secondsKey]: seconds });
                 }
             });
         }
