@@ -1175,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', function () {
             row.className = 'a-toggle grayscale-toggle';
             row.innerHTML = `
                 <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle">
-                <label for="grayscaleToggle">Grayscale</label>`;
+                <label for="grayscaleToggle">Greyscale</label>`;
 
             wrapper.appendChild(row);
 
