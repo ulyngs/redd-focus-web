@@ -236,8 +236,8 @@ html {
     /*
      * Safari extension popups: the host window does not gain a document scrollbar when
      * content exceeds the ~600px ceiling — overflow is clipped. Cap the root and keep
-     * scrolling inside #popup-content (footer stays outside that scrollport so the bar
-     * ends above it — same contract as Settings / `.settings-modal-scroll`).
+     * scrolling inside `.popup-main-scroll` (sticky header + footer stay outside that
+     * scrollport so the bar ends between them — same contract as Settings).
      * See also: lapcat/SafariExtensions#4 workaround.
      */
     max-height: var(--popup-max-height);
@@ -263,15 +263,46 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Main screen scrollport — excludes the sticky footer (see `footer` below). */
+/* Shell around sticky header + scrolling main; footer stays a sibling below. */
 #popup-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.popup-sticky-header {
+    flex: 0 0 auto;
+    background-color: var(--bg-primary);
+    padding: var(--settings-overlay-padding-y) 1rem 0;
+    box-sizing: border-box;
+    z-index: 50;
+}
+
+.popup-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.popup-header-top #currentSiteInfo {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.popup-main-scroll {
     flex: 1 1 auto;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Top/sides match former body padding; bottom gap before in-flow footer */
-    padding: var(--settings-overlay-padding-y) 1rem 0.5rem 1rem;
+    padding: 10px 1rem 0.5rem;
     box-sizing: border-box;
 }
 
@@ -284,32 +315,30 @@ body {
 /*
  * Scrollbars that take layout width (Firefox-like).
  *
- * Firefox already uses classic gutters, so fixed header controls (#help-container)
- * sit left of the bar. macOS Chromium/Safari default to overlay scrollbars that
- * paint on top of content and do not inset `position: fixed; right: …`. Setting an
- * explicit ::-webkit-scrollbar width switches those engines to classic gutters;
- * scrollbar-width / scrollbar-color cover Firefox + modern Chromium.
+ * Firefox already uses classic gutters. macOS Chromium/Safari default to overlay
+ * scrollbars; an explicit ::-webkit-scrollbar width switches those engines to
+ * classic gutters. scrollbar-width / scrollbar-color cover Firefox + Chromium.
  */
-#popup-content,
+.popup-main-scroll,
 .settings-modal-scroll,
 .edit-dialog-scroll {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-#popup-content::-webkit-scrollbar,
+.popup-main-scroll::-webkit-scrollbar,
 .settings-modal-scroll::-webkit-scrollbar,
 .edit-dialog-scroll::-webkit-scrollbar {
     width: var(--scrollbar-size);
 }
 
-#popup-content::-webkit-scrollbar-track,
+.popup-main-scroll::-webkit-scrollbar-track,
 .settings-modal-scroll::-webkit-scrollbar-track,
 .edit-dialog-scroll::-webkit-scrollbar-track {
     background: var(--scrollbar-track);
 }
 
-#popup-content::-webkit-scrollbar-thumb,
+.popup-main-scroll::-webkit-scrollbar-thumb,
 .settings-modal-scroll::-webkit-scrollbar-thumb,
 .edit-dialog-scroll::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
@@ -318,7 +347,7 @@ body {
     background-clip: padding-box;
 }
 
-#popup-content::-webkit-scrollbar-thumb:hover,
+.popup-main-scroll::-webkit-scrollbar-thumb:hover,
 .settings-modal-scroll::-webkit-scrollbar-thumb:hover,
 .edit-dialog-scroll::-webkit-scrollbar-thumb:hover {
     background-color: var(--scrollbar-thumb-hover);
@@ -389,6 +418,7 @@ body.popup-showing-blocked-page {
 body.popup-showing-blocked-page #popup-content {
     padding: 0;
     overflow: hidden;
+    display: block;
 }
 
 .website-toggle {
@@ -1144,6 +1174,12 @@ p.how-to-description {
     #popup-content {
         flex: 1 1 auto;
         min-height: 0;
+        overflow: hidden;
+    }
+
+    .popup-main-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
         overscroll-behavior-y: contain;
         touch-action: pan-y;
     }
@@ -1157,11 +1193,6 @@ p.how-to-description {
         padding: 10px 0;
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
-    }
-
-    /* iOS uses overlay scrollbars — no classic gutter inset needed */
-    #help-container {
-        right: 8px;
     }
 
     #delay-content {
@@ -1823,7 +1854,7 @@ footer .friction-customisation {
 .popup-tabs {
     display: flex;
     width: calc(100% + 2rem);
-    margin: 6px -1rem 10px;
+    margin: 6px -1rem 0;
     padding: 0;
     border-bottom: 1px solid var(--border-color);
     box-sizing: border-box;
@@ -1889,15 +1920,14 @@ footer .friction-customisation {
 }
 
 #help-container {
-    /* Fixed to the popup viewport; inset by classic scrollbar gutter so buttons
-       sit left of #popup-content’s bar (element scrollports don’t inset `fixed`). */
-    position: fixed;
-    top: 8px;
-    right: calc(8px + var(--scrollbar-size));
-    z-index: 100;
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 6px;
+    flex: 0 0 auto;
 }
 
 .header-icon-btn,
