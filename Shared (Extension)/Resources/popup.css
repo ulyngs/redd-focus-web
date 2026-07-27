@@ -88,6 +88,9 @@
     --settings-theme-trigger-text-nudge-y: -1px;
     /* Space between the preview row title and the expanded how-to line (#how-to-description, #how-to-description-not-mobile) */
     --previews-how-to-gap: 6px;
+    /* How-to instruction copy under YouTube preview rows */
+    --previews-how-to-font-size: 14px;
+    --previews-how-to-line-height: 22px;
     /* Shared extension-popup height ceiling (Chrome / Firefox / Safari). Safari will
        not scroll the popup host past this — scroll must happen inside the page. */
     --popup-max-height: 600px;
@@ -1069,13 +1072,12 @@ p.previews-text {
     color: var(--text-primary);
 }
 
-p.how-to-description {
-    font-size: 1em;
-}
-
 #how-to-description,
-#how-to-description-not-mobile {
+#how-to-description-not-mobile,
+p.how-to-description {
     margin-top: var(--previews-how-to-gap);
+    font-size: var(--previews-how-to-font-size);
+    line-height: var(--previews-how-to-line-height);
 }
 
 #editSelectorModal textarea {
@@ -1092,11 +1094,6 @@ p.how-to-description {
 /******* HIDE IRRELEVANT TOGGLES ******/
 /* iPhone / iOS extension sheet */
 @media only screen and (max-device-width: 768px) {
-    /* Tighter space between “Auto-playing previews” / how-to title and subtext (Safari iOS was reading too open vs desktop). */
-    :root {
-        --previews-how-to-gap: 2px;
-    }
-
     /*
      * iOS Safari presents the popup as a bottom sheet with its own viewport height.
      * The desktop 600px cap makes the document taller than the sheet, so gestures
@@ -1192,13 +1189,11 @@ p.how-to-description {
     }
 
     #how-to-description {
-        font-size: 0.9em;
-        /* Bottom only: match p.previews-text (no horizontal inset) so subtext lines up with the selector / title. */
-        padding: 0 0 6px 0;
+        /* Keep left edge aligned with previews title; spacing matches desktop tokens above. */
+        padding: 0;
         -webkit-padding-start: 0;
         padding-inline-start: 0;
         font-style: italic;
-        margin: var(--previews-how-to-gap) 0 0 0;
         text-align: start;
     }
 }
