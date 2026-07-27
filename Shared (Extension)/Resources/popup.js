@@ -1228,7 +1228,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function clampAccessDelaySeconds(value) {
             const parsed = parseInt(value, 10);
-            if (isNaN(parsed) || parsed < 1) return 1;
+            if (isNaN(parsed) || parsed < 5) return 5;
             if (parsed > 600) return 600;
             return parsed;
         }
@@ -1243,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
                 <label for="accessDelayToggle">Delay opening the website</label>
                 <div id="access-delay-suffix" class="access-delay-suffix" hidden>
-                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="1" max="600" class="access-delay-seconds-input" aria-label="Delay seconds"> seconds
+                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input" aria-label="Delay seconds"> seconds
                 </div>`;
             wrapper.appendChild(row);
 
@@ -1255,6 +1255,15 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.sync.get(secondsKey, function (result) {
                 secondsInput.value = clampAccessDelaySeconds(result[secondsKey] !== undefined ? result[secondsKey] : 10);
             });
+
+            function commitAccessDelaySeconds() {
+                if (isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`)) {
+                    return;
+                }
+                const seconds = clampAccessDelaySeconds(secondsInput.value);
+                secondsInput.value = seconds;
+                chrome.storage.sync.set({ [secondsKey]: seconds });
+            }
 
             toggle.addEventListener('change', function () {
                 const enabled = toggle.checked;
@@ -1272,11 +1281,14 @@ document.addEventListener('DOMContentLoaded', function () {
             secondsInput.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
-            secondsInput.addEventListener('input', function () {
-                if (isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`)) return;
-                const seconds = clampAccessDelaySeconds(this.value);
-                this.value = seconds;
-                chrome.storage.sync.set({ [secondsKey]: seconds });
+            // Allow clearing / partial entry while typing — only clamp + persist on commit.
+            secondsInput.addEventListener('change', commitAccessDelaySeconds);
+            secondsInput.addEventListener('blur', commitAccessDelaySeconds);
+            secondsInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    secondsInput.blur();
+                }
             });
         }
 

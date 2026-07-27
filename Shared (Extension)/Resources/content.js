@@ -824,7 +824,7 @@
     }
 
     function startAccessDelayGate(seconds) {
-        const countdownSeconds = Math.max(1, Math.min(600, parseInt(seconds, 10) || 10));
+        const countdownSeconds = Math.max(5, Math.min(600, parseInt(seconds, 10) || 10));
         if (accessDelayActive) return;
         accessDelayActive = true;
         ensureAccessDelayCssInjected();
