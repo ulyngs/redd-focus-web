@@ -900,6 +900,76 @@
         });
     }
 
+    function resolveRedirectTarget(rawInput) {
+        const raw = (rawInput || '').trim();
+        if (!raw) return null;
+
+        if (/^https?:\/\//i.test(raw)) {
+            try {
+                return new URL(raw).href;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        if (raw.startsWith('/')) {
+            try {
+                return new URL(raw, window.location.origin).href;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Domain, domain/path, or subdomain/path without protocol
+        try {
+            return new URL('https://' + raw).href;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function isAlreadyAtRedirectTarget(targetHref) {
+        try {
+            const target = new URL(targetHref);
+            const current = window.location;
+            return current.protocol === target.protocol &&
+                current.hostname === target.hostname &&
+                current.port === target.port &&
+                current.pathname === target.pathname &&
+                current.search === target.search;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function maybeRedirectFromStorage() {
+        if (!currentSiteIdentifier) return;
+        const statusKey = `${currentSiteIdentifier}RedirectStatus`;
+        const urlKey = `${currentSiteIdentifier}RedirectUrl`;
+        chrome.storage.sync.get([statusKey, urlKey], function (result) {
+            let enabled = result[statusKey] === true;
+            if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
+                enabled = sessionOverrides[statusKey] === true;
+            }
+            if (!enabled) {
+                maybeStartAccessDelayFromStorage();
+                return;
+            }
+
+            let rawUrl = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+            if (Object.prototype.hasOwnProperty.call(sessionOverrides, urlKey)) {
+                rawUrl = sessionOverrides[urlKey];
+            }
+            const targetHref = resolveRedirectTarget(rawUrl);
+            if (!targetHref || isAlreadyAtRedirectTarget(targetHref)) {
+                maybeStartAccessDelayFromStorage();
+                return;
+            }
+
+            window.location.replace(targetHref);
+        });
+    }
+
     function applyCustomElementStyles(siteIdentifier, selectors) {
         const styleId = `customHidden_${siteIdentifier.replace(/\./g, '_')}Style`;
         // Support both old format (string) and new format (object with name and selector)
@@ -1322,7 +1392,7 @@
             applyGrayscaleStyle(result[grayscaleStatusKey] === true);
         });
 
-        maybeStartAccessDelayFromStorage();
+        maybeRedirectFromStorage();
     }
 
 })();

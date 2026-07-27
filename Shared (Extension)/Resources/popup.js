@@ -482,6 +482,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (accessDelayToggle && accessDelayToggle.checked) {
                     protectedHiddenAtLock.add(`${currentSiteIdentifier}AccessDelay`);
                 }
+                const redirectToggle = document.getElementById('redirectToggle');
+                if (redirectToggle && redirectToggle.checked) {
+                    protectedHiddenAtLock.add(`${currentSiteIdentifier}Redirect`);
+                }
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectUrlInput && redirectUrlInput.value.trim()) {
+                    protectedHiddenAtLock.add(`${currentSiteIdentifier}RedirectUrl`);
+                }
             }
         }
 
@@ -539,6 +547,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         accessDelayToggle.checked;
                     accessDelayRow.classList.toggle('lock-protected', shouldProtect);
                     if (accessDelaySeconds) accessDelaySeconds.disabled = shouldProtect;
+                }
+                const redirectToggle = document.getElementById('redirectToggle');
+                const redirectRow = document.getElementById('redirect-toggle-row');
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectToggle && redirectRow) {
+                    const redirectKey = `${currentSiteIdentifier}Redirect`;
+                    const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
+                    const shouldProtectToggle = isSettingsLocked &&
+                        protectedHiddenAtLock.has(redirectKey) &&
+                        redirectToggle.checked;
+                    const shouldProtectUrl = isSettingsLocked &&
+                        protectedHiddenAtLock.has(redirectUrlKey);
+                    redirectRow.classList.toggle('lock-protected', shouldProtectToggle);
+                    redirectRow.classList.toggle('redirect-url-locked', shouldProtectUrl);
+                    if (redirectUrlInput) {
+                        redirectUrlInput.disabled = shouldProtectUrl;
+                        redirectUrlInput.readOnly = shouldProtectUrl;
+                    }
                 }
             }
         }
@@ -716,7 +742,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const grayscaleKey = `${currentSiteIdentifier}GrayscaleStatus`;
             const accessDelayKey = `${currentSiteIdentifier}AccessDelayStatus`;
             const accessDelaySecondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
-            const storageKeys = [lockKey, rememberKey, grayscaleKey, accessDelayKey, accessDelaySecondsKey, 'themePreference'];
+            const redirectKey = `${currentSiteIdentifier}RedirectStatus`;
+            const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
+            const storageKeys = [lockKey, rememberKey, grayscaleKey, accessDelayKey, accessDelaySecondsKey, redirectKey, redirectUrlKey, 'themePreference'];
 
             if (currentPlatform) {
                 elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
@@ -756,6 +784,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     accessDelaySeconds.value = clampSecondsField(
                         result[accessDelaySecondsKey] !== undefined ? result[accessDelaySecondsKey] : 10
                     );
+                }
+
+                const redirectToggle = document.getElementById('redirectToggle');
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectToggle) {
+                    redirectToggle.checked = result[redirectKey] === true;
+                    updateRedirectDetailsVisibility();
+                }
+                if (redirectUrlInput) {
+                    redirectUrlInput.value = typeof result[redirectUrlKey] === 'string' ? result[redirectUrlKey] : '';
                 }
 
                 const rememberToggle = document.getElementById('rememberSettingsToggle');
@@ -1200,6 +1238,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (existing) existing.remove();
             const existingDelay = document.getElementById('access-delay-toggle-row');
             if (existingDelay) existingDelay.remove();
+            const existingRedirect = document.getElementById('redirect-toggle-row');
+            if (existingRedirect) existingRedirect.remove();
             const existingWrapper = document.querySelector('.grayscale-controls');
             if (existingWrapper) existingWrapper.remove();
 
@@ -1228,6 +1268,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             setupAccessDelayToggle(siteIdentifier, wrapper);
+            setupRedirectToggle(siteIdentifier, wrapper);
 
             const toggle = document.getElementById('grayscaleToggle');
             if (!toggle) return;
@@ -1308,6 +1349,79 @@ document.addEventListener('DOMContentLoaded', function () {
                 getRestoreValue: function () { return secondsInput.value; },
                 onCommit: function (seconds) {
                     chrome.storage.sync.set({ [secondsKey]: seconds });
+                }
+            });
+        }
+
+        function updateRedirectDetailsVisibility() {
+            const toggle = document.getElementById('redirectToggle');
+            const details = document.getElementById('redirect-details');
+            if (!toggle || !details) return;
+            details.hidden = !toggle.checked;
+        }
+
+        function setupRedirectToggle(siteIdentifier, wrapper) {
+            if (!wrapper) return;
+
+            const row = document.createElement('div');
+            row.id = 'redirect-toggle-row';
+            row.className = 'a-toggle redirect-toggle';
+            row.innerHTML = `
+                <input type="checkbox" id="redirectToggle" name="redirectToggle">
+                <label for="redirectToggle">Redirect to another page / website</label>
+                <div id="redirect-details" class="redirect-details" hidden>
+                    <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
+                    <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>). No need to type https://</p>
+                </div>`;
+            wrapper.appendChild(row);
+
+            const toggle = document.getElementById('redirectToggle');
+            const urlInput = document.getElementById('redirectUrl');
+            if (!toggle || !urlInput) return;
+
+            const urlKey = `${siteIdentifier}RedirectUrl`;
+            chrome.storage.sync.get(urlKey, function (result) {
+                urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+            });
+
+            toggle.addEventListener('change', function () {
+                const enabled = toggle.checked;
+                const protectKey = `${siteIdentifier}Redirect`;
+                if (isSettingsLocked && protectedHiddenAtLock.has(protectKey) && !enabled) {
+                    toggle.checked = true;
+                    updateRedirectDetailsVisibility();
+                    return;
+                }
+                updateRedirectDetailsVisibility();
+                applySettingChange(`${siteIdentifier}Redirect`, enabled);
+                updateLockProtectedUI();
+            });
+
+            function isUrlProtected() {
+                return isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}RedirectUrl`);
+            }
+
+            function commitRedirectUrl() {
+                if (isUrlProtected()) {
+                    chrome.storage.sync.get(urlKey, function (result) {
+                        urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+                    });
+                    return;
+                }
+                const value = urlInput.value.trim();
+                urlInput.value = value;
+                chrome.storage.sync.set({ [urlKey]: value });
+            }
+
+            urlInput.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+            urlInput.addEventListener('change', commitRedirectUrl);
+            urlInput.addEventListener('blur', commitRedirectUrl);
+            urlInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    urlInput.blur();
                 }
             });
         }
@@ -1642,6 +1756,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (accessDelayToggle) {
                     accessDelayToggle.checked = overrides[accessDelayKey] === true;
                     updateAccessDelaySuffixVisibility();
+                }
+            }
+            const redirectKey = `${currentSiteIdentifier}RedirectStatus`;
+            if (Object.prototype.hasOwnProperty.call(overrides, redirectKey)) {
+                const redirectToggle = document.getElementById('redirectToggle');
+                if (redirectToggle) {
+                    redirectToggle.checked = overrides[redirectKey] === true;
+                    updateRedirectDetailsVisibility();
+                }
+            }
+            const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
+            if (Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectUrlInput && typeof overrides[redirectUrlKey] === 'string') {
+                    redirectUrlInput.value = overrides[redirectUrlKey];
                 }
             }
             // Apply platform status override

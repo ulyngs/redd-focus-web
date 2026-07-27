@@ -93,6 +93,8 @@
     --previews-how-to-line-height: 22px;
     /* Space between “Delay opening the website” and the “by … seconds” row */
     --access-delay-suffix-gap: 6px;
+    /* Space between redirect checkbox label and the destination field */
+    --redirect-details-gap: 6px;
     /* Shared extension-popup height ceiling (Chrome / Firefox / Safari). Safari will
        not scroll the popup host past this — scroll must happen inside the page. */
     --popup-max-height: 600px;
@@ -1076,6 +1078,16 @@ p.how-to-description {
     margin-top: var(--previews-how-to-gap);
     font-size: var(--previews-how-to-font-size);
     line-height: var(--previews-how-to-line-height);
+}
+
+.grayscale-controls .redirect-help.how-to-description {
+    margin-top: var(--previews-how-to-gap);
+    color: var(--text-secondary);
+}
+
+.grayscale-controls .redirect-help code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.92em;
 }
 
 #editSelectorModal textarea {
@@ -2581,7 +2593,7 @@ footer .friction-customisation {
 }
 
 /* Steady-state icon: Ban (red) — single-state checked + multi-state "Off" */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"]:checked + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle):not(.redirect-toggle) input[type="checkbox"]:checked + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox[data-state="Off"]::after {
     -webkit-mask-image: var(--selector-icon-ban);
     mask-image: var(--selector-icon-ban);
@@ -2613,9 +2625,10 @@ footer .friction-customisation {
 
 /* data-state="On" and unchecked single-state have no icon (opacity 0 base). */
 
-/* Grayscale / access-delay toggles: gray checkmark when checked (not the hide ban icon) */
+/* Grayscale / access-delay / redirect toggles: gray checkmark when checked (not the hide ban icon) */
 .grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::after,
-.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::after {
+.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::after,
+.grayscale-controls .a-toggle.redirect-toggle input[type="checkbox"]:checked + label::after {
     -webkit-mask-image: var(--selector-icon-check);
     mask-image: var(--selector-icon-check);
     -webkit-mask-size: 78% 78%;
@@ -2625,7 +2638,8 @@ footer .friction-customisation {
 }
 
 .grayscale-controls .a-toggle.grayscale-toggle input[type="checkbox"]:checked + label::before,
-.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::before {
+.grayscale-controls .a-toggle.access-delay-toggle input[type="checkbox"]:checked + label::before,
+.grayscale-controls .a-toggle.redirect-toggle input[type="checkbox"]:checked + label::before {
     background-color: var(--checkbox-bg);
     border-color: var(--selector-color-grayscale-check);
 }
@@ -2648,6 +2662,62 @@ footer .friction-customisation {
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input {
     margin: 0 4px 0 6px;
     vertical-align: middle;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-details {
+    display: block;
+    margin: var(--redirect-details-gap) 0 0 0;
+    padding: 0;
+    text-align: left;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-details[hidden] {
+    display: none;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.3;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input:hover:not(:disabled):not([readonly]) {
+    border-color: var(--border-hover);
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+}
+
+.grayscale-controls .a-toggle.redirect-toggle.lock-protected:not(.redirect-url-locked) {
+    opacity: 1;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle.lock-protected:not(.redirect-url-locked) > label {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input:disabled,
+.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input[readonly] {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 /* Shared compact seconds field (unlock wait + site access delay) */
@@ -2688,6 +2758,7 @@ footer .friction-customisation {
 }
 
 .grayscale-controls .a-toggle.access-delay-toggle.lock-protected .access-delay-seconds-input:disabled,
+.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input:disabled,
 .compact-seconds-input:disabled {
     opacity: 0.55;
     cursor: not-allowed;
@@ -2724,19 +2795,19 @@ footer .friction-customisation {
      3. The destination icon (::after) fades in over the same duration and
         rotates in lockstep with the box (all icons: ban, cloud, black, refresh).
 */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::before,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle):not(.redirect-toggle) input[type="checkbox"].loading + label::before,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     animation: selector-rotate var(--selector-rotate-duration) linear;
     box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
 }
 
-.dark-mode .hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::before,
+.dark-mode .hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle):not(.redirect-toggle) input[type="checkbox"].loading + label::before,
 .dark-mode .hide-checkboxes .a-toggle .multi-state-checkbox.loading::before {
     box-shadow: 0 0 0 6px rgba(61, 191, 176, 0.28);
 }
 
 /* Fade + spin: same duration/timing as ::before so icon and box stay aligned. */
-.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle) input[type="checkbox"].loading + label::after,
+.hide-checkboxes .a-toggle:not(.grayscale-toggle):not(.access-delay-toggle):not(.redirect-toggle) input[type="checkbox"].loading + label::after,
 .hide-checkboxes .a-toggle .multi-state-checkbox.loading::after {
     animation: selector-rotate var(--selector-rotate-duration) linear,
         selector-icon-fade-in var(--selector-rotate-duration) ease-out both;
