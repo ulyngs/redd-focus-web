@@ -246,7 +246,7 @@ html {
 
 body {
     /* Fixed width — avoid vw in extension popups (browsers size the viewport differently) */
-    width: 310px;
+    width: 380px;
     min-height: 150px;
     max-height: var(--popup-max-height);
     margin: 0;
@@ -1811,12 +1811,61 @@ footer .friction-customisation {
 }
 
 #currentSiteInfo p {
-    margin-top: 0;
+    margin: 0 0 2px 0;
 }
 
 .blocked-page-popup {
     margin: 0;
     padding: 0;
+}
+
+/* Hide / Delay / Redirect — full-bleed under site name */
+.popup-tabs {
+    display: flex;
+    width: calc(100% + 2rem);
+    margin: 6px -1rem 10px;
+    padding: 0;
+    border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box;
+}
+
+.popup-tab {
+    flex: 1 1 33.333%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 10px 6px 9px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.popup-tab:hover {
+    color: var(--text-primary);
+}
+
+.popup-tab[aria-selected="true"] {
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom-color: var(--redd-teal);
+}
+
+.popup-tab-panel[hidden] {
+    display: none !important;
+}
+
+.tab-feature-controls {
+    margin-top: 4px;
+    text-align: left;
 }
 
 .blocked-page-frame {

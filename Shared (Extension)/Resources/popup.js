@@ -1230,6 +1230,52 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Updated container content for', containerId, ':', container.innerHTML);
         }
 
+        const POPUP_TAB_STORAGE_KEY = 'popupActiveTab';
+        const POPUP_TABS = ['hide', 'delay', 'redirect'];
+
+        function setActivePopupTab(tabId, persist) {
+            const nextTab = POPUP_TABS.includes(tabId) ? tabId : 'hide';
+            POPUP_TABS.forEach(function (id) {
+                const tabBtn = document.getElementById('tab-' + id);
+                const panel = document.getElementById('tab-panel-' + id);
+                const selected = id === nextTab;
+                if (tabBtn) {
+                    tabBtn.setAttribute('aria-selected', selected ? 'true' : 'false');
+                    tabBtn.tabIndex = selected ? 0 : -1;
+                }
+                if (panel) {
+                    if (selected) panel.removeAttribute('hidden');
+                    else panel.setAttribute('hidden', '');
+                }
+            });
+            if (nextTab === 'redirect') {
+                const redirectToggle = document.getElementById('redirectToggle');
+                if (redirectToggle && redirectToggle.checked) {
+                    refreshRedirectRulesList();
+                }
+            }
+            if (persist !== false) {
+                chrome.storage.local.set({ [POPUP_TAB_STORAGE_KEY]: nextTab });
+            }
+        }
+
+        function setupPopupTabs() {
+            const tablist = document.getElementById('popup-tabs');
+            if (!tablist || tablist.dataset.bound === 'true') return;
+            tablist.dataset.bound = 'true';
+
+            tablist.addEventListener('click', function (event) {
+                const tabBtn = event.target.closest('.popup-tab');
+                if (!tabBtn || !tablist.contains(tabBtn)) return;
+                setActivePopupTab(tabBtn.getAttribute('data-tab'), true);
+            });
+
+            chrome.storage.local.get(POPUP_TAB_STORAGE_KEY, function (result) {
+                const saved = result && result[POPUP_TAB_STORAGE_KEY];
+                setActivePopupTab(POPUP_TABS.includes(saved) ? saved : 'hide', false);
+            });
+        }
+
         function setupGrayscaleToggle(siteIdentifier) {
             const platformSpecific = platformsWeTarget.includes(siteIdentifier);
             const anchorContainer = platformSpecific
@@ -1239,11 +1285,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const existing = document.getElementById('grayscale-toggle-row');
             if (existing) existing.remove();
-            const existingDelay = document.getElementById('access-delay-toggle-row');
-            if (existingDelay) existingDelay.remove();
-            const existingRedirect = document.getElementById('redirect-toggle-row');
-            if (existingRedirect) existingRedirect.remove();
-            const existingWrapper = document.querySelector('.grayscale-controls');
+            const existingWrapper = document.querySelector('#tab-panel-hide .grayscale-controls');
             if (existingWrapper) existingWrapper.remove();
 
             const wrapper = document.createElement('div');
@@ -1270,8 +1312,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            setupAccessDelayToggle(siteIdentifier, wrapper);
-            setupRedirectToggle(siteIdentifier, wrapper);
+            setupAccessDelayToggle(siteIdentifier);
+            setupRedirectToggle(siteIdentifier);
 
             const toggle = document.getElementById('grayscaleToggle');
             if (!toggle) return;
@@ -1306,8 +1348,10 @@ document.addEventListener('DOMContentLoaded', function () {
             suffix.hidden = !toggle.checked;
         }
 
-        function setupAccessDelayToggle(siteIdentifier, wrapper) {
-            if (!wrapper) return;
+        function setupAccessDelayToggle(siteIdentifier) {
+            const mount = document.getElementById('delay-tab-mount');
+            if (!mount) return;
+            mount.innerHTML = '';
 
             const row = document.createElement('div');
             row.id = 'access-delay-toggle-row';
@@ -1318,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div id="access-delay-suffix" class="access-delay-suffix" hidden>
                     by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input compact-seconds-input" aria-label="Delay seconds"> seconds
                 </div>`;
-            wrapper.appendChild(row);
+            mount.appendChild(row);
 
             const toggle = document.getElementById('accessDelayToggle');
             const secondsInput = document.getElementById('accessDelaySeconds');
@@ -1523,8 +1567,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        function setupRedirectToggle(siteIdentifier, wrapper) {
-            if (!wrapper) return;
+        function setupRedirectToggle(siteIdentifier) {
+            const mount = document.getElementById('redirect-tab-mount');
+            if (!mount) return;
+            mount.innerHTML = '';
 
             const row = document.createElement('div');
             row.id = 'redirect-toggle-row';
@@ -1537,7 +1583,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>). No need to type https://</p>
                     <div id="redirect-rules-list" class="redirect-rules-list" aria-label="All redirect rules"></div>
                 </div>`;
-            wrapper.appendChild(row);
+            mount.appendChild(row);
 
             const toggle = document.getElementById('redirectToggle');
             const urlInput = document.getElementById('redirectUrl');
@@ -1832,6 +1878,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setupFrictionDelay(currentSiteIdentifier);
                 setupGrayscaleToggle(currentSiteIdentifier);
                 setupSettingsLock(currentSiteIdentifier);
+                setupPopupTabs();
                 initializePopupUI();
             }
 
