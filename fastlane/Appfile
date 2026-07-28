@@ -1,0 +1,4 @@
+# Shared by Mac + iOS lanes (one App Store Connect record).
+app_identifier("com.ulriklyngs.mind-shield")
+apple_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]
+team_id("JD647S9RT6")

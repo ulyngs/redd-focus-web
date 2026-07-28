@@ -1,0 +1,148 @@
+# Re-submit an existing Mac App Store .pkg to App Store Connect without rebuilding.
+#
+# Use after a Release already published the .pkg asset (or to retry a failed
+# Publish (Mac App Store) job with fixed submit scripts on main).
+#
+# Actions → "Mac App Store submission" → Run workflow → set release_tag (e.g. v6.7.0).
+#
+# Retry modes:
+#   - Default: downloads the Release .pkg and uploads it again. Fails if App
+#     Store Connect already ingested a binary with the same version + build
+#     number — in that case use skip_binary_upload instead.
+#   - skip_binary_upload: no upload; attaches the already-processed build to
+#     the version, stamps What's new, and submits for review. Optionally pin
+#     the build with build_number (defaults to the latest build).
+
+name: Mac App Store submission
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub Release tag whose .pkg asset to submit (v6.7.0 or 6.7.0)
+        required: true
+        type: string
+      skip_binary_upload:
+        description: Skip PKG upload and submit a build already in App Store Connect
+        type: boolean
+        default: false
+      build_number:
+        description: Build number of the already-uploaded build (blank = latest)
+        type: string
+        default: ''
+
+concurrency:
+  group: mac-app-store-submit-${{ inputs.release_tag }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  submit-mac-app-store:
+    name: Submit to App Store Connect
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install fastlane
+        run: brew install fastlane
+
+      - name: Require App Store Connect secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          missing=()
+          for name in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Mac App Store submit: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Download PKG from GitHub Release
+        if: ${{ !inputs.skip_binary_upload }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          TAG="$(echo -n "$RELEASE_TAG" | tr -d '[:space:]')"
+          if [[ -z "$TAG" ]]; then
+            echo "release_tag input is empty" >&2
+            exit 1
+          fi
+          if [[ "$TAG" != v* ]]; then
+            TAG="v${TAG}"
+            echo "Normalized release tag to $TAG"
+          fi
+          echo "Downloading .pkg from release tag: [$TAG] repo: $GH_REPO"
+          mkdir -p store-packages-mas
+          if ! gh release download "$TAG" \
+            --repo "$GH_REPO" \
+            --pattern '*.pkg' \
+            --dir store-packages-mas \
+            --clobber; then
+            echo "Failed to download release $TAG. Recent releases:" >&2
+            gh release list --repo "$GH_REPO" --limit 8 >&2 || true
+            exit 1
+          fi
+          echo "Downloaded:"
+          find store-packages-mas -type f -name '*.pkg' -print
+          count="$(find store-packages-mas -type f -name '*.pkg' | wc -l | tr -d ' ')"
+          if [[ "$count" -lt 1 ]]; then
+            echo "No .pkg assets on release $TAG" >&2
+            exit 1
+          fi
+
+      - name: Resolve version
+        id: meta
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          TAG="$(echo -n "$RELEASE_TAG" | tr -d '[:space:]')"
+          TAG="${TAG#v}"
+          MANIFEST="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          if [[ "$TAG" != "$MANIFEST" ]]; then
+            echo "Warning: release tag version ($TAG) != manifest.json ($MANIFEST); using tag for What's new." >&2
+          fi
+          echo "version=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Build What's new from changelog (macOS)
+        run: |
+          node scripts/changelog-to-store-whats-new.js "${{ steps.meta.outputs.version }}" --platform macos --out whats_new_mas.txt
+          echo "=== What's new (macOS) ==="
+          cat whats_new_mas.txt
+
+      - name: Submit to App Store Connect
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          ASC_PRIMARY_LOCALE: ${{ secrets.ASC_PRIMARY_LOCALE }}
+          FASTLANE_SKIP_UPDATE_CHECK: '1'
+        run: |
+          PKG=""
+          if [[ "${{ inputs.skip_binary_upload }}" != "true" ]]; then
+            PKG="$(find store-packages-mas -type f -name '*.pkg' | head -1)"
+            if [[ -z "$PKG" ]]; then
+              echo "No .pkg found in store-packages-mas" >&2
+              exit 1
+            fi
+          fi
+          fastlane mac submit_mac_app_store \
+            "version:${{ steps.meta.outputs.version }}" \
+            "pkg:${PKG}" \
+            "notes:whats_new_mas.txt" \
+            "build_number:${{ inputs.build_number }}"

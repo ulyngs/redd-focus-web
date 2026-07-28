@@ -1,0 +1,129 @@
+# App Store Connect submission lanes for CI (Release build / retry workflows).
+#
+# One App Store Connect app record (id1660218371) covers both Mac and iOS
+# (bundle id com.ulriklyngs.mind-shield). Separate lanes upload platform
+# binaries and stamp platform-filtered What's new.
+#
+# Auth (see docs/app-store-ci.md):
+#   APP_STORE_CONNECT_API_KEY_ID
+#   APP_STORE_CONNECT_API_ISSUER_ID
+#   APP_STORE_CONNECT_API_KEY_P8          base64 of AuthKey_*.p8
+#   ASC_PRIMARY_LOCALE                   optional; defaults to en-GB
+#
+# Usage:
+#   fastlane mac submit_mac_app_store version:6.7.0 pkg:"path/to.pkg" notes:whats_new_mas.txt
+#   fastlane ios submit_ios_app_store version:6.7.0 ipa:"path/to.ipa" notes:whats_new_ios.txt
+
+APP_IDENTIFIER = "com.ulriklyngs.mind-shield"
+
+# Confirm live promotional text in App Store Connect before first CI ship
+# (≤170 chars, single line). Does not reliably persist across versions.
+PROMOTIONAL_TEXT =
+  "Hide distractions on any website (YouTube, Instagram, Reddit, etc.), " \
+  "and take back control of your attention!"
+
+def resolve_path(raw)
+  p = raw.to_s.strip
+  return nil if p.empty?
+  return p if File.exist?(p)
+  from_root = File.expand_path(p, "..")
+  File.exist?(from_root) ? from_root : p
+end
+
+def asc_locale
+  locale = ENV["ASC_PRIMARY_LOCALE"].to_s.strip
+  locale.empty? ? "en-GB" : locale
+end
+
+def load_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"),
+    issuer_id: ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID"),
+    key_content: ENV.fetch("APP_STORE_CONNECT_API_KEY_P8"),
+    is_key_content_base64: true
+  )
+end
+
+def read_notes(options)
+  notes_path = resolve_path(options.fetch(:notes))
+  UI.user_error!("What's new file not found: #{options[:notes]}") unless notes_path && File.exist?(notes_path)
+  notes = File.read(notes_path).strip
+  UI.user_error!("What's new file is empty — nothing platform-facing to submit") if notes.empty?
+  notes
+end
+
+platform :mac do
+  desc "Upload MAS pkg + What's new to App Store Connect and submit for review"
+  lane :submit_mac_app_store do |options|
+    api_key = load_api_key
+    notes = read_notes(options)
+    version = options.fetch(:version)
+    locale = asc_locale
+
+    pkg = resolve_path(options[:pkg])
+    UI.user_error!("PKG not found: #{options[:pkg]}") if !options[:pkg].to_s.strip.empty? && !File.exist?(pkg.to_s)
+    build_number = options[:build_number].to_s.strip
+    build_number = nil if build_number.empty?
+
+    # Never use locale "default" alone — stamp the real primary language.
+    deliver(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      app_version: version,
+      platform: "osx",
+      pkg: pkg,
+      skip_binary_upload: pkg.nil?,
+      build_number: build_number,
+      languages: [locale],
+      release_notes: { locale => notes },
+      promotional_text: { locale => PROMOTIONAL_TEXT },
+      submit_for_review: true,
+      automatic_release: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      force: true,
+      run_precheck_before_submit: false,
+      submission_information: {
+        export_compliance_uses_encryption: false
+      }
+    )
+  end
+end
+
+platform :ios do
+  desc "Upload IPA + What's new to App Store Connect and submit for review"
+  lane :submit_ios_app_store do |options|
+    api_key = load_api_key
+    notes = read_notes(options)
+    version = options.fetch(:version)
+    locale = asc_locale
+
+    ipa = resolve_path(options[:ipa])
+    UI.user_error!("IPA not found: #{options[:ipa]}") if !options[:ipa].to_s.strip.empty? && !File.exist?(ipa.to_s)
+    build_number = options[:build_number].to_s.strip
+    build_number = nil if build_number.empty?
+
+    deliver(
+      api_key: api_key,
+      app_identifier: APP_IDENTIFIER,
+      app_version: version,
+      platform: "ios",
+      ipa: ipa,
+      skip_binary_upload: ipa.nil?,
+      build_number: build_number,
+      languages: [locale],
+      release_notes: { locale => notes },
+      promotional_text: { locale => PROMOTIONAL_TEXT },
+      submit_for_review: true,
+      automatic_release: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      force: true,
+      run_precheck_before_submit: false,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_uses_encryption: false
+      }
+    )
+  end
+end
