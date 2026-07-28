@@ -22,7 +22,7 @@ What's new comes from [`changelog.md`](../changelog.md) via
 
 ## Workflows
 
-- [`Release build`](../.github/workflows/release.yml) — extension zip + optional `.pkg` / `.ipa`; checkboxes `submit_mac_app_store` / `submit_ios_app_store` (manual default off). Tag `v*` always attempts both submits when secrets exist.
+- [`Release build`](../.github/workflows/release.yml) — extension zip + optional `.pkg` / `.ipa`; checkboxes `submit_mac_app_store` / `submit_ios_app_store` (manual default off). Tag `v*` always attempts both submits when secrets exist. Mac/iOS builds are skipped (not failed) until ASC secrets are configured, unless a submit checkbox is on.
 - [`Mac App Store submission`](../.github/workflows/mac-app-store-submit.yml) — retry from Release `.pkg`
 - [`iOS App Store submission`](../.github/workflows/ios-app-store-submit.yml) — retry from Release `.ipa`
 

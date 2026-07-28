@@ -106,17 +106,45 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  check-asc-secrets:
+    name: Check App Store Connect secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      present: ${{ steps.check.outputs.present }}
+    steps:
+      - name: Probe secrets
+        id: check
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          if [[ -n "${APP_STORE_CONNECT_API_KEY_ID:-}" &&
+                -n "${APP_STORE_CONNECT_API_ISSUER_ID:-}" &&
+                -n "${APP_STORE_CONNECT_API_KEY_P8:-}" ]]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::App Store Connect secrets not set — Mac/iOS builds will be skipped unless a store submit checkbox is on (then the build fails with a clear message)."
+          fi
+
   build-macos:
     name: Mac App Store (.pkg)
+    needs: [check-asc-secrets]
     runs-on: macos-latest
     timeout-minutes: 90
-    # Skip (do not fail the workflow) when ASC secrets are not configured yet,
-    # unless this run asked to submit to the Mac App Store.
+    # Build when secrets exist (tag or manual release), or when Mac submit is
+    # explicitly requested (fails inside if secrets are missing).
     if: >-
-      (github.event_name == 'workflow_dispatch' && inputs.submit_mac_app_store) ||
-      (secrets.APP_STORE_CONNECT_API_KEY_ID != '' &&
-       secrets.APP_STORE_CONNECT_API_ISSUER_ID != '' &&
-       secrets.APP_STORE_CONNECT_API_KEY_P8 != '')
+      (needs.check-asc-secrets.outputs.present == 'true' &&
+        (
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+          (github.event_name == 'workflow_dispatch' &&
+            (inputs.create_github_release || inputs.submit_mac_app_store))
+        )
+      ) ||
+      (github.event_name == 'workflow_dispatch' && inputs.submit_mac_app_store)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -162,13 +190,18 @@ jobs:
 
   build-ios:
     name: iOS (.ipa)
+    needs: [check-asc-secrets]
     runs-on: macos-latest
     timeout-minutes: 90
     if: >-
-      (github.event_name == 'workflow_dispatch' && inputs.submit_ios_app_store) ||
-      (secrets.APP_STORE_CONNECT_API_KEY_ID != '' &&
-       secrets.APP_STORE_CONNECT_API_ISSUER_ID != '' &&
-       secrets.APP_STORE_CONNECT_API_KEY_P8 != '')
+      (needs.check-asc-secrets.outputs.present == 'true' &&
+        (
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+          (github.event_name == 'workflow_dispatch' &&
+            (inputs.create_github_release || inputs.submit_ios_app_store))
+        )
+      ) ||
+      (github.event_name == 'workflow_dispatch' && inputs.submit_ios_app_store)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
