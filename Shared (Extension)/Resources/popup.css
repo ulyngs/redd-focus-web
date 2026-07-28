@@ -386,10 +386,11 @@ textarea::placeholder {
 }
 
 .custom-section-toggle {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.35em;
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     margin: 0 0 5px 0;
     padding: 0;
     border: none;
@@ -2791,6 +2792,14 @@ footer .friction-customisation {
 .hide-checkboxes .a-toggle.redirect-toggle > label {
     line-height: var(--previews-how-to-line-height);
     margin-top: calc((var(--selector-box-size) - var(--previews-how-to-line-height)) / 2);
+}
+
+/* Custom-section feature toggles: only the checkbox box is clickable (not the label). */
+.grayscale-controls .a-toggle.grayscale-toggle > label,
+.grayscale-controls .a-toggle.access-delay-toggle > label,
+.grayscale-controls .a-toggle.redirect-toggle > label {
+    pointer-events: none;
+    cursor: default;
 }
 
 /* Native checkbox is hidden but remains clickable over the box area. */

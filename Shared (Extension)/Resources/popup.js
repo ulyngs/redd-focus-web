@@ -615,6 +615,7 @@ document.addEventListener('DOMContentLoaded', function () {
             faqDropdown.style.display = 'block';
             faqOverlay.style.display = 'block';
             document.body.classList.add('modal-open');
+            setupSettingsPanelTabOrder(options || {});
 
             const scrollToId = options && options.scrollToId;
             if (scrollToId) {
@@ -622,14 +623,142 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (target) {
                     requestAnimationFrame(function () {
                         target.scrollIntoView({ block: 'nearest' });
-                        const focusId = options && options.focusId;
-                        if (focusId) {
-                            const focusEl = document.getElementById(focusId);
-                            if (focusEl && !focusEl.disabled) focusEl.focus();
-                        }
                     });
                 }
             }
+        }
+
+        let settingsTabTrapHandler = null;
+
+        function closeSettingsPanel() {
+            const faqDropdown = document.getElementById('faq-dropdown');
+            const faqOverlay = document.getElementById('faq-overlay');
+            if (faqDropdown) faqDropdown.style.display = 'none';
+            if (faqOverlay) faqOverlay.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            if (settingsTabTrapHandler) {
+                document.removeEventListener('keydown', settingsTabTrapHandler);
+                settingsTabTrapHandler = null;
+            }
+            setupPopupTabOrder();
+            clearPopupAutofocus();
+        }
+
+        function clearPopupAutofocus() {
+            const active = document.activeElement;
+            if (active && active !== document.body && typeof active.blur === 'function') {
+                active.blur();
+            }
+        }
+
+        function setupSettingsPanelTabOrder(options) {
+            const settingsRoot = document.getElementById('faq-dropdown');
+            if (!settingsRoot || settingsRoot.style.display === 'none') return;
+
+            document.querySelectorAll('a, button, input, select, textarea, [tabindex]').forEach(function (el) {
+                if (settingsRoot.contains(el)) return;
+                el.tabIndex = -1;
+            });
+
+            const firstFaqItem = settingsRoot.querySelector('.settings-panel-faq .faq-item');
+            if (firstFaqItem) {
+                firstFaqItem.querySelectorAll('.faq-content a').forEach(function (link) {
+                    link.tabIndex = -1;
+                });
+            }
+            settingsRoot.querySelectorAll('#themeSelectMenu [role="option"]').forEach(function (el) {
+                el.tabIndex = -1;
+            });
+
+            function isSettingsFocusable(el) {
+                if (!(el instanceof HTMLAnchorElement ||
+                    el instanceof HTMLButtonElement ||
+                    el instanceof HTMLInputElement ||
+                    el instanceof HTMLSelectElement ||
+                    el instanceof HTMLTextAreaElement)) {
+                    return false;
+                }
+                if (el.disabled) return false;
+                if (el.closest('#themeSelectMenu')) return false;
+                if (el instanceof HTMLAnchorElement && el.closest('.faq-content')) return false;
+                if (el.closest('[hidden]')) return false;
+                const section = el.closest('.settings-section');
+                if (section && section.style.display === 'none') return false;
+                const switchRoot = el.closest('.enforcement-switch');
+                if (switchRoot) {
+                    return !!(switchRoot.offsetWidth || switchRoot.offsetHeight || switchRoot.getClientRects().length);
+                }
+                return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            }
+
+            const focusables = [];
+            settingsRoot.querySelectorAll('a, button, input, select, textarea').forEach(function (el) {
+                if (!isSettingsFocusable(el)) {
+                    el.tabIndex = -1;
+                    return;
+                }
+                focusables.push(el);
+            });
+
+            focusables.forEach(function (el, index) {
+                el.tabIndex = index + 1;
+            });
+
+            if (settingsTabTrapHandler) {
+                document.removeEventListener('keydown', settingsTabTrapHandler);
+            }
+
+            function isLiveFocusable(el) {
+                if (el.disabled) return false;
+                const switchRoot = el.closest('.enforcement-switch');
+                if (switchRoot) {
+                    return !!(switchRoot.offsetWidth || switchRoot.offsetHeight || switchRoot.getClientRects().length);
+                }
+                return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            }
+
+            settingsTabTrapHandler = function (e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeSettingsPanel();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+
+                const live = focusables.filter(isLiveFocusable);
+                if (live.length === 0) return;
+
+                const first = live[0];
+                const last = live[live.length - 1];
+                const active = document.activeElement;
+
+                if (!settingsRoot.contains(active)) {
+                    e.preventDefault();
+                    first.focus();
+                    return;
+                }
+
+                if (e.shiftKey) {
+                    if (active === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else if (active === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            };
+            document.addEventListener('keydown', settingsTabTrapHandler);
+
+            const focusId = options && options.focusId;
+            if (focusId) {
+                const focusEl = document.getElementById(focusId);
+                if (focusEl && !focusEl.disabled) {
+                    focusEl.focus();
+                    return;
+                }
+            }
+            clearPopupAutofocus();
         }
 
         function showLockStartDialog(waitSecs, onConfirm) {
@@ -718,6 +847,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.body.classList.remove('modal-open');
                 }
                 setupPopupTabOrder();
+                if (!(options && options.keepModalOpen)) {
+                    clearPopupAutofocus();
+                }
             };
 
             document.getElementById('accept-lock-start').addEventListener('click', function () {
@@ -802,6 +934,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const siteInfo = document.getElementById('currentSiteInfo');
             const scroll = document.querySelector('.popup-main-scroll');
             const headerButtons = document.querySelectorAll('#help-container button');
+            const settingsRoot = document.getElementById('faq-dropdown');
 
             function excludeFromTabOrder(root) {
                 if (!root) return;
@@ -822,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (el.disabled) return false;
                 if (footer && footer.contains(el)) return false;
                 if (siteInfo && siteInfo.contains(el)) return false;
-                if (el.closest('#faq-dropdown, #eula-overlay, #delay-content')) return false;
+                if (el.closest('#faq-dropdown, #eula-overlay, #delay-content, .lock-start-overlay, .edit-panel-overlay')) return false;
                 if (el.closest('[hidden]')) return false;
                 if (el.closest('.dropdown:not(.shown)')) return false;
                 const reviewPrompt = el.closest('#reviewPrompt');
@@ -832,6 +965,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             excludeFromTabOrder(footer);
             excludeFromTabOrder(siteInfo);
+            excludeFromTabOrder(settingsRoot);
 
             if (!scroll) return;
 
@@ -880,6 +1014,10 @@ document.addEventListener('DOMContentLoaded', function () {
             updateSaveFooterVisibility();
             setupPopupTabOrder();
             dismissPopupLoading();
+            // Browsers often autofocus the first control on popup open; clear it so no
+            // focus ring is visible until the user actually tabs.
+            requestAnimationFrame(clearPopupAutofocus);
+            setTimeout(clearPopupAutofocus, 0);
         }
 
         function initializePopupUI() {
@@ -1409,8 +1547,8 @@ document.addEventListener('DOMContentLoaded', function () {
             row.id = 'grayscale-toggle-row';
             row.className = 'a-toggle grayscale-toggle';
             row.innerHTML = `
-                <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle">
-                <label for="grayscaleToggle">Greyscale</label>`;
+                <input type="checkbox" id="grayscaleToggle" name="grayscaleToggle" aria-label="Greyscale">
+                <label id="grayscaleToggleLabel">Greyscale</label>`;
 
             wrapper.appendChild(row);
 
@@ -1481,8 +1619,9 @@ document.addEventListener('DOMContentLoaded', function () {
             toggle.name = 'accessDelayToggle';
 
             const label = document.createElement('label');
-            label.htmlFor = 'accessDelayToggle';
+            label.id = 'accessDelayToggleLabel';
             label.textContent = 'Delay opening ' + getPopupDisplayHost();
+            toggle.setAttribute('aria-label', label.textContent);
 
             const suffix = document.createElement('div');
             suffix.id = 'access-delay-suffix';
@@ -1853,8 +1992,8 @@ document.addEventListener('DOMContentLoaded', function () {
             row.id = 'redirect-toggle-row';
             row.className = 'a-toggle redirect-toggle';
             row.innerHTML = `
-                <input type="checkbox" id="redirectToggle" name="redirectToggle">
-                <label for="redirectToggle">Redirect to another page / website</label>
+                <input type="checkbox" id="redirectToggle" name="redirectToggle" aria-label="Redirect to another page / website">
+                <label id="redirectToggleLabel">Redirect to another page / website</label>
                 <div id="redirect-details" class="redirect-details" hidden>
                     <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
                     <p id="redirect-loop-warning" class="redirect-loop-warning" hidden role="alert"></p>
@@ -2550,9 +2689,11 @@ document.addEventListener('DOMContentLoaded', function () {
             helpBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
                 const isVisible = faqDropdown.style.display === 'block';
-                faqDropdown.style.display = isVisible ? 'none' : 'block';
-                faqOverlay.style.display = isVisible ? 'none' : 'block';
-                document.body.classList.toggle('modal-open', !isVisible);
+                if (isVisible) {
+                    closeSettingsPanel();
+                } else {
+                    openSettingsPanel();
+                }
             });
 
 
@@ -2580,18 +2721,16 @@ document.addEventListener('DOMContentLoaded', function () {
             if (closeBtn) {
                 closeBtn.addEventListener('click', (event) => {
                     event.stopPropagation();
-                    faqDropdown.style.display = 'none';
-                    faqOverlay.style.display = 'none';
-                    document.body.classList.remove('modal-open');
+                    closeSettingsPanel();
                 });
             }
 
             // Close dropdown and overlay if clicking outside
             document.addEventListener('click', (event) => {
                 if (!faqDropdown.contains(event.target) && !helpBtn.contains(event.target)) {
-                    faqDropdown.style.display = 'none';
-                    faqOverlay.style.display = 'none';
-                    document.body.classList.remove('modal-open');
+                    if (faqDropdown.style.display === 'block') {
+                        closeSettingsPanel();
+                    }
                 }
             });
         }
