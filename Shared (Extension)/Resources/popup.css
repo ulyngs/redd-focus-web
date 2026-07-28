@@ -2551,8 +2551,8 @@ footer .friction-customisation {
     text-align: left;
 }
 
-/* Line box matches checkbox height so label text centers on the control
-   (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
+/* First line stays top-aligned with the checkbox; line-height matches
+   how-to / multi-line copy so wrapped labels aren’t cramped. */
 .hide-checkboxes .a-toggle label,
 .hide-checkboxes .a-toggle .multi-state-label {
     display: inline-block;
@@ -2560,7 +2560,7 @@ footer .friction-customisation {
     padding: 0;
     font-size: var(--selector-font-size);
     color: var(--text-primary);
-    line-height: var(--selector-box-size);
+    line-height: var(--previews-how-to-line-height);
     cursor: pointer;
     vertical-align: top;
 }
