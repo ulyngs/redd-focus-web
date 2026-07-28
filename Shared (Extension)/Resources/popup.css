@@ -78,6 +78,8 @@
 
     /* Unlock wait screen message (#delay-message) — tweak size here only */
     --unlock-wait-message-font-size: 1.3em;
+    /* Redirect reverse-loop warning */
+    --redirect-loop-warning-color: #dc2626;
 
     /* Settings / FAQ panel (#faq-dropdown): full-bleed overlay; equal horizontal inset for content */
     --settings-overlay-padding-x: 1rem;
@@ -2834,6 +2836,20 @@ footer .friction-customisation {
 
 .redirect-help.how-to-description {
     text-align: left;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-loop-warning {
+    margin: 6px 0 0 0;
+    padding: 0;
+    color: var(--redirect-loop-warning-color);
+    font-size: 0.8em;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: left;
+}
+
+.grayscale-controls .a-toggle.redirect-toggle .redirect-loop-warning[hidden] {
+    display: none;
 }
 
 /* Shared compact seconds field (unlock wait + site access delay) */

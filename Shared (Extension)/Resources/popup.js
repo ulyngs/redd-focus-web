@@ -293,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let isSelectionModeActive = false;
         let currentPlatform = null;
         let currentSiteIdentifier = null;
+        let currentPageHostname = null;
         let rememberSettingsEnabled = true; // default
         let isSettingsLocked = false;
         let protectedHiddenAtLock = new Set();
@@ -1404,6 +1405,61 @@ document.addEventListener('DOMContentLoaded', function () {
             details.hidden = !toggle.checked;
         }
 
+        function normalizeRedirectHost(host) {
+            return String(host || '').toLowerCase().replace(/^www\./, '');
+        }
+
+        function extractRedirectDestinationHost(rawInput) {
+            const raw = (rawInput || '').trim();
+            if (!raw || raw.startsWith('/')) return null;
+            try {
+                const hostname = /^https?:\/\//i.test(raw)
+                    ? new URL(raw).hostname
+                    : new URL('https://' + raw).hostname;
+                // Ignore partial domains (e.g. "youtube") — warn only once a TLD is present
+                if (!hostname || !hostname.includes('.')) return null;
+                return hostname;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function redirectSiteIdCandidatesForHost(hostname) {
+            const bare = normalizeRedirectHost(hostname);
+            const candidates = [];
+            function add(id) {
+                if (id && candidates.indexOf(id) === -1) candidates.push(id);
+            }
+            add(bare);
+            add('www.' + bare);
+            add(String(hostname || '').toLowerCase());
+            for (const platform in platformHostnames) {
+                const hosts = platformHostnames[platform] || [];
+                if (hosts.some(function (h) { return normalizeRedirectHost(h) === bare; })) {
+                    add(platform);
+                }
+            }
+            return candidates;
+        }
+
+        function currentSiteHostSet() {
+            const hosts = new Set();
+            function add(host) {
+                const bare = normalizeRedirectHost(host);
+                if (bare) hosts.add(bare);
+            }
+            add(currentPageHostname);
+            add(currentSiteIdentifier);
+            if (currentPlatform && platformHostnames[currentPlatform]) {
+                platformHostnames[currentPlatform].forEach(add);
+            }
+            return hosts;
+        }
+
+        function displayHostLabel(host) {
+            return normalizeRedirectHost(host) || host || 'this site';
+        }
+
         function setupRedirectToggle(siteIdentifier, wrapper) {
             if (!wrapper) return;
 
@@ -1415,18 +1471,84 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="redirectToggle">Redirect to another page / website</label>
                 <div id="redirect-details" class="redirect-details" hidden>
                     <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
+                    <p id="redirect-loop-warning" class="redirect-loop-warning" hidden role="alert"></p>
                     <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).</p>
-                    <div id="redirect-rules-list" class="redirect-rules-list" aria-label="All redirect rules"></div>
                 </div>`;
             wrapper.appendChild(row);
 
             const toggle = document.getElementById('redirectToggle');
             const urlInput = document.getElementById('redirectUrl');
-            if (!toggle || !urlInput) return;
+            const loopWarning = document.getElementById('redirect-loop-warning');
+            if (!toggle || !urlInput || !loopWarning) return;
 
             const urlKey = `${siteIdentifier}RedirectUrl`;
+            let redirectLoopConflict = null;
+            let loopCheckGeneration = 0;
+
+            function setLoopWarning(conflict) {
+                redirectLoopConflict = conflict;
+                if (!conflict) {
+                    loopWarning.hidden = true;
+                    loopWarning.textContent = '';
+                    urlInput.removeAttribute('aria-invalid');
+                    return;
+                }
+                const fromHost = displayHostLabel(conflict.fromHost);
+                const toHost = displayHostLabel(conflict.toHost);
+                loopWarning.textContent =
+                    `You are already redirecting from ${fromHost} to ${toHost}.`;
+                loopWarning.hidden = false;
+                urlInput.setAttribute('aria-invalid', 'true');
+            }
+
+            function refreshRedirectLoopWarning() {
+                const generation = ++loopCheckGeneration;
+                const destHost = extractRedirectDestinationHost(urlInput.value);
+                if (!destHost) {
+                    setLoopWarning(null);
+                    return;
+                }
+
+                const currentHosts = currentSiteHostSet();
+                const destBare = normalizeRedirectHost(destHost);
+                // Same-site destination can't form a reverse loop with another site's rule
+                if (currentHosts.has(destBare)) {
+                    setLoopWarning(null);
+                    return;
+                }
+
+                const candidateIds = redirectSiteIdCandidatesForHost(destHost);
+                const keys = [];
+                candidateIds.forEach(function (id) {
+                    keys.push(`${id}RedirectStatus`, `${id}RedirectUrl`);
+                });
+
+                chrome.storage.sync.get(keys, function (result) {
+                    if (generation !== loopCheckGeneration) return;
+
+                    let conflict = null;
+                    for (let i = 0; i < candidateIds.length; i++) {
+                        const id = candidateIds[i];
+                        if (result[`${id}RedirectStatus`] !== true) continue;
+                        const storedUrl = typeof result[`${id}RedirectUrl`] === 'string'
+                            ? result[`${id}RedirectUrl`]
+                            : '';
+                        const storedDestHost = extractRedirectDestinationHost(storedUrl);
+                        if (!storedDestHost) continue;
+                        if (!currentHosts.has(normalizeRedirectHost(storedDestHost))) continue;
+                        conflict = {
+                            fromHost: destBare,
+                            toHost: normalizeRedirectHost(currentPageHostname) || destBare
+                        };
+                        break;
+                    }
+                    setLoopWarning(conflict);
+                });
+            }
+
             chrome.storage.sync.get(urlKey, function (result) {
                 urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+                refreshRedirectLoopWarning();
             });
 
             toggle.addEventListener('change', function () {
@@ -1450,18 +1572,66 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (isUrlProtected()) {
                     chrome.storage.sync.get(urlKey, function (result) {
                         urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+                        refreshRedirectLoopWarning();
                     });
                     return;
                 }
-                const value = urlInput.value.trim();
-                urlInput.value = value;
-                chrome.storage.sync.set({ [urlKey]: value });
-                updateLockProtectedUI();
+
+                const rawValue = urlInput.value.trim();
+                const destHost = extractRedirectDestinationHost(rawValue);
+                const currentHosts = currentSiteHostSet();
+
+                function saveValue(value) {
+                    urlInput.value = value;
+                    setLoopWarning(null);
+                    chrome.storage.sync.set({ [urlKey]: value });
+                    updateLockProtectedUI();
+                }
+
+                function clearRejectedValue() {
+                    urlInput.value = '';
+                    setLoopWarning(null);
+                    chrome.storage.sync.set({ [urlKey]: '' });
+                    updateLockProtectedUI();
+                }
+
+                // Already flagged, or no cross-site host to check
+                if (redirectLoopConflict) {
+                    clearRejectedValue();
+                    return;
+                }
+                if (!destHost || currentHosts.has(normalizeRedirectHost(destHost))) {
+                    saveValue(rawValue);
+                    return;
+                }
+
+                // Re-check storage before save (covers blur before input check finishes)
+                const candidateIds = redirectSiteIdCandidatesForHost(destHost);
+                const keys = [];
+                candidateIds.forEach(function (id) {
+                    keys.push(`${id}RedirectStatus`, `${id}RedirectUrl`);
+                });
+                chrome.storage.sync.get(keys, function (result) {
+                    const hasConflict = candidateIds.some(function (id) {
+                        if (result[`${id}RedirectStatus`] !== true) return false;
+                        const storedUrl = typeof result[`${id}RedirectUrl`] === 'string'
+                            ? result[`${id}RedirectUrl`]
+                            : '';
+                        const storedDestHost = extractRedirectDestinationHost(storedUrl);
+                        return storedDestHost && currentHosts.has(normalizeRedirectHost(storedDestHost));
+                    });
+                    if (hasConflict) {
+                        clearRejectedValue();
+                        return;
+                    }
+                    saveValue(rawValue);
+                });
             }
 
             urlInput.addEventListener('click', function (e) {
                 e.stopPropagation();
             });
+            urlInput.addEventListener('input', refreshRedirectLoopWarning);
             urlInput.addEventListener('change', commitRedirectUrl);
             urlInput.addEventListener('blur', commitRedirectUrl);
             urlInput.addEventListener('keydown', function (e) {
@@ -1722,6 +1892,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const currentHost = currentURL.hostname;
+            currentPageHostname = currentHost;
             const displayHost = currentHost.replace(/^www\./, '');
             const currentSiteNameEl = document.getElementById('currentSiteName');
             if (currentSiteNameEl) currentSiteNameEl.textContent = displayHost;
