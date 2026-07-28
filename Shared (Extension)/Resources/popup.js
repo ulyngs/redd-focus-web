@@ -1534,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="redirectToggle">Redirect to another page / website</label>
                 <div id="redirect-details" class="redirect-details" hidden>
                     <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
-                    <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>). No need to type https://</p>
+                    <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).</p>
                     <div id="redirect-rules-list" class="redirect-rules-list" aria-label="All redirect rules"></div>
                 </div>`;
             wrapper.appendChild(row);
