@@ -1547,6 +1547,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const details = document.getElementById('redirect-details');
             if (!toggle || !details) return;
             details.hidden = !toggle.checked;
+            refreshRedirectRulesToCurrentSiteList();
         }
 
         function normalizeRedirectHost(host) {
@@ -1604,6 +1605,247 @@ document.addEventListener('DOMContentLoaded', function () {
             return normalizeRedirectHost(host) || host || 'this site';
         }
 
+        function displayNameForRedirectSite(siteId) {
+            if (platformHostnames[siteId] && platformHostnames[siteId][0]) {
+                return platformHostnames[siteId][0].replace(/^www\./, '');
+            }
+            return String(siteId || '').replace(/^www\./, '');
+        }
+
+        function siteIdFromRedirectFromInput(raw) {
+            let value = (raw || '').trim();
+            if (!value) return null;
+            value = value.replace(/^https?:\/\//i, '');
+            const hostPart = value.split('/')[0].split('?')[0].toLowerCase();
+            if (!hostPart) return null;
+            const bare = hostPart.replace(/^www\./, '');
+            for (let i = 0; i < platformsWeTarget.length; i++) {
+                const platform = platformsWeTarget[i];
+                const hosts = platformHostnames[platform] || [];
+                if (hosts.some(function (h) {
+                    return h === hostPart || h.replace(/^www\./, '') === bare;
+                })) {
+                    return platform;
+                }
+            }
+            return bare;
+        }
+
+        function collectRedirectRulesToCurrentSite(all) {
+            const currentHosts = currentSiteHostSet();
+            const rules = [];
+            Object.keys(all || {}).forEach(function (key) {
+                if (!key.endsWith('RedirectStatus') || all[key] !== true) return;
+                const siteId = key.slice(0, -'RedirectStatus'.length);
+                if (!siteId) return;
+                if (siteId === currentSiteIdentifier) return;
+                const siteIdHost = normalizeRedirectHost(siteId);
+                if (siteIdHost && currentHosts.has(siteIdHost)) return;
+                const urlKey = `${siteId}RedirectUrl`;
+                const url = typeof all[urlKey] === 'string' ? all[urlKey].trim() : '';
+                if (!url) return;
+                const destHost = extractRedirectDestinationHost(url);
+                if (!destHost) return;
+                if (!currentHosts.has(normalizeRedirectHost(destHost))) return;
+                rules.push({
+                    siteId: siteId,
+                    from: displayNameForRedirectSite(siteId),
+                    url: url
+                });
+            });
+            rules.sort(function (a, b) {
+                return String(a.from).localeCompare(String(b.from)) ||
+                    String(a.url).localeCompare(String(b.url));
+            });
+            return rules;
+        }
+
+        function saveRedirectRule(siteId, destination, callback) {
+            if (!siteId) {
+                if (callback) callback();
+                return;
+            }
+            const url = (destination || '').trim();
+            chrome.storage.sync.set({
+                [`${siteId}RedirectStatus`]: !!url,
+                [`${siteId}RedirectUrl`]: url
+            }, function () {
+                if (siteId === currentSiteIdentifier) {
+                    const redirectToggle = document.getElementById('redirectToggle');
+                    const redirectUrl = document.getElementById('redirectUrl');
+                    if (redirectToggle) redirectToggle.checked = !!url;
+                    if (redirectUrl) redirectUrl.value = url;
+                    updateRedirectDetailsVisibility();
+                    updateLockProtectedUI();
+                }
+                if (callback) callback();
+                else refreshRedirectRulesToCurrentSiteList();
+            });
+        }
+
+        function deleteRedirectRule(siteId, callback) {
+            if (!siteId) {
+                if (callback) callback();
+                return;
+            }
+            chrome.storage.sync.set({
+                [`${siteId}RedirectStatus`]: false,
+                [`${siteId}RedirectUrl`]: ''
+            }, function () {
+                if (siteId === currentSiteIdentifier) {
+                    const redirectToggle = document.getElementById('redirectToggle');
+                    const redirectUrl = document.getElementById('redirectUrl');
+                    if (redirectToggle) redirectToggle.checked = false;
+                    if (redirectUrl) redirectUrl.value = '';
+                    updateRedirectDetailsVisibility();
+                    updateLockProtectedUI();
+                }
+                if (callback) callback();
+                else refreshRedirectRulesToCurrentSiteList();
+            });
+        }
+
+        function createRedirectPairRow(options) {
+            const opts = options || {};
+            const pair = document.createElement('div');
+            pair.className = 'redirect-pair';
+
+            const fromInput = document.createElement('input');
+            fromInput.type = 'text';
+            fromInput.className = 'redirect-url-input redirect-from-input';
+            fromInput.spellcheck = false;
+            fromInput.autocomplete = 'off';
+            fromInput.placeholder = opts.fromPlaceholder || 'instagram.com';
+            fromInput.setAttribute('aria-label', opts.fromLabel || 'Redirect from');
+            if (opts.fromValue != null) fromInput.value = opts.fromValue;
+
+            const arrow = document.createElement('span');
+            arrow.className = 'redirect-pair-arrow';
+            arrow.setAttribute('aria-hidden', 'true');
+            arrow.textContent = '→';
+
+            const toInput = document.createElement('input');
+            toInput.type = 'text';
+            toInput.className = 'redirect-url-input redirect-to-input';
+            toInput.spellcheck = false;
+            toInput.autocomplete = 'off';
+            toInput.placeholder = opts.toPlaceholder || 'wikipedia.org';
+            toInput.setAttribute('aria-label', opts.toLabel || 'Redirect destination');
+            if (opts.toValue != null) toInput.value = opts.toValue;
+
+            pair.appendChild(fromInput);
+            pair.appendChild(arrow);
+            pair.appendChild(toInput);
+
+            if (opts.showRemove) {
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'redirect-rule-remove';
+                removeButton.textContent = '×';
+                removeButton.setAttribute('aria-label', 'Remove redirect');
+                removeButton.title = 'Remove redirect';
+                if (typeof opts.onRemove === 'function') {
+                    removeButton.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        opts.onRemove();
+                    });
+                }
+                pair.appendChild(removeButton);
+                pair._removeButton = removeButton;
+            }
+
+            pair._fromInput = fromInput;
+            pair._toInput = toInput;
+            return pair;
+        }
+
+        function renderRedirectRulesToCurrentSiteList(rules) {
+            const list = document.getElementById('redirect-to-current-site-list');
+            const group = document.getElementById('redirect-to-current-site-group');
+            if (!list || !group) return;
+            list.innerHTML = '';
+
+            if (!rules || rules.length === 0) {
+                group.hidden = true;
+                return;
+            }
+
+            group.hidden = false;
+
+            rules.forEach(function (rule) {
+                let activeSiteId = rule.siteId;
+                const pair = createRedirectPairRow({
+                    fromValue: rule.from,
+                    toValue: rule.url,
+                    showRemove: true,
+                    onRemove: function () {
+                        deleteRedirectRule(activeSiteId, function () {
+                            refreshRedirectRulesToCurrentSiteList();
+                            updateLockProtectedUI();
+                        });
+                    }
+                });
+
+                function commitRule() {
+                    const fromRaw = pair._fromInput.value.trim();
+                    const toRaw = pair._toInput.value.trim();
+                    pair._fromInput.value = fromRaw;
+                    pair._toInput.value = toRaw;
+
+                    if (!fromRaw || !toRaw) {
+                        return;
+                    }
+
+                    const newSiteId = siteIdFromRedirectFromInput(fromRaw);
+                    if (!newSiteId) {
+                        return;
+                    }
+
+                    if (newSiteId === activeSiteId) {
+                        saveRedirectRule(activeSiteId, toRaw, function () {
+                            refreshRedirectRulesToCurrentSiteList();
+                            updateLockProtectedUI();
+                        });
+                        return;
+                    }
+
+                    const previousSiteId = activeSiteId;
+                    activeSiteId = newSiteId;
+                    deleteRedirectRule(previousSiteId, function () {
+                        saveRedirectRule(newSiteId, toRaw, function () {
+                            refreshRedirectRulesToCurrentSiteList();
+                            updateLockProtectedUI();
+                        });
+                    });
+                }
+
+                [pair._fromInput, pair._toInput].forEach(function (input) {
+                    input.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    });
+                    input.addEventListener('change', commitRule);
+                    input.addEventListener('blur', commitRule);
+                    input.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            input.blur();
+                        }
+                    });
+                });
+
+                list.appendChild(pair);
+            });
+        }
+
+        function refreshRedirectRulesToCurrentSiteList() {
+            const list = document.getElementById('redirect-to-current-site-list');
+            if (!list) return;
+            chrome.storage.sync.get(null, function (all) {
+                if (!document.getElementById('redirect-to-current-site-list')) return;
+                renderRedirectRulesToCurrentSiteList(collectRedirectRulesToCurrentSite(all));
+            });
+        }
+
         function setupRedirectToggle(siteIdentifier, wrapper) {
             if (!wrapper) return;
 
@@ -1617,13 +1859,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
                     <p id="redirect-loop-warning" class="redirect-loop-warning" hidden role="alert"></p>
                     <p class="how-to-description redirect-help">Either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).</p>
+                </div>
+                <div id="redirect-to-current-site-group" class="redirect-to-current-site-group">
+                    <p id="redirect-to-current-site-heading" class="redirect-to-current-site-heading"></p>
+                    <div id="redirect-to-current-site-list" class="redirect-to-current-site-list"></div>
                 </div>`;
             wrapper.appendChild(row);
 
             const toggle = document.getElementById('redirectToggle');
             const urlInput = document.getElementById('redirectUrl');
             const loopWarning = document.getElementById('redirect-loop-warning');
-            if (!toggle || !urlInput || !loopWarning) return;
+            const redirectToCurrentSiteHeading = document.getElementById('redirect-to-current-site-heading');
+            if (!toggle || !urlInput || !loopWarning || !redirectToCurrentSiteHeading) return;
+
+            redirectToCurrentSiteHeading.textContent = `Redirects to ${getPopupDisplayHost()}`;
 
             const urlKey = `${siteIdentifier}RedirectUrl`;
             let redirectLoopConflict = null;
@@ -1693,6 +1942,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.sync.get(urlKey, function (result) {
                 urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
                 refreshRedirectLoopWarning();
+                refreshRedirectRulesToCurrentSiteList();
             });
 
             toggle.addEventListener('change', function () {
@@ -2371,6 +2621,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Listen for storage changes to update UI automatically
         chrome.storage.onChanged.addListener(function (changes, namespace) {
             if (namespace === 'sync' && currentSiteIdentifier) {
+                if (Object.keys(changes).some(function (key) {
+                    return key.endsWith('RedirectStatus') || key.endsWith('RedirectUrl');
+                })) {
+                    refreshRedirectRulesToCurrentSiteList();
+                }
+
                 // Check for custom element changes
                 const customStorageKey = `${currentSiteIdentifier}CustomHiddenElements`;
                 if (changes[customStorageKey]) {
