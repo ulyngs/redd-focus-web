@@ -33,6 +33,61 @@ macOS, iOS, macOS, etc.):
 | `#### Firefox` | Firefox Add-ons | future |
 | `#### Edge` | Edge Add-ons | future |
 
+## v6.8.0
+
+> Delay before opening sites, redirect rules, accessibility polish, and popup
+> improvements.
+
+### DELAY OPENING DISTRACTING WEBSITES
+
+- **Delay before a site opens.** Take a breath and consider your intention
+  online by choosing to delay opening certain websites. Toggle it per site
+  from the Custom section.
+- **Configurable delay length.** Choose a delay between 5 and 600 seconds
+  (default 10).
+- **Shared unlock / delay message.** The Settings “Unlock / delay message”
+  appears on both the unlock countdown and the delay screen (default:
+  “What's your intention?”).
+
+### REDIRECTS TO ANOTHER PAGE OR WEBSITE
+
+- **Redirects when you open a website.** Redirect yourself to either another
+  page on the website via a relative link (e.g. `/feed/subscriptions`) or to
+  another website (e.g. wikipedia.org). Toggle and add a redirect for the
+  current website from the Custom section.
+- **Redirects at a glance.** See active redirects to your current page. Edit
+  or delete them as you wish.
+- **Infinite redirect protection.** Redirects from site A to site B will not
+  be allowed if there is already a redirect from site B to site A.
+
+### POPUP & SETTINGS
+
+- **Accessibility improvements.** Extension-wide improvements for keyboard-only
+  users.
+- **Collapsible Custom section.** Custom collapses by default on sites that
+  already have pre-configured hide options, and expands by default on other
+  sites; the open/closed state is remembered per site.
+- **Custom section chrome.** Eyebrow and chevron alignment cleaned up for the
+  collapsible Custom header.
+- **Theme (was Appearance).** Settings rename Appearance → Theme, with a
+  chevron control and a tighter hit target on the selector.
+- **UK greyscale spelling.** Greyscale uses the UK spelling consistently.
+- **Secondary text spacing.** Line spacing and size for helper copy (e.g.
+  YouTube preview tips) are easier to read when text wraps.
+
+### BY PLATFORM
+
+#### Safari (iOS)
+
+- **Numeric keyboard for number fields.** Delay and similar numeric inputs use
+  the numeric keyboard where appropriate.
+- **Sheet no longer jumps to full height.** Typing in popup inputs no longer
+  forces the iOS sheet to expand to its maximum height.
+
+### RELEASE
+
+- **Version:** 6.8.0 (Safari Mac, Safari iOS, Chrome, Firefox, Edge).
+
 ## v6.7.0
 
 > Bug fixes, popup polish, and ReDD Blocker allowlist alignment.
