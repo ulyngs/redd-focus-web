@@ -628,6 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const dialog = document.createElement('div');
             dialog.className = 'lock-start-dialog';
             dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
             dialog.setAttribute('aria-labelledby', 'lock-start-title');
             dialog.innerHTML = `
                 <div class="lock-start-icon" aria-hidden="true">
@@ -647,8 +648,53 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(overlay);
             document.body.classList.add('modal-open');
 
+            const titleEl = dialog.querySelector('#lock-start-title');
+            if (titleEl) titleEl.tabIndex = -1;
+
+            const acceptBtn = dialog.querySelector('#accept-lock-start');
+            const cancelBtn = dialog.querySelector('#cancel-lock-start');
+            const settingsBtn = dialog.querySelector('#lock-start-settings-link');
+            const modalFocusables = [acceptBtn, cancelBtn, settingsBtn].filter(Boolean);
+
+            document.querySelectorAll('a, button, input, select, textarea, [tabindex]').forEach(function (el) {
+                if (overlay.contains(el)) return;
+                el.tabIndex = -1;
+            });
+            modalFocusables.forEach(function (el) {
+                el.tabIndex = 0;
+            });
+
             const onLockStartKeydown = function (e) {
-                if (e.key === 'Escape') closeDialog();
+                if (e.key === 'Escape') {
+                    closeDialog();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+
+                const focusables = modalFocusables.filter(function (el) {
+                    return !el.disabled && (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+                });
+                if (focusables.length === 0) return;
+
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                const active = document.activeElement;
+
+                if (!overlay.contains(active)) {
+                    e.preventDefault();
+                    first.focus();
+                    return;
+                }
+
+                if (e.shiftKey) {
+                    if (active === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else if (active === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             };
 
             const closeDialog = function (options) {
@@ -657,14 +703,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!(options && options.keepModalOpen)) {
                     document.body.classList.remove('modal-open');
                 }
+                setupPopupTabOrder();
             };
 
             document.getElementById('accept-lock-start').addEventListener('click', function () {
                 closeDialog();
                 onConfirm();
             });
-            document.getElementById('cancel-lock-start').addEventListener('click', closeDialog);
-            document.getElementById('lock-start-settings-link').addEventListener('click', function (e) {
+            cancelBtn.addEventListener('click', closeDialog);
+            settingsBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 closeDialog({ keepModalOpen: true });
                 // Defer so the originating click cannot immediately dismiss Settings.
@@ -736,6 +783,71 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.remove('popup-loading', 'lock-state-pending');
         }
 
+        function setupPopupTabOrder() {
+            const footer = document.querySelector('footer');
+            const siteInfo = document.getElementById('currentSiteInfo');
+            const scroll = document.querySelector('.popup-main-scroll');
+            const headerButtons = document.querySelectorAll('#help-container button');
+
+            function excludeFromTabOrder(root) {
+                if (!root) return;
+                root.tabIndex = -1;
+                root.querySelectorAll('a, button, input, select, textarea, [tabindex]').forEach(function (el) {
+                    el.tabIndex = -1;
+                });
+            }
+
+            function isPopupFocusable(el) {
+                if (!(el instanceof HTMLAnchorElement ||
+                    el instanceof HTMLButtonElement ||
+                    el instanceof HTMLInputElement ||
+                    el instanceof HTMLSelectElement ||
+                    el instanceof HTMLTextAreaElement)) {
+                    return false;
+                }
+                if (el.disabled) return false;
+                if (footer && footer.contains(el)) return false;
+                if (siteInfo && siteInfo.contains(el)) return false;
+                if (el.closest('#faq-dropdown, #eula-overlay, #delay-content')) return false;
+                if (el.closest('[hidden]')) return false;
+                if (el.closest('.dropdown:not(.shown)')) return false;
+                const reviewPrompt = el.closest('#reviewPrompt');
+                if (reviewPrompt && reviewPrompt.style.display === 'none') return false;
+                return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            }
+
+            excludeFromTabOrder(footer);
+            excludeFromTabOrder(siteInfo);
+
+            if (!scroll) return;
+
+            scroll.querySelectorAll('a, button, input, select, textarea').forEach(function (el) {
+                el.tabIndex = 0;
+            });
+            headerButtons.forEach(function (el) {
+                el.tabIndex = 0;
+            });
+
+            const ordered = [];
+            const walker = document.createTreeWalker(scroll, NodeFilter.SHOW_ELEMENT, {
+                acceptNode: function (node) {
+                    return isPopupFocusable(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+                }
+            });
+            while (walker.nextNode()) {
+                ordered.push(walker.currentNode);
+            }
+
+            ordered.forEach(function (el, index) {
+                el.tabIndex = index + 1;
+            });
+
+            headerButtons.forEach(function (el, index) {
+                if (!isPopupFocusable(el)) return;
+                el.tabIndex = ordered.length + index + 1;
+            });
+        }
+
         function revealPopupContent() {
             if (isSettingsLocked) {
                 captureProtectedHiddenSnapshot();
@@ -752,6 +864,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (errorContainer) errorContainer.style.display = 'none';
             updateSaveFooterVisibility();
+            setupPopupTabOrder();
             dismissPopupLoading();
         }
 
@@ -1055,9 +1168,23 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.add('modal-open');
             document.body.style.minHeight = '350px';
 
+            const titleEl = overlay.querySelector('#edit-dialog-title');
+            if (titleEl) titleEl.tabIndex = -1;
+            overlay.querySelectorAll('.edit-dialog-field label, .help-icon').forEach(function (el) {
+                el.tabIndex = -1;
+            });
+
+            const nameInput = overlay.querySelector('#element-name');
+            const selectorInput = overlay.querySelector('#element-selector');
+            const cancelBtn = overlay.querySelector('#cancel-edit');
+            const saveBtn = overlay.querySelector('#save-edit');
+            [nameInput, selectorInput, cancelBtn, saveBtn].forEach(function (el, index) {
+                if (el) el.tabIndex = index + 1;
+            });
+
             // Focus the selector field when adding manually, otherwise the name input
             setTimeout(() => {
-                const fieldToFocus = document.getElementById(options.focusSelector ? 'element-selector' : 'element-name');
+                const fieldToFocus = options.focusSelector ? selectorInput : nameInput;
                 if (fieldToFocus) {
                     fieldToFocus.focus();
                 }
@@ -1080,9 +1207,9 @@ document.addEventListener('DOMContentLoaded', function () {
             document.addEventListener('keydown', onEditKeydown);
 
             // Handle save
-            document.getElementById('save-edit').addEventListener('click', function () {
-                const newName = document.getElementById('element-name').value.trim();
-                const newSelector = document.getElementById('element-selector').value.trim();
+            saveBtn.addEventListener('click', function () {
+                const newName = nameInput.value.trim();
+                const newSelector = selectorInput.value.trim();
 
                 if (!newSelector) {
                     alert('CSS Selector cannot be empty');
@@ -1101,7 +1228,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             // Handle cancel
-            document.getElementById('cancel-edit').addEventListener('click', closeDialog);
+            cancelBtn.addEventListener('click', closeDialog);
         }
 
         function updateCustomElementsList(siteIdentifier, selectors) {
@@ -1244,6 +1371,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             console.log('Updated container content for', containerId, ':', container.innerHTML);
+            setupPopupTabOrder();
         }
 
         function setupGrayscaleToggle(siteIdentifier) {
@@ -1713,6 +1841,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 headerBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
                 body.hidden = !isExpanded;
                 if (persist) writeCachedExpanded(isExpanded);
+                setupPopupTabOrder();
             }
 
             headerBtn.addEventListener('click', function () {
@@ -2111,15 +2240,30 @@ document.addEventListener('DOMContentLoaded', function () {
             const content = document.querySelector(contentId);
             const arrowRight = document.querySelector(arrowRightId);
             const arrowDown = document.querySelector(arrowDownId);
+            const previewsText = trigger && trigger.querySelector('.previews-text');
 
-            if (!trigger || !content || !arrowRight || !arrowDown) return;
+            if (!trigger || !content || !arrowRight || !arrowDown || !previewsText) return;
 
-            trigger.addEventListener("click", function () {
-                const isHidden = content.style.display === "none";
-                content.style.display = isHidden ? "block" : "none";
-                arrowRight.style.display = isHidden ? "none" : "flex";
-                arrowDown.style.display = isHidden ? "flex" : "none";
-            });
+            const headerBtn = document.createElement('button');
+            headerBtn.type = 'button';
+            headerBtn.className = 'preview-accordion-trigger';
+            headerBtn.setAttribute('aria-controls', content.id);
+            headerBtn.setAttribute('aria-expanded', content.style.display === 'none' ? 'false' : 'true');
+
+            headerBtn.appendChild(arrowRight);
+            headerBtn.appendChild(arrowDown);
+            headerBtn.appendChild(previewsText);
+            trigger.insertBefore(headerBtn, content);
+
+            function toggleAccordion() {
+                const isHidden = content.style.display === 'none';
+                content.style.display = isHidden ? 'block' : 'none';
+                arrowRight.style.display = isHidden ? 'none' : 'flex';
+                arrowDown.style.display = isHidden ? 'flex' : 'none';
+                headerBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+            }
+
+            headerBtn.addEventListener('click', toggleAccordion);
         }
 
         function setupHelpAndFAQ() {
@@ -2158,6 +2302,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
+            const firstFaqItem = document.querySelector('.settings-panel-faq .faq-item');
+            if (firstFaqItem) {
+                firstFaqItem.querySelectorAll('.faq-content a').forEach(function (link) {
+                    link.tabIndex = -1;
+                });
+            }
+
             // handle the close button
             const closeBtn = document.getElementById('faq-close-btn');
             if (closeBtn) {
@@ -2179,7 +2330,24 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        function setupButtonEnterKeyActivation() {
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter') return;
+                const el = e.target;
+                if (!(el instanceof HTMLButtonElement) || el.disabled) return;
+                e.preventDefault();
+                el.click();
+            });
+            document.addEventListener('keyup', function (e) {
+                if (e.key !== 'Enter') return;
+                if (e.target instanceof HTMLButtonElement) {
+                    e.preventDefault();
+                }
+            });
+        }
+
         // Setup all interactive elements at the end
+        setupButtonEnterKeyActivation();
         setupHelpAndFAQ();
         setupAccordion('#hide-previews', '#how-to-description', '#how-to-arrow-right', '#how-to-arrow-down');
         setupAccordion('#hide-previews-not-mobile', '#how-to-description-not-mobile', '#how-to-arrow-right-not-mobile', '#how-to-arrow-down-not-mobile');

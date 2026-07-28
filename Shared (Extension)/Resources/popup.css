@@ -58,6 +58,8 @@
     --btn-custom-hide-border: var(--border-color);
     --btn-custom-hide-text: var(--redd-navy);
     --btn-custom-hide-hover-bg: var(--redd-subtle);
+    --btn-custom-hide-focus-border: var(--border-focus);
+    --btn-custom-hide-focus-ring: none;
 
     /* Toggle/Checkbox colors */
     --toggle-bg: #c8c4be;
@@ -384,18 +386,30 @@ textarea::placeholder {
 }
 
 .custom-section-toggle {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.35em;
-    width: 100%;
+    width: auto;
     margin: 0 0 5px 0;
-    padding: 0;
-    border: none;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 6px;
     background: transparent;
     cursor: pointer;
     text-align: left;
     color: inherit;
     font: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-section-toggle:focus {
+    outline: none;
+}
+
+.custom-section-toggle:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .custom-section-toggle h2 {
@@ -524,6 +538,12 @@ a:hover {
     color: var(--text-link-hover);
 }
 
+a:focus,
+a:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
 .github-link {
     clear: both;
     padding-top: 10px;
@@ -635,7 +655,11 @@ input:checked+.slider {
 }
 
 input:focus+.slider {
-    box-shadow: 0 0 1px var(--toggle-bg-checked);
+    box-shadow: none;
+}
+
+input:focus-visible+.slider {
+    box-shadow: 0 0 0 1px var(--btn-custom-hide-focus-border);
 }
 
 input:checked+.slider:before {
@@ -744,6 +768,18 @@ button[id$="ManualAddButton"]::before {
 button[id$="AddElementButton"]:hover,
 button[id$="ManualAddButton"]:hover {
     background-color: var(--btn-custom-hide-hover-bg);
+}
+
+button[id$="AddElementButton"]:focus,
+button[id$="ManualAddButton"]:focus {
+    outline: none;
+}
+
+button[id$="AddElementButton"]:focus-visible,
+button[id$="ManualAddButton"]:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 button[id$="AddElementButton"].active {
@@ -1114,10 +1150,41 @@ footer .toggle-group {
 }
 
 /* YouTube preview rows: chevron sits in the same 16px column as selector checkboxes; label uses selector tokens. */
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+.hide-checkboxes .a-toggle#hide-previews,
+.hide-checkboxes .a-toggle#hide-previews-not-mobile {
+    padding-left: 0;
+    min-height: 0;
+}
+
+.preview-accordion-trigger {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    margin: 0;
+    padding: 2px 4px 2px calc(var(--selector-box-size) + var(--selector-gap));
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    position: relative;
+    min-height: var(--selector-box-size);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.preview-accordion-trigger:focus {
+    outline: none;
+}
+
+.preview-accordion-trigger:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
+}
+
+.hide-checkboxes .preview-accordion-trigger [id^="how-to-arrow"] {
     position: absolute;
     left: 0;
     top: 0;
@@ -1132,20 +1199,15 @@ footer .toggle-group {
     pointer-events: none;
 }
 
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile {
+.hide-checkboxes .preview-accordion-trigger [id^="how-to-arrow-right"] {
     display: flex;
 }
 
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile {
+.hide-checkboxes .preview-accordion-trigger [id^="how-to-arrow-down"] {
     display: none;
 }
 
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-right svg,
-.hide-checkboxes .a-toggle#hide-previews #how-to-arrow-down svg,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-right-not-mobile svg,
-.hide-checkboxes .a-toggle#hide-previews-not-mobile #how-to-arrow-down-not-mobile svg {
+.hide-checkboxes .preview-accordion-trigger [id^="how-to-arrow"] svg {
     display: block;
     width: 12px;
     height: 12px;
@@ -1628,7 +1690,7 @@ p.how-to-description {
     display: block;
     width: 100%;
     padding: 12px 16px;
-    border: none;
+    border: 1px solid transparent;
     border-radius: 10px;
     background-color: var(--btn-primary-bg);
     color: var(--btn-primary-text);
@@ -1636,29 +1698,56 @@ p.how-to-description {
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .lock-start-primary-btn:hover {
     background-color: var(--btn-primary-hover);
 }
 
+.lock-start-primary-btn:focus {
+    outline: none;
+}
+
+.lock-start-primary-btn:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
+}
+
 .lock-start-secondary-btn {
     display: block;
     width: 100%;
     margin-top: 12px;
-    padding: 4px;
-    border: none;
-    background: transparent;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--btn-custom-hide-bg);
     color: var(--text-secondary);
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .lock-start-secondary-btn:hover {
+    background-color: var(--btn-custom-hide-hover-bg);
     color: var(--text-primary);
+}
+
+.lock-start-secondary-btn:focus {
+    outline: none;
+}
+
+.lock-start-secondary-btn:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .lock-start-footer {
@@ -1670,18 +1759,30 @@ p.how-to-description {
 }
 
 .lock-start-settings-link {
-    padding: 0;
-    border: none;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 6px;
     background: none;
     color: inherit;
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .lock-start-settings-link:hover {
     text-decoration: none;
     color: var(--text-link-hover);
+}
+
+.lock-start-settings-link:focus {
+    outline: none;
+}
+
+.lock-start-settings-link:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .edit-dialog-buttons {
@@ -1700,6 +1801,20 @@ p.how-to-description {
     padding: 10px 16px;
     border-radius: 8px;
     font-size: 15px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edit-panel-overlay .edit-dialog-buttons .primary-btn:focus,
+.edit-panel-overlay .edit-dialog-buttons .secondary-btn:focus {
+    outline: none;
+}
+
+.edit-panel-overlay .edit-dialog-buttons .primary-btn:focus-visible,
+.edit-panel-overlay .edit-dialog-buttons .secondary-btn:focus-visible {
+    outline: none;
+    border: 1px solid var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .primary-btn,
@@ -1949,16 +2064,32 @@ footer .friction-customisation {
 #settings-lock-btn {
     padding: 4px;
     background-color: var(--btn-custom-hide-bg);
-    border: none;
+    border: 1px solid transparent;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .header-icon-btn:hover,
 #help-icon-btn:hover,
 #settings-lock-btn:hover {
     background-color: var(--btn-custom-hide-hover-bg);
+}
+
+.header-icon-btn:focus,
+#help-icon-btn:focus,
+#settings-lock-btn:focus {
+    outline: none;
+}
+
+.header-icon-btn:focus-visible,
+#help-icon-btn:focus-visible,
+#settings-lock-btn:focus-visible {
+    outline: none;
+    border: 1px solid var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .header-icon-btn svg,
@@ -2184,7 +2315,7 @@ footer .friction-customisation {
     border-color: var(--border-hover);
 }
 
-.settings-number-input:focus,
+.settings-number-input:focus:not(.compact-seconds-input),
 .settings-text-input:focus,
 #faq-dropdown .settings-select-trigger:focus {
     outline: none;
@@ -2288,6 +2419,14 @@ footer .friction-customisation {
     cursor: not-allowed;
 }
 
+.enforcement-switch input:focus + .enforcement-slider {
+    box-shadow: none;
+}
+
+.enforcement-switch input:focus-visible + .enforcement-slider {
+    box-shadow: 0 0 0 1px var(--btn-custom-hide-focus-border);
+}
+
 .settings-feedback-footer {
     display: flex;
     align-items: flex-start;
@@ -2314,6 +2453,20 @@ footer .friction-customisation {
     color: inherit;
     text-decoration: underline;
     text-underline-offset: 2px;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.settings-feedback-text a:focus {
+    outline: none;
+}
+
+.settings-feedback-text a:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .dark-mode .settings-feedback-footer {
@@ -2341,11 +2494,23 @@ footer .friction-customisation {
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #faq-dropdown .modal-btn.cancel-btn:hover {
     background: var(--bg-tertiary);
+}
+
+#faq-dropdown .modal-btn.cancel-btn:focus {
+    outline: none;
+}
+
+#faq-dropdown .modal-btn.cancel-btn:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .faq-item {
@@ -2358,7 +2523,8 @@ footer .friction-customisation {
 
 .faq-trigger {
     background: none;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
     padding: 12px 14px;
     width: 100%;
     display: flex;
@@ -2370,10 +2536,23 @@ footer .friction-customisation {
     font-family: var(--font-body);
     color: var(--text-primary);
     box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .faq-trigger:hover {
     background-color: var(--bg-hover);
+}
+
+.faq-trigger:focus {
+    outline: none;
+}
+
+.faq-trigger:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .faq-chevron {
@@ -2511,11 +2690,6 @@ footer .friction-customisation {
     background-color: var(--btn-primary-hover);
     border-color: var(--btn-primary-hover);
     color: var(--btn-primary-text);
-}
-
-.review-link:focus-visible {
-    outline: 2px solid var(--border-focus);
-    outline-offset: 2px;
 }
 
 #noThanksButton {
@@ -2885,8 +3059,12 @@ footer .friction-customisation {
 
 .compact-seconds-input:focus {
     outline: none;
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+}
+
+.compact-seconds-input:focus-visible {
+    outline: none;
+    border-color: var(--btn-custom-hide-focus-border);
+    box-shadow: var(--btn-custom-hide-focus-ring);
 }
 
 .compact-seconds-input:disabled {
@@ -2955,7 +3133,11 @@ footer .friction-customisation {
     background-color: var(--selector-color-refresh);
 }
 
-/* --- Focus ring (accessibility) ------------------------------------------ */
+/* --- Focus ring (keyboard tab only) -------------------------------------- */
+.hide-checkboxes .a-toggle input[type="checkbox"]:focus {
+    outline: none;
+}
+
 .hide-checkboxes .a-toggle input[type="checkbox"]:focus-visible + label::before,
 .hide-checkboxes .a-toggle .multi-state-checkbox:focus-visible::before {
     box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.22);
