@@ -235,7 +235,7 @@ jobs:
     needs: [prepare]
     if: always() && needs.prepare.result == 'success' && inputs.submit_firefox
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout for notes (standalone tag)
         if: needs.prepare.outputs.notes_ref != ''
@@ -279,11 +279,61 @@ jobs:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           set -euo pipefail
-          ZIP="for-distribution/redd-focus-v${{ needs.prepare.outputs.version }}.zip"
+          ZIP="for-distribution/redd-focus-v${VERSION}.zip"
           echo "Submitting ${ZIP} to Firefox Add-ons…"
-          npx publish-browser-extension@5.1.0 --firefox-zip "$ZIP"
+
+          # AMO often drops the TLS connection on the final "create version"
+          # POST after a long validation wait (undici: other side closed). Retry,
+          # and treat "version already on AMO" as success if the response was lost.
+          version_on_amo() {
+            node <<'EOF'
+          const crypto = require('node:crypto');
+          const b64 = (s) => Buffer.from(s).toString('base64url');
+          const iat = Math.floor(Date.now() / 1000);
+          const payload = { iss: process.env.FIREFOX_JWT_ISSUER, jti: crypto.randomUUID(), iat, exp: iat + 300 };
+          const unsigned = `${b64(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${b64(JSON.stringify(payload))}`;
+          const signature = crypto.createHmac('sha256', process.env.FIREFOX_JWT_SECRET).update(unsigned).digest('base64url');
+          const headers = { Authorization: `JWT ${unsigned}.${signature}` };
+          const base = `https://addons.mozilla.org/api/v5/addons/addon/${encodeURIComponent(process.env.FIREFOX_EXTENSION_ID)}`;
+          fetch(`${base}/versions/?filter=all_with_unlisted`, { headers })
+            .then(async (res) => {
+              if (!res.ok) throw new Error(`List versions failed: ${res.status} ${await res.text()}`);
+              const { results } = await res.json();
+              const found = (results || []).some((v) => v.version === process.env.VERSION);
+              process.exit(found ? 0 : 1);
+            })
+            .catch((err) => {
+              console.error(err);
+              process.exit(2);
+            });
+          EOF
+          }
+
+          attempt=1
+          max_attempts=3
+          while [[ "$attempt" -le "$max_attempts" ]]; do
+            echo "=== Firefox submit attempt ${attempt}/${max_attempts} ==="
+            if npx publish-browser-extension@5.1.0 --firefox-zip "$ZIP"; then
+              echo "Firefox submit succeeded on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Firefox submit attempt ${attempt} failed."
+            if version_on_amo; then
+              echo "Version ${VERSION} is already on AMO — treating as success (AMO likely accepted the version but dropped the response)."
+              exit 0
+            fi
+            if [[ "$attempt" -eq "$max_attempts" ]]; then
+              echo "Firefox submit failed after ${max_attempts} attempts." >&2
+              exit 1
+            fi
+            sleep_s=$((attempt * 30))
+            echo "Waiting ${sleep_s}s before retry…"
+            sleep "$sleep_s"
+            attempt=$((attempt + 1))
+          done
 
       - name: Update Firefox release notes (en-GB)
         continue-on-error: true
