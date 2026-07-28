@@ -2593,8 +2593,8 @@ footer .friction-customisation {
     text-align: left;
 }
 
-/* First line stays top-aligned with the checkbox; line-height matches
-   how-to / multi-line copy so wrapped labels aren’t cramped. */
+/* Line box matches checkbox height so label text centers on the control
+   (same band as the 16px box). Horizontal gap unchanged: padding-left above. */
 .hide-checkboxes .a-toggle label,
 .hide-checkboxes .a-toggle .multi-state-label {
     display: inline-block;
@@ -2602,9 +2602,16 @@ footer .friction-customisation {
     padding: 0;
     font-size: var(--selector-font-size);
     color: var(--text-primary);
-    line-height: var(--previews-how-to-line-height);
+    line-height: var(--selector-box-size);
     cursor: pointer;
     vertical-align: top;
+}
+
+/* Redirect label wraps at popup width: use how-to line spacing between wrap
+   lines only, with a first-line nudge so the checkbox alignment is unchanged. */
+.hide-checkboxes .a-toggle.redirect-toggle > label {
+    line-height: var(--previews-how-to-line-height);
+    margin-top: calc((var(--selector-box-size) - var(--previews-how-to-line-height)) / 2);
 }
 
 /* Native checkbox is hidden but remains clickable over the box area. */
