@@ -792,6 +792,21 @@
             #${ACCESS_DELAY_OVERLAY_ID}.show {
                 opacity: 1;
             }
+            #${ACCESS_DELAY_OVERLAY_ID} .redd-focus-access-delay-message {
+                margin: 20px auto 10px auto !important;
+                width: min(92vw, 84rem) !important;
+                max-width: min(92vw, 84rem) !important;
+                box-sizing: border-box !important;
+                color: ${REDD.body} !important;
+                font-size: clamp(2.25rem, 6.5vw, 3.5rem) !important;
+                font-style: italic !important;
+                font-weight: 400 !important;
+                line-height: 140% !important;
+                text-align: center !important;
+                white-space: pre-wrap !important;
+                overflow-wrap: break-word !important;
+                word-wrap: break-word !important;
+            }
             #${ACCESS_DELAY_OVERLAY_ID} img {
                 width: min(40vw, 180px) !important;
                 height: auto !important;
@@ -823,8 +838,10 @@
         if (overlay) overlay.remove();
     }
 
-    function startAccessDelayGate(seconds) {
+    function startAccessDelayGate(seconds, message) {
         const countdownSeconds = Math.max(5, Math.min(600, parseInt(seconds, 10) || 10));
+        const trimmed = typeof message === 'string' ? message.trim() : '';
+        const delayMessage = trimmed || "What's your intention?";
         if (accessDelayActive) return;
         accessDelayActive = true;
         ensureAccessDelayCssInjected();
@@ -839,6 +856,11 @@
                 overlay.setAttribute('role', 'dialog');
                 overlay.setAttribute('aria-live', 'polite');
                 overlay.setAttribute('aria-label', 'Opening site after a short delay');
+
+                const messageEl = document.createElement('p');
+                messageEl.className = 'redd-focus-access-delay-message';
+                messageEl.textContent = delayMessage;
+                overlay.appendChild(messageEl);
 
                 const img = document.createElement('img');
                 img.src = chrome.runtime.getURL('images/calm.svg');
@@ -889,14 +911,16 @@
         if (!currentSiteIdentifier || accessDelayActive) return;
         const statusKey = `${currentSiteIdentifier}AccessDelayStatus`;
         const secondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
-        chrome.storage.sync.get([statusKey, secondsKey], function (result) {
+        const waitTextKey = `${currentSiteIdentifier}WaitText`;
+        chrome.storage.sync.get([statusKey, secondsKey, waitTextKey, 'waitText'], function (result) {
             let enabled = result[statusKey] === true;
             if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
                 enabled = sessionOverrides[statusKey] === true;
             }
             if (!enabled) return;
             const seconds = result[secondsKey] !== undefined ? result[secondsKey] : 10;
-            startAccessDelayGate(seconds);
+            const message = result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText;
+            startAccessDelayGate(seconds, message);
         });
     }
 

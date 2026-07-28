@@ -297,7 +297,21 @@ document.addEventListener('DOMContentLoaded', function () {
         let isSettingsLocked = false;
         let protectedHiddenAtLock = new Set();
         let unlockWaitTime = 10;
-        let unlockWaitText = "What's your intention?";
+        const DEFAULT_UNLOCK_WAIT_TEXT = "What's your intention?";
+        let unlockWaitText = DEFAULT_UNLOCK_WAIT_TEXT;
+
+        function resolveUnlockWaitText(raw) {
+            const trimmed = typeof raw === 'string' ? raw.trim() : '';
+            return trimmed || DEFAULT_UNLOCK_WAIT_TEXT;
+        }
+
+        function unlockWaitTextForInput(raw) {
+            if (typeof raw !== 'string') return '';
+            const trimmed = raw.trim();
+            // Legacy: default was stored as the field value — treat that as empty so placeholder shows
+            if (!trimmed || trimmed === DEFAULT_UNLOCK_WAIT_TEXT) return '';
+            return raw;
+        }
 
         function updateSaveFooterVisibility() {
             const saveFooterEl = document.getElementById('save-controls');
@@ -413,13 +427,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 const messageBox = document.getElementById("delay-message");
                 const countdownBox = document.getElementById("delay-time");
 
-                unlockWaitText = (result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText) || "What's your intention?";
+                const storedText = result[waitTextKey] !== undefined ? result[waitTextKey] : result.waitText;
+                unlockWaitText = resolveUnlockWaitText(storedText);
                 const storedWait = result[waitTimeKey] !== undefined
                     ? result[waitTimeKey]
                     : (result.waitTime !== undefined ? result.waitTime : 10);
                 unlockWaitTime = clampSecondsField(storedWait);
 
-                if (waitTextBox) waitTextBox.value = unlockWaitText;
+                if (waitTextBox) {
+                    waitTextBox.placeholder = DEFAULT_UNLOCK_WAIT_TEXT;
+                    waitTextBox.value = unlockWaitTextForInput(storedText);
+                }
                 if (waitTimeBox) waitTimeBox.value = unlockWaitTime;
                 if (messageBox) messageBox.innerText = unlockWaitText;
                 if (countdownBox) countdownBox.innerText = unlockWaitTime;
@@ -444,10 +462,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 waitTextInput.addEventListener('input', function () {
                     if (isSettingsLocked) return;
                     const waitTextKey = `${siteIdentifier}WaitText`;
-                    unlockWaitText = this.value;
+                    unlockWaitText = resolveUnlockWaitText(this.value);
                     chrome.storage.sync.set({ [waitTextKey]: this.value });
                     const messageBox = document.getElementById("delay-message");
-                    if (messageBox) messageBox.innerText = this.value;
+                    if (messageBox) messageBox.innerText = unlockWaitText;
                 });
             }
         }

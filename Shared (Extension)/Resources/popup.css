@@ -76,6 +76,9 @@
     --modal-overlay: rgba(30, 45, 62, 0.35);
     --modal-shadow: var(--redd-shadow-card);
 
+    /* Unlock wait screen message (#delay-message) — tweak size here only */
+    --unlock-wait-message-font-size: 1.3em;
+
     /* Settings / FAQ panel (#faq-dropdown): full-bleed overlay; equal horizontal inset for content */
     --settings-overlay-padding-x: 1rem;
     --settings-overlay-padding-y: 0.75rem;
@@ -939,7 +942,7 @@ select.shadcn-input {
 }
 
 #delay-message {
-    font-size: 1.8em;
+    font-size: var(--unlock-wait-message-font-size);
     line-height: 140%;
     font-style: italic;
     margin: 20px 20px 10px 20px;
