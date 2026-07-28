@@ -44,7 +44,9 @@ KEY_PATH="${APPLE_API_KEY_PATH:-}"
 CLEANUP_KEY=0
 if [[ -z "$KEY_PATH" ]]; then
   : "${APP_STORE_CONNECT_API_KEY_P8:?Set APP_STORE_CONNECT_API_KEY_P8 (base64) or APPLE_API_KEY_PATH}"
-  KEY_PATH="$(mktemp /tmp/AuthKey.XXXXXX.p8)"
+  # macOS mktemp only substitutes trailing Xs, so make a dir and name the key.
+  KEY_DIR="$(mktemp -d /tmp/asc-key.XXXXXX)"
+  KEY_PATH="$KEY_DIR/AuthKey.p8"
   CLEANUP_KEY=1
   echo "$APP_STORE_CONNECT_API_KEY_P8" | base64 --decode > "$KEY_PATH"
 fi
@@ -52,8 +54,8 @@ fi
 : "${APP_STORE_CONNECT_API_ISSUER_ID:?Set APP_STORE_CONNECT_API_ISSUER_ID}"
 
 cleanup() {
-  if [[ "$CLEANUP_KEY" -eq 1 && -n "${KEY_PATH:-}" ]]; then
-    rm -f "$KEY_PATH"
+  if [[ "$CLEANUP_KEY" -eq 1 && -n "${KEY_DIR:-}" ]]; then
+    rm -rf "$KEY_DIR"
   fi
 }
 trap cleanup EXIT
@@ -99,6 +101,9 @@ echo "=== Archiving ${SCHEME} (v${VERSION}) ==="
 rm -rf "$ARCHIVE" "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
 
+# ${arr[@]+...} guards the empty-array case: macOS ships bash 3.2, where
+# "${VERSION_ARGS[@]}" under `set -u` aborts with "unbound variable" — and
+# exits 0, silently skipping the build (bit us in CI).
 xcodebuild archive \
   -project "$PROJECT" \
   -scheme "$SCHEME" \
@@ -107,7 +112,7 @@ xcodebuild archive \
   -archivePath "$ARCHIVE" \
   DEVELOPMENT_TEAM="$TEAM_ID" \
   CODE_SIGN_STYLE=Automatic \
-  "${VERSION_ARGS[@]}" \
+  ${VERSION_ARGS[@]+"${VERSION_ARGS[@]}"} \
   "${AUTH_ARGS[@]}"
 
 echo "=== Exporting App Store package ==="
