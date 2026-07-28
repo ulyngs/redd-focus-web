@@ -18,11 +18,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             if (!isIos) return;
 
+            function isTextEntryElement(el) {
+                if (el instanceof HTMLTextAreaElement) return true;
+                if (!(el instanceof HTMLInputElement)) return false;
+                const type = (el.type || 'text').toLowerCase();
+                return !['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'file', 'color', 'hidden'].includes(type);
+            }
+
+            let lastStableHeight = 0;
+
             const apply = function () {
                 const viewport = window.visualViewport;
                 const height = Math.round((viewport && viewport.height) || window.innerHeight || 0);
                 if (!height) return;
-                const px = height + 'px';
+                const isEditing = isTextEntryElement(document.activeElement);
+                if (!isEditing) {
+                    lastStableHeight = height;
+                }
+                const appliedHeight = isEditing && lastStableHeight ? lastStableHeight : height;
+                const px = appliedHeight + 'px';
                 document.documentElement.style.height = px;
                 document.documentElement.style.maxHeight = px;
                 document.body.style.height = px;
@@ -1483,6 +1497,8 @@ document.addEventListener('DOMContentLoaded', function () {
             secondsInput.value = '10';
             secondsInput.min = '5';
             secondsInput.max = '600';
+            secondsInput.inputMode = 'numeric';
+            secondsInput.setAttribute('pattern', '[0-9]*');
             secondsInput.className = 'access-delay-seconds-input compact-seconds-input';
             secondsInput.setAttribute('aria-label', 'Delay seconds');
 
