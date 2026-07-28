@@ -1774,6 +1774,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function setupCustomSectionCollapse(siteIdentifier) {
             const hasPreconfiguredOptions = !!currentPlatform || platformsWeTarget.includes(siteIdentifier);
+            const customSectionCacheKey = `${CUSTOM_SECTION_CACHE_KEY}:${siteIdentifier || 'generic'}`;
             const group = currentPlatform
                 ? document.querySelector('.dropdown.' + currentPlatform + ' > .toggle-group')
                 : document.querySelector('#generic-site-options > .toggle-group');
@@ -1820,19 +1821,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             group.appendChild(body);
 
-            function readCachedExpanded() {
-                try {
-                    const cached = sessionStorage.getItem(CUSTOM_SECTION_CACHE_KEY);
-                    if (cached === '1') return true;
-                    if (cached === '0') return false;
-                } catch (e) { /* ignore */ }
-                return null;
-            }
-
             function writeCachedExpanded(isExpanded) {
-                try {
-                    sessionStorage.setItem(CUSTOM_SECTION_CACHE_KEY, isExpanded ? '1' : '0');
-                } catch (e) { /* ignore */ }
+                chrome.storage.local.set({ [customSectionCacheKey]: isExpanded ? '1' : '0' });
             }
 
             function applyExpanded(isExpanded, persist) {
@@ -1848,9 +1838,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 applyExpanded(!group.classList.contains('is-expanded'), true);
             });
 
-            const cached = readCachedExpanded();
-            const defaultExpanded = cached === null ? !hasPreconfiguredOptions : cached;
-            applyExpanded(defaultExpanded, false);
+            const defaultExpanded = !hasPreconfiguredOptions;
+            chrome.storage.local.get(customSectionCacheKey, function (result) {
+                const cached = result && result[customSectionCacheKey];
+                if (cached === '1') {
+                    applyExpanded(true, false);
+                    return;
+                }
+                if (cached === '0') {
+                    applyExpanded(false, false);
+                    return;
+                }
+                applyExpanded(defaultExpanded, false);
+            });
         }
 
         function addCustomSelector(siteIdentifier, name, selector) {

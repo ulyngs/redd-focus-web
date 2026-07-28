@@ -386,20 +386,18 @@ textarea::placeholder {
 }
 
 .custom-section-toggle {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.35em;
-    width: auto;
+    width: 100%;
     margin: 0 0 5px 0;
-    padding: 2px 4px;
-    border: 1px solid transparent;
-    border-radius: 6px;
+    padding: 0;
+    border: none;
     background: transparent;
     cursor: pointer;
     text-align: left;
     color: inherit;
     font: inherit;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .custom-section-toggle:focus {
@@ -408,8 +406,7 @@ textarea::placeholder {
 
 .custom-section-toggle:focus-visible {
     outline: none;
-    border-color: var(--btn-custom-hide-focus-border);
-    box-shadow: var(--btn-custom-hide-focus-ring);
+    box-shadow: 0 0 0 1px var(--btn-custom-hide-focus-border);
 }
 
 .custom-section-toggle h2 {
@@ -1212,6 +1209,7 @@ footer .toggle-group {
     width: 12px;
     height: 12px;
     flex-shrink: 0;
+    transform: translateY(0.5px);
 }
 
 p.previews-text {
