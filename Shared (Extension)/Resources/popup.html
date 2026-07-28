@@ -76,6 +76,13 @@
 
     <!-- Main Popup Content -->
     <div id="popup-content" style="display: none;">
+        <header class="popup-sticky-header">
+            <div class="popup-header-top">
+            <!-- Generic Site Info (Shown for non-targeted sites) -->
+            <div id="currentSiteInfo">
+                <p><strong id="currentSiteName"></strong></p>
+            </div>
+
         <div id="help-container">
             <button id="settings-lock-btn" class="header-icon-btn" title="Lock settings" aria-label="Lock settings" aria-pressed="false">
                 <svg id="lock-icon-unlocked" class="lock-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -99,188 +106,20 @@
                         d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.65 0 1.24-.37 1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 3.3l.06.06c.48.48 1.18.62 1.82.33A1.65 1.65 0 0 0 10.42 2.2V2a2 2 0 1 1 4 0v.09c0 .65.37 1.24 1 1.51.64.29 1.34.15 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.48.48-.62 1.18-.33 1.82.27.63.86 1 1.51 1H22a2 2 0 1 1 0 4h-.09c-.65 0-1.24.37-1.51 1Z" />
                 </svg>
             </button>
-
-            <div id="faq-dropdown" style="display: none;">
-                <div class="settings-modal-scroll">
-                    <div class="settings-modal-header">
-                        <h3 id="settings-modal-title">Settings</h3>
-                        <div id="settings-app-version" class="settings-current-version"></div>
-                    </div>
-
-                    <div class="settings-stack">
-                        <section id="general-section" class="settings-section">
-                            <h4 id="general-heading" class="settings-section-heading">General</h4>
-                            <div class="settings-panel">
-                                <div class="settings-panel-rows">
-                                    <div id="theme-settings" class="settings-row">
-                                        <label id="theme-settings-label" class="settings-row-label">Theme</label>
-                                        <div class="settings-row-control">
-                                            <div class="theme-select-root" id="themeSelectRoot">
-                                                <button type="button" id="themeSelectTrigger"
-                                                    class="theme-select-trigger settings-select-trigger"
-                                                    aria-haspopup="listbox" aria-expanded="false"
-                                                    aria-controls="themeSelectMenu"
-                                                    aria-labelledby="theme-settings-label">
-                                                    <span id="themeSelectTriggerText">Auto</span>
-                                                </button>
-                                                <ul id="themeSelectMenu" class="theme-select-menu" role="listbox" hidden>
-                                                    <li role="option" tabindex="-1" class="theme-select-option"
-                                                        data-value="system">Auto</li>
-                                                    <li role="option" tabindex="-1" class="theme-select-option"
-                                                        data-value="light">Light</li>
-                                                    <li role="option" tabindex="-1" class="theme-select-option"
-                                                        data-value="dark">Dark</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="settings-row">
-                                        <div class="settings-row-copy">
-                                            <span class="settings-row-label">Enable manual CSS</span>
-                                        </div>
-                                        <div class="settings-row-control">
-                                            <label class="enforcement-switch" for="manualCssSelectorsToggle">
-                                                <input type="checkbox" id="manualCssSelectorsToggle"
-                                                    name="manualCssSelectorsToggle">
-                                                <span class="enforcement-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section id="accountability-section" class="settings-section">
-                            <h4 id="accountabilityHeading" class="settings-section-heading">
-                                Accountability
-                                <span class="accountability-site-detail">
-                                    <span class="accountability-on">on</span>
-                                    <span id="currentSiteNameModal"></span>
-                                </span>
-                            </h4>
-                            <div class="settings-panel">
-                                <div id="modal-settings" class="settings-panel-rows">
-                                    <div class="settings-row">
-                                        <label for="waitTime" class="settings-row-label">Unlock wait (seconds)</label>
-                                        <div class="settings-row-control">
-                                            <input type="number" id="waitTime" name="waitTime" value="10" min="5"
-                                                max="600" class="settings-number-input compact-seconds-input">
-                                        </div>
-                                    </div>
-                                    <div class="settings-row settings-row-multiline">
-                                        <label for="waitText" class="settings-row-label">Unlock message</label>
-                                        <textarea id="waitText" name="waitText" rows="2"
-                                            class="settings-text-input settings-textarea">What's your intention?</textarea>
-                                    </div>
-                                    <div class="settings-row">
-                                        <div class="settings-row-copy">
-                                            <span class="settings-row-label">Auto-save changes to hidden elements</span>
-                                        </div>
-                                        <div class="settings-row-control">
-                                            <label class="enforcement-switch" for="rememberSettingsToggle">
-                                                <input type="checkbox" id="rememberSettingsToggle"
-                                                    name="rememberSettingsToggle" checked>
-                                                <span class="enforcement-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="settings-section">
-                            <h4 class="settings-section-heading">FAQ</h4>
-                            <div class="settings-panel settings-panel-faq">
-                <div class="faq-item">
-                    <button class="faq-trigger">
-                        <span>What sites does it work on?</span>
-                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-                    <div class="faq-content">
-                        <p>
-                            Works on
-                            <a href="https://www.youtube.com" target="_blank">youtube.com</a>,
-                            <a href="https://www.facebook.com" target="_blank">facebook.com</a>,
-                            <a href="https://www.x.com" target="_blank">x.com</a>,
-                            <a href="https://www.instagram.com" target="_blank">instagram.com</a>,
-                            <a href="https://www.linkedin.com" target="_blank">linkedin.com</a>,
-                            <a href="https://web.whatsapp.com" target="_blank">web.whatsapp.com</a>,
-                            <a href="https://www.google.com" target="_blank">google.com</a>,
-                            <a href="https://www.reddit.com" target="_blank">reddit.com</a>,
-                            and supports custom hiding on any other site.
-                        </p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-trigger">
-                        <span>Getting sound from hidden autoplaying YouTube previews?</span>
-                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-                    <div class="faq-content">
-                        <p>
-                            Tap your account image > Settings > General > untick 'Video previews'
-                        </p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-trigger">
-                        <span>Nothing happens when I click the checkboxes or 'Hide custom' button</span>
-                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-                    <div class="faq-content">
-                        <p>Close your browser fully and open it again. The extension needs to re-initialise.</p>
-                    </div>
-                </div>
-                            </div>
-                        </section>
-
-                        <div id="settings-feedback-footer" class="settings-feedback-footer">
-                            <svg class="settings-feedback-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                aria-hidden="true">
-                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
-                            </svg>
-                            <p class="settings-feedback-text">
-                                Found a bug or have a suggestion? Let us know on
-                                <a href="https://github.com/ulyngs/mindshield-open-source/issues" target="_blank">GitHub</a>
-                                or at
-                                <a href="mailto:team@digitalhabits.org">team@digitalhabits.org</a>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-modal-buttons">
-                    <button id="faq-close-btn" type="button" class="modal-btn cancel-btn">Done</button>
-                </div>
-            </div>
         </div>
 
-        <div class="toggle-wrapper">
+            </div>
 
+        </header>
+
+        <div class="popup-main-scroll">
+        <div class="toggle-wrapper">
             <!-- Payment Status Display -->
             <div id="payment-status">
                 <p>Payment: <span id="payment-text">Checking...</span></p>
             </div>
 
 
-
-            <!-- Generic Site Info (Shown for non-targeted sites) -->
-            <div id="currentSiteInfo">
-                <p><strong id="currentSiteName"></strong></p>
-            </div>
 
             <!-- Review Prompt -->
             <div id="reviewPrompt" style="display: none;">
@@ -728,6 +567,175 @@
                 </div>
             </div>
         </div>
+        </div>
+
+            <div id="faq-dropdown" style="display: none;">
+                <div class="settings-modal-scroll">
+                    <div class="settings-modal-header">
+                        <h3 id="settings-modal-title">Settings</h3>
+                        <div id="settings-app-version" class="settings-current-version"></div>
+                    </div>
+
+                    <div class="settings-stack">
+                        <section id="general-section" class="settings-section">
+                            <h4 id="general-heading" class="settings-section-heading">General</h4>
+                            <div class="settings-panel">
+                                <div class="settings-panel-rows">
+                                    <div id="theme-settings" class="settings-row">
+                                        <label id="theme-settings-label" class="settings-row-label">Theme</label>
+                                        <div class="settings-row-control">
+                                            <div class="theme-select-root" id="themeSelectRoot">
+                                                <button type="button" id="themeSelectTrigger"
+                                                    class="theme-select-trigger settings-select-trigger"
+                                                    aria-haspopup="listbox" aria-expanded="false"
+                                                    aria-controls="themeSelectMenu"
+                                                    aria-labelledby="theme-settings-label">
+                                                    <span id="themeSelectTriggerText">Auto</span>
+                                                </button>
+                                                <ul id="themeSelectMenu" class="theme-select-menu" role="listbox" hidden>
+                                                    <li role="option" tabindex="-1" class="theme-select-option"
+                                                        data-value="system">Auto</li>
+                                                    <li role="option" tabindex="-1" class="theme-select-option"
+                                                        data-value="light">Light</li>
+                                                    <li role="option" tabindex="-1" class="theme-select-option"
+                                                        data-value="dark">Dark</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div class="settings-row-copy">
+                                            <span class="settings-row-label">Enable manual CSS</span>
+                                        </div>
+                                        <div class="settings-row-control">
+                                            <label class="enforcement-switch" for="manualCssSelectorsToggle">
+                                                <input type="checkbox" id="manualCssSelectorsToggle"
+                                                    name="manualCssSelectorsToggle">
+                                                <span class="enforcement-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="accountability-section" class="settings-section">
+                            <h4 id="accountabilityHeading" class="settings-section-heading">
+                                Accountability
+                                <span class="accountability-site-detail">
+                                    <span class="accountability-on">on</span>
+                                    <span id="currentSiteNameModal"></span>
+                                </span>
+                            </h4>
+                            <div class="settings-panel">
+                                <div id="modal-settings" class="settings-panel-rows">
+                                    <div class="settings-row">
+                                        <label for="waitTime" class="settings-row-label">Unlock wait (seconds)</label>
+                                        <div class="settings-row-control">
+                                            <input type="number" id="waitTime" name="waitTime" value="10" min="5"
+                                                max="600" class="settings-number-input compact-seconds-input">
+                                        </div>
+                                    </div>
+                                    <div class="settings-row settings-row-multiline">
+                                        <label for="waitText" class="settings-row-label">Unlock message</label>
+                                        <textarea id="waitText" name="waitText" rows="2"
+                                            class="settings-text-input settings-textarea">What's your intention?</textarea>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div class="settings-row-copy">
+                                            <span class="settings-row-label">Auto-save changes to hidden elements</span>
+                                        </div>
+                                        <div class="settings-row-control">
+                                            <label class="enforcement-switch" for="rememberSettingsToggle">
+                                                <input type="checkbox" id="rememberSettingsToggle"
+                                                    name="rememberSettingsToggle" checked>
+                                                <span class="enforcement-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="settings-section">
+                            <h4 class="settings-section-heading">FAQ</h4>
+                            <div class="settings-panel settings-panel-faq">
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>What sites does it work on?</span>
+                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="faq-content">
+                        <p>
+                            Works on
+                            <a href="https://www.youtube.com" target="_blank">youtube.com</a>,
+                            <a href="https://www.facebook.com" target="_blank">facebook.com</a>,
+                            <a href="https://www.x.com" target="_blank">x.com</a>,
+                            <a href="https://www.instagram.com" target="_blank">instagram.com</a>,
+                            <a href="https://www.linkedin.com" target="_blank">linkedin.com</a>,
+                            <a href="https://web.whatsapp.com" target="_blank">web.whatsapp.com</a>,
+                            <a href="https://www.google.com" target="_blank">google.com</a>,
+                            <a href="https://www.reddit.com" target="_blank">reddit.com</a>,
+                            and supports custom hiding on any other site.
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>Getting sound from hidden autoplaying YouTube previews?</span>
+                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="faq-content">
+                        <p>
+                            Tap your account image > Settings > General > untick 'Video previews'
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>Nothing happens when I click the checkboxes or 'Hide custom' button</span>
+                        <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="faq-content">
+                        <p>Close your browser fully and open it again. The extension needs to re-initialise.</p>
+                    </div>
+                </div>
+                            </div>
+                        </section>
+
+                        <div id="settings-feedback-footer" class="settings-feedback-footer">
+                            <svg class="settings-feedback-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+                            </svg>
+                            <p class="settings-feedback-text">
+                                Found a bug or have a suggestion? Let us know on
+                                <a href="https://github.com/ulyngs/mindshield-open-source/issues" target="_blank">GitHub</a>
+                                or at
+                                <a href="mailto:team@digitalhabits.org">team@digitalhabits.org</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-modal-buttons">
+                    <button id="faq-close-btn" type="button" class="modal-btn cancel-btn">Done</button>
+                </div>
+            </div>
+
     </div>
     <footer>
         <div id="save-controls" style="display: none; margin: 0 12px 12px 12px; text-align: center;">

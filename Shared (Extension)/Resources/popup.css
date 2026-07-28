@@ -30,6 +30,7 @@
     --text-secondary: var(--redd-body);
     --text-muted: var(--redd-muted);
     --text-subtle: #8a8a96;
+    --text-placeholder: #b0aeb8;
     --text-link: var(--redd-body);
     --text-link-hover: var(--redd-navy);
 
@@ -91,8 +92,8 @@
     /* How-to instruction copy under YouTube preview rows */
     --previews-how-to-font-size: 14px;
     --previews-how-to-line-height: 22px;
-    /* Space between “Delay opening the website” and the “by … seconds” row */
-    --access-delay-suffix-gap: 6px;
+    /* Space between “Delay opening …” and the “by … seconds” row */
+    --access-delay-suffix-gap: var(--previews-how-to-gap);
     /* Space between redirect checkbox label and the destination field */
     --redirect-details-gap: 6px;
     /* Shared extension-popup height ceiling (Chrome / Firefox / Safari). Safari will
@@ -161,6 +162,7 @@
     --text-secondary: var(--redd-body);
     --text-muted: var(--redd-muted);
     --text-subtle: rgba(245, 240, 232, 0.65);
+    --text-placeholder: rgba(245, 240, 232, 0.38);
     --text-link: var(--redd-muted);
     --text-link-hover: var(--redd-navy);
 
@@ -236,8 +238,8 @@ html {
     /*
      * Safari extension popups: the host window does not gain a document scrollbar when
      * content exceeds the ~600px ceiling — overflow is clipped. Cap the root and keep
-     * scrolling inside #popup-content (footer stays outside that scrollport so the bar
-     * ends above it — same contract as Settings / `.settings-modal-scroll`).
+     * scrolling inside `.popup-main-scroll` (sticky header + footer stay outside that
+     * scrollport so the bar ends between them — same contract as Settings).
      * See also: lapcat/SafariExtensions#4 workaround.
      */
     max-height: var(--popup-max-height);
@@ -263,15 +265,54 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Main screen scrollport — excludes the sticky footer (see `footer` below). */
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
+}
+
+/* Shell around sticky header + scrolling main; footer stays a sibling below. */
 #popup-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* Cap below popup max so nested .popup-main-scroll gets a definite height and can scroll */
+    max-height: calc(var(--popup-max-height) - 48px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.popup-sticky-header {
+    flex: 0 0 auto;
+    background-color: var(--bg-primary);
+    padding: var(--settings-overlay-padding-y) 1rem 0;
+    box-sizing: border-box;
+    z-index: 50;
+}
+
+.popup-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.popup-header-top #currentSiteInfo {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.popup-main-scroll {
     flex: 1 1 auto;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Top/sides match former body padding; bottom gap before in-flow footer */
-    padding: var(--settings-overlay-padding-y) 1rem 0.5rem 1rem;
+    padding: 10px 1rem 0.5rem;
     box-sizing: border-box;
 }
 
@@ -284,32 +325,30 @@ body {
 /*
  * Scrollbars that take layout width (Firefox-like).
  *
- * Firefox already uses classic gutters, so fixed header controls (#help-container)
- * sit left of the bar. macOS Chromium/Safari default to overlay scrollbars that
- * paint on top of content and do not inset `position: fixed; right: …`. Setting an
- * explicit ::-webkit-scrollbar width switches those engines to classic gutters;
- * scrollbar-width / scrollbar-color cover Firefox + modern Chromium.
+ * Firefox already uses classic gutters. macOS Chromium/Safari default to overlay
+ * scrollbars; an explicit ::-webkit-scrollbar width switches those engines to
+ * classic gutters. scrollbar-width / scrollbar-color cover Firefox + Chromium.
  */
-#popup-content,
+.popup-main-scroll,
 .settings-modal-scroll,
 .edit-dialog-scroll {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-#popup-content::-webkit-scrollbar,
+.popup-main-scroll::-webkit-scrollbar,
 .settings-modal-scroll::-webkit-scrollbar,
 .edit-dialog-scroll::-webkit-scrollbar {
     width: var(--scrollbar-size);
 }
 
-#popup-content::-webkit-scrollbar-track,
+.popup-main-scroll::-webkit-scrollbar-track,
 .settings-modal-scroll::-webkit-scrollbar-track,
 .edit-dialog-scroll::-webkit-scrollbar-track {
     background: var(--scrollbar-track);
 }
 
-#popup-content::-webkit-scrollbar-thumb,
+.popup-main-scroll::-webkit-scrollbar-thumb,
 .settings-modal-scroll::-webkit-scrollbar-thumb,
 .edit-dialog-scroll::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
@@ -318,7 +357,7 @@ body {
     background-clip: padding-box;
 }
 
-#popup-content::-webkit-scrollbar-thumb:hover,
+.popup-main-scroll::-webkit-scrollbar-thumb:hover,
 .settings-modal-scroll::-webkit-scrollbar-thumb:hover,
 .edit-dialog-scroll::-webkit-scrollbar-thumb:hover {
     background-color: var(--scrollbar-thumb-hover);
@@ -389,6 +428,9 @@ body.popup-showing-blocked-page {
 body.popup-showing-blocked-page #popup-content {
     padding: 0;
     overflow: hidden;
+    display: block;
+    max-height: none;
+    height: auto;
 }
 
 .website-toggle {
@@ -747,7 +789,8 @@ body.manual-css-enabled button[id$="ManualAddButton"] {
 }
 
 .shadcn-input::placeholder {
-    color: var(--text-muted);
+    color: var(--text-placeholder);
+    opacity: 1;
 }
 
 .shadcn-input:hover {
@@ -1080,12 +1123,12 @@ p.how-to-description {
     line-height: var(--previews-how-to-line-height);
 }
 
-.grayscale-controls .redirect-help.how-to-description {
+.redirect-help.how-to-description {
     margin-top: var(--previews-how-to-gap);
     color: var(--text-secondary);
 }
 
-.grayscale-controls .redirect-help code {
+.redirect-help code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 0.92em;
 }
@@ -1144,6 +1187,13 @@ p.how-to-description {
     #popup-content {
         flex: 1 1 auto;
         min-height: 0;
+        max-height: none;
+        overflow: hidden;
+    }
+
+    .popup-main-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
         overscroll-behavior-y: contain;
         touch-action: pan-y;
     }
@@ -1157,11 +1207,6 @@ p.how-to-description {
         padding: 10px 0;
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
-    }
-
-    /* iOS uses overlay scrollbars — no classic gutter inset needed */
-    #help-container {
-        right: 8px;
     }
 
     #delay-content {
@@ -1811,13 +1856,15 @@ footer .friction-customisation {
 }
 
 #currentSiteInfo p {
-    margin-top: 0;
+    margin: 0 0 2px 0;
 }
 
 .blocked-page-popup {
     margin: 0;
     padding: 0;
 }
+
+/* Delay / Redirect under Custom */
 
 .blocked-page-frame {
     display: block;
@@ -1840,15 +1887,14 @@ footer .friction-customisation {
 }
 
 #help-container {
-    /* Fixed to the popup viewport; inset by classic scrollbar gutter so buttons
-       sit left of #popup-content’s bar (element scrollports don’t inset `fixed`). */
-    position: fixed;
-    top: 8px;
-    right: calc(8px + var(--scrollbar-size));
-    z-index: 100;
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 6px;
+    flex: 0 0 auto;
 }
 
 .header-icon-btn,
@@ -2644,6 +2690,15 @@ footer .friction-customisation {
     border-color: var(--selector-color-grayscale-check);
 }
 
+.delay-enable-group {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.delay-enable-group.grayscale-controls {
+    margin-top: 0;
+}
+
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-suffix {
     display: block;
     margin: var(--access-delay-suffix-gap) 0 0 0;
@@ -2662,6 +2717,11 @@ footer .friction-customisation {
 .grayscale-controls .a-toggle.access-delay-toggle .access-delay-seconds-input {
     margin: 0 4px 0 6px;
     vertical-align: middle;
+}
+
+.grayscale-controls .a-toggle.access-delay-toggle.lock-protected .access-delay-seconds-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .grayscale-controls .a-toggle.redirect-toggle .redirect-details {
@@ -2691,11 +2751,11 @@ footer .friction-customisation {
 }
 
 .grayscale-controls .a-toggle.redirect-toggle .redirect-url-input::placeholder {
-    color: var(--text-muted);
+    color: var(--text-placeholder);
     opacity: 1;
 }
 
-.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input:hover:not(:disabled):not([readonly]) {
+.grayscale-controls .a-toggle.redirect-toggle .redirect-url-input:hover:not(:focus):not(:disabled):not([readonly]) {
     border-color: var(--border-hover);
 }
 
@@ -2705,102 +2765,23 @@ footer .friction-customisation {
     box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
 }
 
-.grayscale-controls .redirect-rules-list {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.grayscale-controls .redirect-rules-empty {
-    margin: 0;
-    font-size: var(--previews-how-to-font-size);
-    line-height: var(--previews-how-to-line-height);
-    color: var(--text-muted);
-}
-
-.grayscale-controls .redirect-rule {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-}
-
-.grayscale-controls .redirect-rule-from {
-    flex: 0 1 auto;
-    max-width: 42%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 13px;
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.grayscale-controls .redirect-rule-arrow {
-    flex: 0 0 auto;
-    color: var(--text-muted);
-    font-size: 13px;
-}
-
-.grayscale-controls .redirect-rule-url {
-    flex: 1 1 auto;
-    min-width: 0;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 6px 8px;
-    border: 1px solid var(--border-input);
-    border-radius: 6px;
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-    font-size: 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    line-height: 1.3;
-}
-
-.grayscale-controls .redirect-rule-url::placeholder {
-    color: var(--text-muted);
+.grayscale-controls .a-toggle.redirect-toggle.lock-protected:not(.redirect-url-locked) {
     opacity: 1;
 }
 
-.grayscale-controls .redirect-rule-url:hover:not(:disabled):not([readonly]) {
-    border-color: var(--border-hover);
-}
-
-.grayscale-controls .redirect-rule-url:focus {
-    outline: none;
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
-}
-
-.grayscale-controls .redirect-rule-locked .redirect-rule-url:disabled,
-.grayscale-controls .redirect-rule-locked .redirect-rule-url[readonly] {
+.grayscale-controls .a-toggle.redirect-toggle.lock-protected:not(.redirect-url-locked) > label {
     opacity: 0.55;
     cursor: not-allowed;
 }
 
-.grayscale-controls .redirect-rule-remove {
-    flex: 0 0 auto;
-}
-
-.grayscale-controls .redirect-rule-remove:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-}
-
-/* Keep the shared rules list fully usable even when this site's redirect is locked */
-.grayscale-controls .a-toggle.redirect-toggle.lock-protected {
-    opacity: 1;
-}
-
-.grayscale-controls .a-toggle.redirect-toggle.lock-protected > label {
+.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input:disabled,
+.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input[readonly] {
     opacity: 0.55;
     cursor: not-allowed;
 }
 
-.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked > .redirect-details > .redirect-url-input {
-    opacity: 0.55;
-    cursor: not-allowed;
+.redirect-help.how-to-description {
+    text-align: left;
 }
 
 /* Shared compact seconds field (unlock wait + site access delay) */
@@ -2830,7 +2811,7 @@ footer .friction-customisation {
     margin: 0;
 }
 
-.compact-seconds-input:hover {
+.compact-seconds-input:hover:not(:focus) {
     border-color: var(--border-hover);
 }
 
@@ -2840,8 +2821,6 @@ footer .friction-customisation {
     box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
 }
 
-.grayscale-controls .a-toggle.access-delay-toggle.lock-protected .access-delay-seconds-input:disabled,
-.grayscale-controls .a-toggle.redirect-toggle.redirect-url-locked .redirect-url-input:disabled,
 .compact-seconds-input:disabled {
     opacity: 0.55;
     cursor: not-allowed;

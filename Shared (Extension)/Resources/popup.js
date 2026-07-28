@@ -565,9 +565,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         redirectUrlInput.disabled = shouldProtectUrl;
                         redirectUrlInput.readOnly = shouldProtectUrl;
                     }
-                    if (redirectToggle.checked) {
-                        refreshRedirectRulesList();
-                    }
                 }
             }
         }
@@ -697,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(timerId);
                     messageContainer.style.display = 'none';
                     messageContainer.classList.remove('show');
-                    popupContainer.style.display = 'block';
+                    popupContainer.style.display = 'flex';
                     if (helpContainer) helpContainer.style.display = '';
                     if (errorContainer) errorContainer.style.display = 'none';
                     updateSaveFooterVisibility();
@@ -729,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const popupContainer = document.getElementById('popup-content');
             const messageContainer = document.getElementById('delay-content');
             const errorContainer = document.getElementById('error-prompt');
-            if (popupContainer) popupContainer.style.display = 'block';
+            if (popupContainer) popupContainer.style.display = 'flex';
             if (messageContainer) {
                 messageContainer.style.display = 'none';
                 messageContainer.classList.remove('show');
@@ -1239,12 +1236,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const existing = document.getElementById('grayscale-toggle-row');
             if (existing) existing.remove();
-            const existingDelay = document.getElementById('access-delay-toggle-row');
-            if (existingDelay) existingDelay.remove();
-            const existingRedirect = document.getElementById('redirect-toggle-row');
-            if (existingRedirect) existingRedirect.remove();
-            const existingWrapper = document.querySelector('.grayscale-controls');
+            const existingWrapper = anchorContainer.querySelector('.grayscale-controls');
             if (existingWrapper) existingWrapper.remove();
+            const existingFeatures = anchorContainer.querySelector('.site-feature-controls');
+            if (existingFeatures) existingFeatures.remove();
 
             const wrapper = document.createElement('div');
             wrapper.className = 'hide-checkboxes grayscale-controls';
@@ -1299,6 +1294,12 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        function getPopupDisplayHost() {
+            const el = document.getElementById('currentSiteName');
+            const name = el && el.textContent ? el.textContent.trim() : '';
+            return name || currentSiteIdentifier || 'this site';
+        }
+
         function updateAccessDelaySuffixVisibility() {
             const toggle = document.getElementById('accessDelayToggle');
             const suffix = document.getElementById('access-delay-suffix');
@@ -1306,23 +1307,45 @@ document.addEventListener('DOMContentLoaded', function () {
             suffix.hidden = !toggle.checked;
         }
 
-        function setupAccessDelayToggle(siteIdentifier, wrapper) {
-            if (!wrapper) return;
+        function setupAccessDelayToggle(siteIdentifier, grayscaleWrapper) {
+            if (!grayscaleWrapper) return;
 
             const row = document.createElement('div');
             row.id = 'access-delay-toggle-row';
             row.className = 'a-toggle access-delay-toggle';
-            row.innerHTML = `
-                <input type="checkbox" id="accessDelayToggle" name="accessDelayToggle">
-                <label for="accessDelayToggle">Delay opening the website</label>
-                <div id="access-delay-suffix" class="access-delay-suffix" hidden>
-                    by <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="access-delay-seconds-input compact-seconds-input" aria-label="Delay seconds"> seconds
-                </div>`;
-            wrapper.appendChild(row);
 
-            const toggle = document.getElementById('accessDelayToggle');
-            const secondsInput = document.getElementById('accessDelaySeconds');
-            if (!toggle || !secondsInput) return;
+            const toggle = document.createElement('input');
+            toggle.type = 'checkbox';
+            toggle.id = 'accessDelayToggle';
+            toggle.name = 'accessDelayToggle';
+
+            const label = document.createElement('label');
+            label.htmlFor = 'accessDelayToggle';
+            label.textContent = 'Delay opening ' + getPopupDisplayHost();
+
+            const suffix = document.createElement('div');
+            suffix.id = 'access-delay-suffix';
+            suffix.className = 'access-delay-suffix';
+            suffix.hidden = true;
+            suffix.appendChild(document.createTextNode('by '));
+
+            const secondsInput = document.createElement('input');
+            secondsInput.type = 'number';
+            secondsInput.id = 'accessDelaySeconds';
+            secondsInput.name = 'accessDelaySeconds';
+            secondsInput.value = '10';
+            secondsInput.min = '5';
+            secondsInput.max = '600';
+            secondsInput.className = 'access-delay-seconds-input compact-seconds-input';
+            secondsInput.setAttribute('aria-label', 'Delay seconds');
+
+            suffix.appendChild(secondsInput);
+            suffix.appendChild(document.createTextNode(' seconds'));
+
+            row.appendChild(toggle);
+            row.appendChild(label);
+            row.appendChild(suffix);
+            grayscaleWrapper.appendChild(row);
 
             const secondsKey = `${siteIdentifier}AccessDelaySeconds`;
             chrome.storage.sync.get(secondsKey, function (result) {
@@ -1361,166 +1384,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const details = document.getElementById('redirect-details');
             if (!toggle || !details) return;
             details.hidden = !toggle.checked;
-            if (toggle.checked) {
-                refreshRedirectRulesList();
-            }
-        }
-
-        function displayNameForRedirectSite(siteId) {
-            if (platformHostnames[siteId] && platformHostnames[siteId][0]) {
-                return platformHostnames[siteId][0].replace(/^www\./, '');
-            }
-            return String(siteId || '').replace(/^www\./, '');
-        }
-
-        function collectRedirectRulesFromStorage(all) {
-            const rules = [];
-            Object.keys(all || {}).forEach(function (key) {
-                if (!key.endsWith('RedirectStatus') || all[key] !== true) return;
-                const siteId = key.slice(0, -'RedirectStatus'.length);
-                if (!siteId) return;
-                const urlKey = `${siteId}RedirectUrl`;
-                rules.push({
-                    siteId: siteId,
-                    url: typeof all[urlKey] === 'string' ? all[urlKey] : ''
-                });
-            });
-            rules.sort(function (a, b) {
-                if (a.siteId === currentSiteIdentifier) return -1;
-                if (b.siteId === currentSiteIdentifier) return 1;
-                return displayNameForRedirectSite(a.siteId).localeCompare(displayNameForRedirectSite(b.siteId));
-            });
-            return rules;
-        }
-
-        function refreshRedirectRulesList() {
-            const list = document.getElementById('redirect-rules-list');
-            if (!list) return;
-
-            chrome.storage.sync.get(null, function (all) {
-                if (!document.getElementById('redirect-rules-list')) return;
-                renderRedirectRulesList(collectRedirectRulesFromStorage(all));
-            });
-        }
-
-        function renderRedirectRulesList(rules) {
-            const list = document.getElementById('redirect-rules-list');
-            if (!list) return;
-            list.innerHTML = '';
-
-            if (!rules || rules.length === 0) {
-                const empty = document.createElement('p');
-                empty.className = 'redirect-rules-empty';
-                empty.textContent = 'No redirect rules yet.';
-                list.appendChild(empty);
-                return;
-            }
-
-            rules.forEach(function (rule) {
-                const isCurrent = rule.siteId === currentSiteIdentifier;
-                const toggleProtected = isCurrent &&
-                    isSettingsLocked &&
-                    protectedHiddenAtLock.has(`${rule.siteId}Redirect`);
-                const urlProtected = isCurrent &&
-                    isSettingsLocked &&
-                    protectedHiddenAtLock.has(`${rule.siteId}RedirectUrl`);
-
-                const row = document.createElement('div');
-                row.className = 'redirect-rule';
-                row.dataset.siteId = rule.siteId;
-                if (isCurrent) row.classList.add('redirect-rule-current');
-                if (urlProtected) row.classList.add('redirect-rule-locked');
-
-                const fromLabel = document.createElement('span');
-                fromLabel.className = 'redirect-rule-from';
-                fromLabel.textContent = displayNameForRedirectSite(rule.siteId);
-                fromLabel.title = rule.siteId;
-
-                const arrow = document.createElement('span');
-                arrow.className = 'redirect-rule-arrow';
-                arrow.textContent = '→';
-                arrow.setAttribute('aria-hidden', 'true');
-
-                const urlInput = document.createElement('input');
-                urlInput.type = 'text';
-                urlInput.className = 'redirect-rule-url';
-                urlInput.value = rule.url;
-                urlInput.placeholder = '/feed/subscriptions';
-                urlInput.spellcheck = false;
-                urlInput.autocomplete = 'off';
-                urlInput.setAttribute('aria-label', 'Redirect destination for ' + displayNameForRedirectSite(rule.siteId));
-                if (urlProtected) {
-                    urlInput.disabled = true;
-                    urlInput.readOnly = true;
-                }
-
-                function commitRuleUrl() {
-                    if (urlProtected) {
-                        urlInput.value = rule.url;
-                        return;
-                    }
-                    const value = urlInput.value.trim();
-                    urlInput.value = value;
-                    rule.url = value;
-                    const urlKey = `${rule.siteId}RedirectUrl`;
-                    chrome.storage.sync.set({ [urlKey]: value }, function () {
-                        if (isCurrent) {
-                            const mainInput = document.getElementById('redirectUrl');
-                            if (mainInput && mainInput.value !== value) {
-                                mainInput.value = value;
-                            }
-                        }
-                    });
-                }
-
-                urlInput.addEventListener('click', function (e) { e.stopPropagation(); });
-                urlInput.addEventListener('change', commitRuleUrl);
-                urlInput.addEventListener('blur', commitRuleUrl);
-                urlInput.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        urlInput.blur();
-                    }
-                });
-
-                const removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.className = 'icon-btn remove-symbol redirect-rule-remove';
-                removeButton.title = 'Remove redirect';
-                removeButton.setAttribute('aria-label', 'Remove redirect for ' + displayNameForRedirectSite(rule.siteId));
-                removeButton.innerHTML = `
-                    <svg width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>`;
-                if (toggleProtected) {
-                    removeButton.disabled = true;
-                }
-                removeButton.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    if (toggleProtected) return;
-                    if (isCurrent) {
-                        const toggle = document.getElementById('redirectToggle');
-                        if (toggle) {
-                            toggle.checked = false;
-                            applySettingChange(`${rule.siteId}Redirect`, false);
-                            updateRedirectDetailsVisibility();
-                            updateLockProtectedUI();
-                        }
-                        return;
-                    }
-                    const statusKey = `${rule.siteId}RedirectStatus`;
-                    chrome.storage.sync.set({ [statusKey]: false }, function () {
-                        refreshRedirectRulesList();
-                    });
-                });
-
-                row.appendChild(fromLabel);
-                row.appendChild(arrow);
-                row.appendChild(urlInput);
-                row.appendChild(removeButton);
-                list.appendChild(row);
-            });
         }
 
         function setupRedirectToggle(siteIdentifier, wrapper) {
@@ -1574,20 +1437,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const value = urlInput.value.trim();
                 urlInput.value = value;
-                chrome.storage.sync.set({ [urlKey]: value }, function () {
-                    const listEl = document.getElementById('redirect-rules-list');
-                    if (!listEl) return;
-                    const matchingRow = Array.prototype.find.call(
-                        listEl.querySelectorAll('.redirect-rule'),
-                        function (el) { return el.dataset.siteId === siteIdentifier; }
-                    );
-                    const listRow = matchingRow && matchingRow.querySelector('.redirect-rule-url');
-                    if (listRow && listRow.value !== value) {
-                        listRow.value = value;
-                    } else if (toggle.checked) {
-                        refreshRedirectRulesList();
-                    }
-                });
+                chrome.storage.sync.set({ [urlKey]: value });
+                updateLockProtectedUI();
             }
 
             urlInput.addEventListener('click', function (e) {
@@ -1935,6 +1786,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateAccessDelaySuffixVisibility();
                 }
             }
+            const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
+            if (Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectUrlInput && typeof overrides[redirectUrlKey] === 'string') {
+                    redirectUrlInput.value = overrides[redirectUrlKey];
+                }
+            }
             const redirectKey = `${currentSiteIdentifier}RedirectStatus`;
             if (Object.prototype.hasOwnProperty.call(overrides, redirectKey)) {
                 const redirectToggle = document.getElementById('redirectToggle');
@@ -1942,12 +1800,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     redirectToggle.checked = overrides[redirectKey] === true;
                     updateRedirectDetailsVisibility();
                 }
-            }
-            const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
-            if (Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
-                const redirectUrlInput = document.getElementById('redirectUrl');
-                if (redirectUrlInput && typeof overrides[redirectUrlKey] === 'string') {
-                    redirectUrlInput.value = overrides[redirectUrlKey];
+                if (overrides[redirectKey] !== true) {
+                    const redirectUrlInput = document.getElementById('redirectUrl');
+                    if (redirectUrlInput && !Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
+                        redirectUrlInput.value = '';
+                    }
                 }
             }
             // Apply platform status override

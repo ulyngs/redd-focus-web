@@ -944,22 +944,45 @@
 
     function maybeRedirectFromStorage() {
         if (!currentSiteIdentifier) return;
-        const statusKey = `${currentSiteIdentifier}RedirectStatus`;
-        const urlKey = `${currentSiteIdentifier}RedirectUrl`;
-        chrome.storage.sync.get([statusKey, urlKey], function (result) {
-            let enabled = result[statusKey] === true;
-            if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
-                enabled = sessionOverrides[statusKey] === true;
+
+        const candidateIds = [currentSiteIdentifier];
+        if (currentHostname) {
+            const bare = currentHostname.replace(/^www\./, '');
+            if (bare && candidateIds.indexOf(bare) === -1) candidateIds.push(bare);
+            if (currentHostname !== bare && candidateIds.indexOf(currentHostname) === -1) {
+                candidateIds.push(currentHostname);
             }
+        }
+
+        const keys = [];
+        candidateIds.forEach(function (id) {
+            keys.push(`${id}RedirectStatus`, `${id}RedirectUrl`);
+        });
+
+        chrome.storage.sync.get(keys, function (result) {
+            let enabled = false;
+            let rawUrl = '';
+            for (let i = 0; i < candidateIds.length; i++) {
+                const statusKey = `${candidateIds[i]}RedirectStatus`;
+                const urlKey = `${candidateIds[i]}RedirectUrl`;
+                let status = result[statusKey] === true;
+                if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
+                    status = sessionOverrides[statusKey] === true;
+                }
+                if (!status) continue;
+                enabled = true;
+                rawUrl = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+                if (Object.prototype.hasOwnProperty.call(sessionOverrides, urlKey)) {
+                    rawUrl = sessionOverrides[urlKey];
+                }
+                break;
+            }
+
             if (!enabled) {
                 maybeStartAccessDelayFromStorage();
                 return;
             }
 
-            let rawUrl = typeof result[urlKey] === 'string' ? result[urlKey] : '';
-            if (Object.prototype.hasOwnProperty.call(sessionOverrides, urlKey)) {
-                rawUrl = sessionOverrides[urlKey];
-            }
             const targetHref = resolveRedirectTarget(rawUrl);
             if (!targetHref || isAlreadyAtRedirectTarget(targetHref)) {
                 maybeStartAccessDelayFromStorage();
