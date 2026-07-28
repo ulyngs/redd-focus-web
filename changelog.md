@@ -24,14 +24,14 @@ shared `###` sections plus the matching `####` platform bucket. They skip
 Canonical headings (aliases accepted by the generator: Safari (macOS), Safari
 macOS, iOS, macOS, etc.):
 
-| Heading | Meaning | Apple What’s New |
+| Heading | Meaning | Store What’s New / notes |
 | --- | --- | --- |
-| Shared `### …` | All browsers/apps | Mac + iOS App Store |
+| Shared `### …` | All browsers/apps | Mac + iOS App Store; Firefox AMO notes |
 | `#### Safari (Mac)` | Mac Safari + Mac App Store | Mac App Store only |
 | `#### Safari (iOS)` | iOS Safari + iOS App Store | iOS App Store only |
-| `#### Chrome` | Chrome Web Store | future |
-| `#### Firefox` | Firefox Add-ons | future |
-| `#### Edge` | Edge Add-ons | future |
+| `#### Chrome` | Chrome Web Store | Package upload only (no public What’s New API) |
+| `#### Firefox` | Firefox Add-ons | AMO `release_notes` (`en-GB`) |
+| `#### Edge` | Edge Add-ons | Edge package upload only (cert notes skipped) |
 
 ## v6.8.0
 

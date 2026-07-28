@@ -16,7 +16,7 @@
  *
  * Shared = any `###` section that is not `### BY PLATFORM`.
  * Character limits: App Store "What's New" 4,000 (Apple platforms); 10,000 for
- * browser stores (future). Truncates the bullet list (keeps intro + sign-off).
+ * browser stores. Truncates the bullet list (keeps intro + sign-off).
  */
 
 const fs = require('fs');

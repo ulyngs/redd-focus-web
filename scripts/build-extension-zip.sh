@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Build browser extension zip for Chrome / Firefox / Edge (manual store upload).
+# Build the shared browser extension zip (Chrome + Firefox; also used as the
+# base for sideload). For Edge Add-ons store upload, use
+# scripts/build-edge-extension-zip.sh — Partner Center rejects the dual
+# background.service_worker + background.scripts keys in this package.
 #
 # Usage:
 #   ./scripts/build-extension-zip.sh

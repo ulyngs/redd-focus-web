@@ -1,0 +1,383 @@
+# Submit the browser extension to Chrome Web Store, Firefox Add-ons (AMO),
+# and/or Microsoft Edge Add-ons.
+#
+# Stores run as parallel jobs. A failure in one does not cancel the others;
+# re-run with only the failed store's checkbox enabled (or use "Re-run failed
+# jobs").
+#
+# Missing secrets for an enabled store fail that job (no soft-skip).
+# Firefox AMO release-notes PATCH is non-fatal (continue-on-error).
+#
+# Standalone: Actions → "Submit to add-on stores (Chrome, Firefox, Edge)." →
+#   set release_tag (e.g. v6.8.0). Checks out that tag and rebuilds zips.
+#
+# From Release build: optional checkbox submit_addon_stores (manual only;
+# tag pushes never auto-submit). Reuses extension artifacts from the same run.
+#
+# Docs: docs/app-store-ci.md
+
+name: Submit to add-on stores (Chrome, Firefox, Edge).
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Git tag to checkout and package (v6.8.0 or 6.8.0)
+        required: true
+        type: string
+      submit_chrome:
+        description: Submit to Chrome Web Store
+        type: boolean
+        default: true
+      submit_firefox:
+        description: Submit to Firefox Add-ons
+        type: boolean
+        default: true
+      submit_edge:
+        description: Submit to Edge Add-ons
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      version:
+        description: Marketing version without v prefix (e.g. 6.8.0)
+        required: true
+        type: string
+      packages_from_artifacts:
+        description: Download zips from this workflow run's extension-zip artifact
+        type: boolean
+        default: true
+      submit_chrome:
+        type: boolean
+        default: true
+      submit_firefox:
+        type: boolean
+        default: true
+      submit_edge:
+        type: boolean
+        default: true
+
+concurrency:
+  group: addon-store-submit-${{ inputs.release_tag || inputs.version || github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Package extension zips
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      notes_ref: ${{ steps.ref.outputs.notes_ref }}
+    steps:
+      - name: Normalize tag / version
+        id: ref
+        run: |
+          set -euo pipefail
+          # Standalone dispatch sets release_tag; Release build call sets version
+          # (+ packages_from_artifacts). Undefined inputs expand to empty.
+          DISPATCH_TAG="${{ inputs.release_tag }}"
+          CALL_VERSION="${{ inputs.version }}"
+          FROM_ARTIFACTS="${{ inputs.packages_from_artifacts }}"
+
+          if [[ -n "$DISPATCH_TAG" ]]; then
+            VER="${DISPATCH_TAG#v}"
+            echo "version=${VER}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${VER}" >> "$GITHUB_OUTPUT"
+            echo "from_artifacts=false" >> "$GITHUB_OUTPUT"
+            echo "notes_ref=v${VER}" >> "$GITHUB_OUTPUT"
+          elif [[ -n "$CALL_VERSION" ]]; then
+            VER="${CALL_VERSION#v}"
+            echo "version=${VER}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${VER}" >> "$GITHUB_OUTPUT"
+            if [[ "$FROM_ARTIFACTS" == "true" ]]; then
+              echo "from_artifacts=true" >> "$GITHUB_OUTPUT"
+              # Caller's commit (tag may not exist yet during Release build).
+              echo "notes_ref=" >> "$GITHUB_OUTPUT"
+            else
+              echo "from_artifacts=false" >> "$GITHUB_OUTPUT"
+              echo "notes_ref=v${VER}" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "Need inputs.release_tag (standalone) or inputs.version (from Release build)." >&2
+            exit 1
+          fi
+
+      - name: Checkout tag
+        if: steps.ref.outputs.from_artifacts != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.tag }}
+
+      - name: Checkout (scripts only; artifacts already built)
+        if: steps.ref.outputs.from_artifacts == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download extension artifacts
+        if: steps.ref.outputs.from_artifacts == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-zip
+          path: for-distribution
+
+      - name: Build shared + Edge zips from tag
+        if: steps.ref.outputs.from_artifacts != 'true'
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ref.outputs.version }}"
+          MANIFEST_VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          if [[ "$MANIFEST_VERSION" != "$VERSION" ]]; then
+            echo "Tag v${VERSION} does not match manifest.json version ${MANIFEST_VERSION}" >&2
+            exit 1
+          fi
+          bash ./scripts/build-extension-zip.sh "$VERSION"
+          bash ./scripts/build-edge-extension-zip.sh "$VERSION"
+
+      - name: Resolve package paths
+        id: meta
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ref.outputs.version }}"
+          SHARED="for-distribution/redd-focus-v${VERSION}.zip"
+          EDGE="for-distribution/redd-focus-edge-v${VERSION}.zip"
+          if [[ ! -f "$SHARED" ]]; then
+            echo "Missing shared zip: $SHARED" >&2
+            ls -la for-distribution || true
+            exit 1
+          fi
+          if [[ ! -f "$EDGE" ]]; then
+            echo "Missing Edge zip: $EDGE" >&2
+            ls -la for-distribution || true
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Packages ready:"
+          ls -la "$SHARED" "$EDGE"
+
+      - name: Upload packages for submit jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: addon-store-packages
+          path: |
+            for-distribution/redd-focus-v*.zip
+            for-distribution/redd-focus-edge-v*.zip
+          if-no-files-found: error
+          retention-days: 5
+
+  submit-chrome:
+    name: Chrome Web Store
+    needs: [prepare]
+    if: always() && needs.prepare.result == 'success' && inputs.submit_chrome
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: addon-store-packages
+          path: for-distribution
+
+      - name: Require Chrome Web Store secrets
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in CHROME_EXTENSION_ID CHROME_PUBLISHER_ID CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL CHROME_SERVICE_ACCOUNT_PRIVATE_KEY; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Chrome Web Store: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Submit to Chrome Web Store
+        env:
+          CHROME_API_VERSION: v2
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          ZIP="for-distribution/redd-focus-v${{ needs.prepare.outputs.version }}.zip"
+          echo "Submitting ${ZIP} to Chrome Web Store (API v2)…"
+          npx publish-browser-extension@5.1.0 --chrome-zip "$ZIP"
+
+  submit-firefox:
+    name: Firefox Add-ons
+    needs: [prepare]
+    if: always() && needs.prepare.result == 'success' && inputs.submit_firefox
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout for notes (standalone tag)
+        if: needs.prepare.outputs.notes_ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.notes_ref }}
+
+      - name: Checkout for notes (Release build commit)
+        if: needs.prepare.outputs.notes_ref == ''
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: addon-store-packages
+          path: for-distribution
+
+      - name: Require Firefox Add-ons secrets
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in FIREFOX_EXTENSION_ID FIREFOX_JWT_ISSUER FIREFOX_JWT_SECRET; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Firefox Add-ons: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Submit to Firefox Add-ons
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          set -euo pipefail
+          ZIP="for-distribution/redd-focus-v${{ needs.prepare.outputs.version }}.zip"
+          echo "Submitting ${ZIP} to Firefox Add-ons…"
+          npx publish-browser-extension@5.1.0 --firefox-zip "$ZIP"
+
+      - name: Update Firefox release notes (en-GB)
+        continue-on-error: true
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          node scripts/changelog-to-store-whats-new.js "$VERSION" --platform firefox --out /tmp/firefox-notes.txt
+          if [[ ! -s /tmp/firefox-notes.txt ]]; then
+            echo "Firefox What's New text is empty — skipping AMO release_notes PATCH."
+            exit 0
+          fi
+          echo "=== Firefox release notes (en-GB) ==="
+          cat /tmp/firefox-notes.txt
+          node <<'EOF'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+
+          const notes = fs.readFileSync('/tmp/firefox-notes.txt', 'utf8').trim();
+          if (!notes) {
+            console.log('Changelog notes empty — nothing to publish.');
+            process.exit(0);
+          }
+
+          const b64 = (s) => Buffer.from(s).toString('base64url');
+          const iat = Math.floor(Date.now() / 1000);
+          const payload = { iss: process.env.FIREFOX_JWT_ISSUER, jti: crypto.randomUUID(), iat, exp: iat + 300 };
+          const unsigned = `${b64(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${b64(JSON.stringify(payload))}`;
+          const signature = crypto.createHmac('sha256', process.env.FIREFOX_JWT_SECRET).update(unsigned).digest('base64url');
+          const headers = { Authorization: `JWT ${unsigned}.${signature}`, 'Content-Type': 'application/json' };
+          const base = `https://addons.mozilla.org/api/v5/addons/addon/${encodeURIComponent(process.env.FIREFOX_EXTENSION_ID)}`;
+
+          const main = async () => {
+            const list = await fetch(`${base}/versions/?filter=all_with_unlisted`, { headers });
+            if (!list.ok) throw new Error(`Listing versions failed: ${list.status} ${await list.text()}`);
+            const { results } = await list.json();
+            const version = results.find((v) => v.version === process.env.VERSION);
+            if (!version) throw new Error(`Version ${process.env.VERSION} not found on AMO`);
+
+            const patch = await fetch(`${base}/versions/${version.id}/`, {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({ release_notes: { 'en-GB': notes } }),
+            });
+            if (!patch.ok) throw new Error(`Updating release notes failed: ${patch.status} ${await patch.text()}`);
+            console.log(`Release notes (en-GB) set for Firefox version ${process.env.VERSION}.`);
+          };
+
+          main().catch((err) => {
+            console.error(err);
+            process.exit(1);
+          });
+          EOF
+
+  submit-edge:
+    name: Edge Add-ons
+    needs: [prepare]
+    if: always() && needs.prepare.result == 'success' && inputs.submit_edge
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: addon-store-packages
+          path: for-distribution
+
+      - name: Require Edge Add-ons secrets
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in EDGE_PRODUCT_ID EDGE_CLIENT_ID EDGE_API_KEY; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Edge Add-ons: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Submit to Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          ZIP="for-distribution/redd-focus-edge-v${{ needs.prepare.outputs.version }}.zip"
+          echo "Submitting ${ZIP} to Edge Add-ons (no cert notes)…"
+          npx publish-browser-extension@5.1.0 --edge-zip "$ZIP"

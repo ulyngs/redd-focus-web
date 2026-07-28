@@ -1,33 +1,35 @@
-# Build extension zip + optional Mac/iOS App Store binaries, create a GitHub
-# Release, and optionally submit to Mac App Store and/or iOS App Store.
+# Build extension zips + optional Mac/iOS App Store binaries, create a GitHub
+# Release, and optionally submit to stores (never automatic on tag push).
 #
 # One App Store Connect record (id1660218371, com.ulriklyngs.mind-shield) covers
 # both Mac and iOS. Submit jobs are independent of each other and of the GitHub
 # Release job (same independence model as redd-block / redd-todo).
 #
-# Trigger: Actions → "Release build" → Run workflow, or push tag v* (e.g. v6.7.0).
+# Trigger: Actions → "Release build" → Run workflow, or push tag v* (e.g. v6.8.0).
 # Manual inputs:
 #   create_github_release   — create GitHub Release from changelog.md (default: true)
 #   submit_mac_app_store    — submit .pkg to App Store Connect (default: false)
 #   submit_ios_app_store    — submit .ipa to App Store Connect (default: false)
+#   submit_addon_stores     — submit to Chrome / Firefox / Edge (default: false)
 #   mas_build_number / ios_build_number — override CURRENT_PROJECT_VERSION to
 #                             re-upload the same marketing version
 #
-# Tag pushes always create a GitHub Release and attempt both store submits
-# (requires App Store Connect secrets — see docs).
+# Tag pushes create a GitHub Release (builds + attach assets) but do NOT submit
+# to Mac, iOS, or browser add-on stores. Use the checkboxes on a manual Release
+# run, or the standalone submit workflows (see docs/app-store-ci.md).
 #
 # Before shipping: bump version (scripts/bump-version.sh), add ## vX.Y.Z to
 # changelog.md, commit to main.
 # Docs: docs/app-store-ci.md
-#
-# Chrome / Firefox / Edge store auto-submit is out of scope this pass; the
-# extension zip is attached for manual upload (and future automation).
 #
 # ── App Store Connect (build signing + submit) ──
 #   APP_STORE_CONNECT_API_KEY_ID
 #   APP_STORE_CONNECT_API_ISSUER_ID
 #   APP_STORE_CONNECT_API_KEY_P8          base64 of AuthKey_*.p8
 #   ASC_PRIMARY_LOCALE                    optional; defaults to en-GB
+#
+# ── Chrome / Firefox / Edge (optional submit) ──
+#   See docs/app-store-ci.md (CHROME_*, FIREFOX_*, EDGE_* secrets)
 
 name: Release build
 
@@ -44,6 +46,10 @@ on:
         default: false
       submit_ios_app_store:
         description: Submit iOS IPA to App Store Connect (What's new from changelog)
+        type: boolean
+        default: false
+      submit_addon_stores:
+        description: Submit to Chrome / Firefox / Edge add-on stores
         type: boolean
         default: false
       mas_build_number:
@@ -73,6 +79,8 @@ jobs:
     name: Extension (.zip)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,14 +103,19 @@ jobs:
             fi
           fi
 
-      - name: Build extension zip
+      - name: Build shared extension zip (Chrome / Firefox)
         run: bash ./scripts/build-extension-zip.sh "${{ steps.meta.outputs.version }}"
 
-      - name: Upload extension artifact
+      - name: Build Edge extension zip
+        run: bash ./scripts/build-edge-extension-zip.sh "${{ steps.meta.outputs.version }}"
+
+      - name: Upload extension artifacts
         uses: actions/upload-artifact@v4
         with:
           name: extension-zip
-          path: for-distribution/redd-focus-v*.zip
+          path: |
+            for-distribution/redd-focus-v*.zip
+            for-distribution/redd-focus-edge-v*.zip
           if-no-files-found: error
           retention-days: 30
 
@@ -203,6 +216,7 @@ jobs:
           retention-days: 30
 
   # Mac App Store submit — independent of GitHub Release / iOS submit.
+  # Manual checkbox only (tag pushes never auto-submit).
   publish-mac-app-store:
     name: Publish (Mac App Store)
     needs: [build-macos]
@@ -210,10 +224,8 @@ jobs:
     timeout-minutes: 120
     if: >-
       needs.build-macos.result == 'success' &&
-      (
-        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
-        (github.event_name == 'workflow_dispatch' && inputs.submit_mac_app_store)
-      )
+      github.event_name == 'workflow_dispatch' &&
+      inputs.submit_mac_app_store
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -286,6 +298,7 @@ jobs:
             "notes:whats_new_mas.txt"
 
   # iOS App Store submit — independent of GitHub Release / Mac submit.
+  # Manual checkbox only (tag pushes never auto-submit).
   publish-ios-app-store:
     name: Publish (iOS App Store)
     needs: [build-ios]
@@ -293,10 +306,8 @@ jobs:
     timeout-minutes: 120
     if: >-
       needs.build-ios.result == 'success' &&
-      (
-        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
-        (github.event_name == 'workflow_dispatch' && inputs.submit_ios_app_store)
-      )
+      github.event_name == 'workflow_dispatch' &&
+      inputs.submit_ios_app_store
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -417,7 +428,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p for-distribution
-          find artifacts/extension -type f -name 'redd-focus-v*.zip' -exec cp -n {} for-distribution/ \;
+          find artifacts/extension -type f \( -name 'redd-focus-v*.zip' -o -name 'redd-focus-edge-v*.zip' \) -exec cp -n {} for-distribution/ \;
           if [[ -d artifacts/mas ]]; then
             find artifacts/mas -type f -name '*.pkg' -exec cp -n {} for-distribution/ \;
           fi
@@ -455,7 +466,8 @@ jobs:
             echo ""
             echo "### Install"
             echo ""
-            echo "- **Browser extension:** download \`redd-focus-v${VERSION}.zip\` for Chrome / Firefox / Edge sideload or manual store upload."
+            echo "- **Browser extension (Chrome / Firefox):** download \`redd-focus-v${VERSION}.zip\` for store upload or sideload."
+            echo "- **Browser extension (Edge):** download \`redd-focus-edge-v${VERSION}.zip\` (Partner Center rejects the shared zip’s dual background keys)."
             if [[ -f for-distribution/redd-focus_${VERSION}.pkg ]]; then
               echo "- **Mac App Store package:** \`redd-focus_${VERSION}.pkg\` (App Store Connect / Transporter)."
             fi
@@ -467,7 +479,7 @@ jobs:
             echo ""
             echo "**Full changelog:** https://github.com/${{ github.repository }}/blob/main/changelog.md"
             echo ""
-            echo "Chrome Web Store / Firefox Add-ons / Edge Add-ons auto-submit is not wired yet — upload the zip manually for those stores."
+            echo "Store submits are **manual**: tick checkboxes on **Release build**, or run **Submit to add-on stores (Chrome, Firefox, Edge).** / Mac / iOS submit workflows. See \`docs/app-store-ci.md\`."
           } > release-notes.md
           echo "Release notes:"
           cat release-notes.md
@@ -480,6 +492,7 @@ jobs:
           body_path: release-notes.md
           files: |
             for-distribution/redd-focus-v*.zip
+            for-distribution/redd-focus-edge-v*.zip
             for-distribution/redd-focus_*.pkg
             for-distribution/redd-focus_*.ipa
           draft: false
@@ -487,3 +500,21 @@ jobs:
           make_latest: true
           generate_release_notes: false
           fail_on_unmatched_files: false
+
+  # Browser add-on stores — manual checkbox only (never on tag push).
+  # Parallel Chrome / Firefox / Edge jobs live in the reusable workflow.
+  submit-addon-stores:
+    name: Submit to add-on stores
+    needs: [build-extension]
+    if: >-
+      needs.build-extension.result == 'success' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.submit_addon_stores
+    uses: ./.github/workflows/addon-store-submit.yml
+    with:
+      version: ${{ needs.build-extension.outputs.version }}
+      packages_from_artifacts: true
+      submit_chrome: true
+      submit_firefox: true
+      submit_edge: true
+    secrets: inherit

@@ -9,3 +9,9 @@ whats_new*.txt
 release-notes.md
 store-packages-*/
 *.xcarchive
+
+# Store-publishing credentials (publish-browser-extension init / local dry-runs)
+.env
+.env.submit
+.env.submit*
+.env.submit.backup-*
