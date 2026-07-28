@@ -482,11 +482,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (accessDelayToggle && accessDelayToggle.checked) {
                     protectedHiddenAtLock.add(`${currentSiteIdentifier}AccessDelay`);
                 }
-                const redirectUrlInput = document.getElementById('redirectUrl');
-                const redirectStatusImplied = redirectUrlInput && redirectUrlInput.value.trim();
-                // Fall back to storage-backed status if UI not ready
-                if (redirectStatusImplied) {
+                const redirectToggle = document.getElementById('redirectToggle');
+                if (redirectToggle && redirectToggle.checked) {
                     protectedHiddenAtLock.add(`${currentSiteIdentifier}Redirect`);
+                }
+                const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectUrlInput && redirectUrlInput.value.trim()) {
                     protectedHiddenAtLock.add(`${currentSiteIdentifier}RedirectUrl`);
                 }
             }
@@ -539,33 +540,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 const accessDelayToggle = document.getElementById('accessDelayToggle');
                 const accessDelayRow = document.getElementById('access-delay-toggle-row');
                 const accessDelaySeconds = document.getElementById('accessDelaySeconds');
-                const accessDelayMessage = document.getElementById('accessDelayMessage');
-                const accessDelayScreen = document.getElementById('access-delay-screen-group');
                 if (accessDelayToggle && accessDelayRow) {
                     const accessDelayKey = `${currentSiteIdentifier}AccessDelay`;
                     const shouldProtect = isSettingsLocked &&
                         protectedHiddenAtLock.has(accessDelayKey) &&
                         accessDelayToggle.checked;
                     accessDelayRow.classList.toggle('lock-protected', shouldProtect);
-                    if (accessDelayScreen) accessDelayScreen.classList.toggle('lock-protected', shouldProtect);
                     if (accessDelaySeconds) accessDelaySeconds.disabled = shouldProtect;
-                    if (accessDelayMessage) accessDelayMessage.disabled = shouldProtect;
                 }
+                const redirectToggle = document.getElementById('redirectToggle');
+                const redirectRow = document.getElementById('redirect-toggle-row');
                 const redirectUrlInput = document.getElementById('redirectUrl');
-                const redirectThisSite = document.getElementById('redirect-this-site-pair');
-                if (redirectUrlInput && redirectThisSite) {
+                if (redirectToggle && redirectRow) {
                     const redirectKey = `${currentSiteIdentifier}Redirect`;
                     const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
-                    const hasDestination = !!redirectUrlInput.value.trim();
-                    const shouldProtect = isSettingsLocked &&
+                    const shouldProtectToggle = isSettingsLocked &&
                         protectedHiddenAtLock.has(redirectKey) &&
-                        protectedHiddenAtLock.has(redirectUrlKey) &&
-                        hasDestination;
-                    redirectThisSite.classList.toggle('redirect-url-locked', shouldProtect);
-                    redirectUrlInput.disabled = shouldProtect;
-                    redirectUrlInput.readOnly = shouldProtect;
-                    if (document.getElementById('redirect-rules-list')) {
-                        refreshRedirectRulesList();
+                        redirectToggle.checked;
+                    const shouldProtectUrl = isSettingsLocked &&
+                        protectedHiddenAtLock.has(redirectUrlKey);
+                    redirectRow.classList.toggle('lock-protected', shouldProtectToggle);
+                    redirectRow.classList.toggle('redirect-url-locked', shouldProtectUrl);
+                    if (redirectUrlInput) {
+                        redirectUrlInput.disabled = shouldProtectUrl;
+                        redirectUrlInput.readOnly = shouldProtectUrl;
                     }
                 }
             }
@@ -744,10 +742,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const grayscaleKey = `${currentSiteIdentifier}GrayscaleStatus`;
             const accessDelayKey = `${currentSiteIdentifier}AccessDelayStatus`;
             const accessDelaySecondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
-            const accessDelayMessageKey = `${currentSiteIdentifier}AccessDelayMessage`;
             const redirectKey = `${currentSiteIdentifier}RedirectStatus`;
             const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
-            const storageKeys = [lockKey, rememberKey, grayscaleKey, accessDelayKey, accessDelaySecondsKey, accessDelayMessageKey, redirectKey, redirectUrlKey, 'themePreference'];
+            const storageKeys = [lockKey, rememberKey, grayscaleKey, accessDelayKey, accessDelaySecondsKey, redirectKey, redirectUrlKey, 'themePreference'];
 
             if (currentPlatform) {
                 elementsThatCanBeHidden.filter(e => e.startsWith(currentPlatform)).forEach(function (item) {
@@ -779,26 +776,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const accessDelayToggle = document.getElementById('accessDelayToggle');
                 const accessDelaySeconds = document.getElementById('accessDelaySeconds');
-                const accessDelayMessage = document.getElementById('accessDelayMessage');
                 if (accessDelayToggle) {
                     accessDelayToggle.checked = result[accessDelayKey] === true;
+                    updateAccessDelaySuffixVisibility();
                 }
                 if (accessDelaySeconds) {
                     accessDelaySeconds.value = clampSecondsField(
                         result[accessDelaySecondsKey] !== undefined ? result[accessDelaySecondsKey] : 10
                     );
                 }
-                if (accessDelayMessage) {
-                    accessDelayMessage.value = typeof result[accessDelayMessageKey] === 'string'
-                        ? result[accessDelayMessageKey]
-                        : '';
-                }
 
+                const redirectToggle = document.getElementById('redirectToggle');
                 const redirectUrlInput = document.getElementById('redirectUrl');
+                if (redirectToggle) {
+                    redirectToggle.checked = result[redirectKey] === true;
+                    updateRedirectDetailsVisibility();
+                }
                 if (redirectUrlInput) {
                     redirectUrlInput.value = typeof result[redirectUrlKey] === 'string' ? result[redirectUrlKey] : '';
                 }
-                refreshRedirectRulesList();
 
                 const rememberToggle = document.getElementById('rememberSettingsToggle');
                 if (rememberToggle) {
@@ -1269,12 +1265,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            const features = document.createElement('div');
-            features.className = 'site-feature-controls';
-            wrapper.insertAdjacentElement('afterend', features);
-
-            setupAccessDelayToggle(siteIdentifier, wrapper, features);
-            setupRedirectToggle(siteIdentifier, features);
+            setupAccessDelayToggle(siteIdentifier, wrapper);
+            setupRedirectToggle(siteIdentifier, wrapper);
 
             const toggle = document.getElementById('grayscaleToggle');
             if (!toggle) return;
@@ -1308,8 +1300,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return name || currentSiteIdentifier || 'this site';
         }
 
-        function setupAccessDelayToggle(siteIdentifier, grayscaleWrapper, featuresMount) {
-            if (!grayscaleWrapper || !featuresMount) return;
+        function updateAccessDelaySuffixVisibility() {
+            const toggle = document.getElementById('accessDelayToggle');
+            const suffix = document.getElementById('access-delay-suffix');
+            if (!toggle || !suffix) return;
+            suffix.hidden = !toggle.checked;
+        }
+
+        function setupAccessDelayToggle(siteIdentifier, grayscaleWrapper) {
+            if (!grayscaleWrapper) return;
 
             const row = document.createElement('div');
             row.id = 'access-delay-toggle-row';
@@ -1324,44 +1323,33 @@ document.addEventListener('DOMContentLoaded', function () {
             label.htmlFor = 'accessDelayToggle';
             label.textContent = 'Delay opening ' + getPopupDisplayHost();
 
+            const suffix = document.createElement('div');
+            suffix.id = 'access-delay-suffix';
+            suffix.className = 'access-delay-suffix';
+            suffix.hidden = true;
+            suffix.appendChild(document.createTextNode('by '));
+
+            const secondsInput = document.createElement('input');
+            secondsInput.type = 'number';
+            secondsInput.id = 'accessDelaySeconds';
+            secondsInput.name = 'accessDelaySeconds';
+            secondsInput.value = '10';
+            secondsInput.min = '5';
+            secondsInput.max = '600';
+            secondsInput.className = 'access-delay-seconds-input compact-seconds-input';
+            secondsInput.setAttribute('aria-label', 'Delay seconds');
+
+            suffix.appendChild(secondsInput);
+            suffix.appendChild(document.createTextNode(' seconds'));
+
             row.appendChild(toggle);
             row.appendChild(label);
+            row.appendChild(suffix);
             grayscaleWrapper.appendChild(row);
 
-            const screenGroup = document.createElement('div');
-            screenGroup.id = 'access-delay-screen-group';
-            screenGroup.className = 'toggle-group delay-screen-group';
-
-            const screenHeading = document.createElement('h2');
-            screenHeading.textContent = 'Delay screen';
-            screenGroup.appendChild(screenHeading);
-
-            const fields = document.createElement('div');
-            fields.className = 'delay-fields';
-            fields.innerHTML = `
-                <div class="delay-field delay-field-inline">
-                    <label for="accessDelaySeconds">Delay duration</label>
-                    <div class="delay-duration-control">
-                        <input type="number" id="accessDelaySeconds" name="accessDelaySeconds" value="10" min="5" max="600" class="compact-seconds-input" aria-label="Delay duration in seconds">
-                        <span class="delay-duration-unit">sec</span>
-                    </div>
-                </div>
-                <div class="delay-field delay-field-stack">
-                    <label for="accessDelayMessage">Delay screen message</label>
-                    <textarea id="accessDelayMessage" name="accessDelayMessage" rows="2" class="delay-message-input" placeholder="Take a deep breath"></textarea>
-                </div>`;
-            screenGroup.appendChild(fields);
-            featuresMount.appendChild(screenGroup);
-
-            const secondsInput = document.getElementById('accessDelaySeconds');
-            const messageInput = document.getElementById('accessDelayMessage');
-            if (!toggle || !secondsInput || !messageInput) return;
-
             const secondsKey = `${siteIdentifier}AccessDelaySeconds`;
-            const messageKey = `${siteIdentifier}AccessDelayMessage`;
-            chrome.storage.sync.get([secondsKey, messageKey], function (result) {
+            chrome.storage.sync.get(secondsKey, function (result) {
                 secondsInput.value = clampSecondsField(result[secondsKey] !== undefined ? result[secondsKey] : 10);
-                messageInput.value = typeof result[messageKey] === 'string' ? result[messageKey] : '';
             });
 
             toggle.addEventListener('change', function () {
@@ -1369,12 +1357,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 const protectKey = `${siteIdentifier}AccessDelay`;
                 if (isSettingsLocked && protectedHiddenAtLock.has(protectKey) && !enabled) {
                     toggle.checked = true;
+                    updateAccessDelaySuffixVisibility();
                     return;
                 }
+                updateAccessDelaySuffixVisibility();
                 applySettingChange(`${siteIdentifier}AccessDelay`, enabled);
                 updateLockProtectedUI();
             });
 
+            secondsInput.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
             bindSecondsFieldCommit(secondsInput, {
                 isProtected: function () {
                     return isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`);
@@ -1384,406 +1377,49 @@ document.addEventListener('DOMContentLoaded', function () {
                     chrome.storage.sync.set({ [secondsKey]: seconds });
                 }
             });
-
-            function commitDelayMessage() {
-                if (isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}AccessDelay`)) {
-                    chrome.storage.sync.get(messageKey, function (result) {
-                        messageInput.value = typeof result[messageKey] === 'string' ? result[messageKey] : '';
-                    });
-                    return;
-                }
-                chrome.storage.sync.set({ [messageKey]: messageInput.value });
-            }
-
-            messageInput.addEventListener('change', commitDelayMessage);
-            messageInput.addEventListener('blur', commitDelayMessage);
         }
 
-        function displayNameForRedirectSite(siteId) {
-            if (platformHostnames[siteId] && platformHostnames[siteId][0]) {
-                return platformHostnames[siteId][0].replace(/^www\./, '');
-            }
-            return String(siteId || '').replace(/^www\./, '');
+        function updateRedirectDetailsVisibility() {
+            const toggle = document.getElementById('redirectToggle');
+            const details = document.getElementById('redirect-details');
+            if (!toggle || !details) return;
+            details.hidden = !toggle.checked;
         }
 
-        function siteIdFromRedirectFromInput(raw) {
-            let value = (raw || '').trim();
-            if (!value) return null;
-            value = value.replace(/^https?:\/\//i, '');
-            const hostPart = value.split('/')[0].split('?')[0].toLowerCase();
-            if (!hostPart) return null;
-            const bare = hostPart.replace(/^www\./, '');
-            for (let i = 0; i < platformsWeTarget.length; i++) {
-                const platform = platformsWeTarget[i];
-                const hosts = platformHostnames[platform] || [];
-                if (hosts.some(function (h) {
-                    return h === hostPart || h.replace(/^www\./, '') === bare;
-                })) {
-                    return platform;
-                }
-            }
-            return bare;
-        }
+        function setupRedirectToggle(siteIdentifier, wrapper) {
+            if (!wrapper) return;
 
-        function collectRedirectRulesFromStorage(all) {
-            const rules = [];
-            Object.keys(all || {}).forEach(function (key) {
-                if (!key.endsWith('RedirectStatus') || all[key] !== true) return;
-                const siteId = key.slice(0, -'RedirectStatus'.length);
-                if (!siteId) return;
-                const urlKey = `${siteId}RedirectUrl`;
-                const url = typeof all[urlKey] === 'string' ? all[urlKey].trim() : '';
-                if (!url) return;
-                const updatedAtKey = `${siteId}RedirectUpdatedAt`;
-                const updatedAt = typeof all[updatedAtKey] === 'number' ? all[updatedAtKey] : 0;
-                rules.push({
-                    siteId: siteId,
-                    from: displayNameForRedirectSite(siteId),
-                    url: url,
-                    updatedAt: updatedAt
-                });
-            });
-            // Newest first
-            rules.sort(function (a, b) {
-                if (b.updatedAt !== a.updatedAt) return b.updatedAt - a.updatedAt;
-                return String(a.siteId).localeCompare(String(b.siteId));
-            });
-            return rules;
-        }
+            const row = document.createElement('div');
+            row.id = 'redirect-toggle-row';
+            row.className = 'a-toggle redirect-toggle';
+            row.innerHTML = `
+                <input type="checkbox" id="redirectToggle" name="redirectToggle">
+                <label for="redirectToggle">Redirect to another page / website</label>
+                <div id="redirect-details" class="redirect-details" hidden>
+                    <input type="text" id="redirectUrl" name="redirectUrl" class="redirect-url-input" placeholder="/feed/subscriptions" spellcheck="false" autocomplete="off" aria-label="Redirect destination">
+                    <p class="how-to-description redirect-help">Redirect to either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).</p>
+                </div>`;
+            wrapper.appendChild(row);
 
-        function saveRedirectRule(siteId, destination, callback) {
-            if (!siteId) {
-                if (callback) callback();
-                return;
-            }
-            const statusKey = `${siteId}RedirectStatus`;
-            const urlKey = `${siteId}RedirectUrl`;
-            const updatedAtKey = `${siteId}RedirectUpdatedAt`;
-            const url = (destination || '').trim();
-            const payload = {};
-            payload[urlKey] = url;
-            payload[statusKey] = !!url;
-            payload[updatedAtKey] = url ? Date.now() : 0;
-            chrome.storage.sync.set(payload, function () {
-                if (siteId === currentSiteIdentifier) {
-                    const thisInput = document.getElementById('redirectUrl');
-                    if (thisInput && thisInput.value !== url) thisInput.value = url;
-                }
-                if (callback) callback();
-                else refreshRedirectRulesList();
-            });
-        }
-
-        function deleteRedirectRule(siteId, callback) {
-            if (!siteId) {
-                if (callback) callback();
-                return;
-            }
-            const statusKey = `${siteId}RedirectStatus`;
-            const urlKey = `${siteId}RedirectUrl`;
-            const updatedAtKey = `${siteId}RedirectUpdatedAt`;
-            chrome.storage.sync.set({ [statusKey]: false, [urlKey]: '', [updatedAtKey]: 0 }, function () {
-                if (siteId === currentSiteIdentifier) {
-                    const thisInput = document.getElementById('redirectUrl');
-                    if (thisInput) thisInput.value = '';
-                    updateLockProtectedUI();
-                }
-                if (callback) callback();
-                else refreshRedirectRulesList();
-            });
-        }
-
-        function refreshRedirectRulesList() {
-            const list = document.getElementById('redirect-rules-list');
-            if (!list) return;
-            chrome.storage.sync.get(null, function (all) {
-                if (!document.getElementById('redirect-rules-list')) return;
-                renderRedirectRulesList(collectRedirectRulesFromStorage(all));
-            });
-        }
-
-        function createRedirectPairRow(options) {
-            const opts = options || {};
-            const pair = document.createElement('div');
-            pair.className = 'redirect-pair';
-            if (opts.id) pair.id = opts.id;
-            if (opts.siteId) pair.dataset.siteId = opts.siteId;
-
-            const fromInput = document.createElement('input');
-            fromInput.type = 'text';
-            fromInput.className = 'redirect-from-input';
-            fromInput.spellcheck = false;
-            fromInput.autocomplete = 'off';
-            fromInput.placeholder = opts.fromPlaceholder || 'instagram.com';
-            fromInput.setAttribute('aria-label', opts.fromLabel || 'Redirect from');
-            if (opts.fromValue != null) fromInput.value = opts.fromValue;
-            if (opts.fromReadonly) {
-                fromInput.readOnly = true;
-                fromInput.tabIndex = -1;
-                fromInput.classList.add('redirect-from-readonly');
-                fromInput.addEventListener('mousedown', function (e) {
-                    e.preventDefault();
-                });
-                fromInput.addEventListener('focus', function () {
-                    fromInput.blur();
-                });
-            }
-
-            const arrow = document.createElement('span');
-            arrow.className = 'redirect-pair-arrow';
-            arrow.textContent = '→';
-            arrow.setAttribute('aria-hidden', 'true');
-
-            const toInput = document.createElement('input');
-            toInput.type = 'text';
-            toInput.className = 'redirect-to-input';
-            toInput.spellcheck = false;
-            toInput.autocomplete = 'off';
-            toInput.placeholder = opts.toPlaceholder || 'wikipedia.org';
-            toInput.setAttribute('aria-label', opts.toLabel || 'Redirect destination');
-            if (opts.toValue != null) toInput.value = opts.toValue;
-            if (opts.toReadonly) {
-                toInput.readOnly = true;
-                toInput.disabled = true;
-            }
-
-            pair.appendChild(fromInput);
-            pair.appendChild(arrow);
-            pair.appendChild(toInput);
-
-            if (opts.showRemove) {
-                const removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.className = 'redirect-rule-remove';
-                removeButton.title = 'Remove redirect';
-                removeButton.setAttribute('aria-label', 'Remove redirect');
-                removeButton.textContent = '×';
-                if (opts.removeDisabled) removeButton.disabled = true;
-                if (typeof opts.onRemove === 'function') {
-                    removeButton.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        if (removeButton.disabled) return;
-                        opts.onRemove();
-                    });
-                }
-                pair.appendChild(removeButton);
-            }
-
-            pair._fromInput = fromInput;
-            pair._toInput = toInput;
-            return pair;
-        }
-
-        function renderRedirectRulesList(rules) {
-            const list = document.getElementById('redirect-rules-list');
-            if (!list) return;
-            list.innerHTML = '';
-
-            const drafts = document.getElementById('redirect-drafts');
-            const hasDrafts = !!(drafts && drafts.querySelector('.redirect-draft'));
-
-            if (!rules || rules.length === 0) {
-                if (!hasDrafts) {
-                    const empty = document.createElement('p');
-                    empty.className = 'redirect-rules-empty';
-                    empty.textContent = 'No redirect rules yet.';
-                    list.appendChild(empty);
-                }
-                return;
-            }
-
-            rules.forEach(function (rule) {
-                let activeSiteId = rule.siteId;
-
-                const pair = createRedirectPairRow({
-                    siteId: rule.siteId,
-                    fromValue: rule.from,
-                    toValue: rule.url,
-                    showRemove: true,
-                    onRemove: function () {
-                        deleteRedirectRule(activeSiteId);
-                    }
-                });
-
-                const commitRule = function () {
-                    const fromRaw = pair._fromInput.value.trim();
-                    const toRaw = pair._toInput.value.trim();
-                    pair._fromInput.value = fromRaw;
-                    pair._toInput.value = toRaw;
-
-                    if (!toRaw) {
-                        deleteRedirectRule(activeSiteId, function () {
-                            refreshRedirectRulesList();
-                            updateLockProtectedUI();
-                        });
-                        return;
-                    }
-
-                    const newSiteId = siteIdFromRedirectFromInput(fromRaw);
-                    if (!fromRaw || !newSiteId) {
-                        pair._fromInput.value = displayNameForRedirectSite(activeSiteId);
-                        return;
-                    }
-
-                    if (newSiteId === currentSiteIdentifier &&
-                        isSettingsLocked &&
-                        protectedHiddenAtLock.has(`${currentSiteIdentifier}RedirectUrl`)) {
-                        pair._fromInput.value = displayNameForRedirectSite(activeSiteId);
-                        return;
-                    }
-
-                    if (newSiteId === activeSiteId) {
-                        saveRedirectRule(activeSiteId, toRaw, function () {
-                            refreshRedirectRulesList();
-                            updateLockProtectedUI();
-                        });
-                        return;
-                    }
-
-                    const previousSiteId = activeSiteId;
-                    activeSiteId = newSiteId;
-                    pair.dataset.siteId = newSiteId;
-                    deleteRedirectRule(previousSiteId, function () {
-                        saveRedirectRule(newSiteId, toRaw, function () {
-                            refreshRedirectRulesList();
-                            updateLockProtectedUI();
-                        });
-                    });
-                };
-
-                pair._fromInput.addEventListener('change', commitRule);
-                pair._fromInput.addEventListener('blur', commitRule);
-                pair._toInput.addEventListener('change', commitRule);
-                pair._toInput.addEventListener('blur', commitRule);
-                [pair._fromInput, pair._toInput].forEach(function (input) {
-                    input.addEventListener('keydown', function (e) {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            input.blur();
-                        }
-                    });
-                });
-
-                list.appendChild(pair);
-            });
-        }
-
-        function addRedirectDraftRow() {
-            const drafts = document.getElementById('redirect-drafts');
-            if (!drafts) return;
-
-            const pair = createRedirectPairRow({
-                showRemove: true,
-                onRemove: function () {
-                    if (pair.parentNode) pair.parentNode.removeChild(pair);
-                    refreshRedirectRulesList();
-                }
-            });
-            pair.classList.add('redirect-draft');
-
-            function tryCommitDraft() {
-                const fromRaw = pair._fromInput.value.trim();
-                const toRaw = pair._toInput.value.trim();
-                if (!fromRaw || !toRaw) return;
-                const siteId = siteIdFromRedirectFromInput(fromRaw);
-                if (!siteId) return;
-                if (siteId === currentSiteIdentifier &&
-                    isSettingsLocked &&
-                    protectedHiddenAtLock.has(`${siteId}RedirectUrl`)) {
-                    return;
-                }
-                saveRedirectRule(siteId, toRaw, function () {
-                    if (pair.parentNode) pair.parentNode.removeChild(pair);
-                    refreshRedirectRulesList();
-                    updateLockProtectedUI();
-                });
-            }
-
-            pair._fromInput.addEventListener('change', tryCommitDraft);
-            pair._fromInput.addEventListener('blur', tryCommitDraft);
-            pair._toInput.addEventListener('change', tryCommitDraft);
-            pair._toInput.addEventListener('blur', tryCommitDraft);
-            [pair._fromInput, pair._toInput].forEach(function (input) {
-                input.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        input.blur();
-                    }
-                });
-            });
-
-            // Newest drafts first (above saved rules)
-            drafts.insertBefore(pair, drafts.firstChild);
-            const empty = document.querySelector('#redirect-rules-list .redirect-rules-empty');
-            if (empty) empty.remove();
-        }
-
-        function setupRedirectToggle(siteIdentifier, featuresMount) {
-            if (!featuresMount) return;
-
-            const thisSiteGroup = document.createElement('div');
-            thisSiteGroup.className = 'toggle-group redirect-this-site-group';
-
-            const thisHeading = document.createElement('h2');
-            thisHeading.textContent = 'This site';
-            thisSiteGroup.appendChild(thisHeading);
-
-            const thisPair = createRedirectPairRow({
-                id: 'redirect-this-site-pair',
-                fromValue: getPopupDisplayHost(),
-                fromReadonly: true,
-                toValue: '',
-                toPlaceholder: '/feed/subscriptions',
-                fromLabel: 'Redirect from this site',
-                toLabel: 'Redirect destination for this site'
-            });
-            thisPair._toInput.id = 'redirectUrl';
-            thisPair._toInput.name = 'redirectUrl';
-            thisSiteGroup.appendChild(thisPair);
-
-            const help = document.createElement('p');
-            help.className = 'how-to-description redirect-help';
-            help.innerHTML = 'Redirect to either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).';
-            thisSiteGroup.appendChild(help);
-            featuresMount.appendChild(thisSiteGroup);
-
-            const allGroup = document.createElement('div');
-            allGroup.className = 'toggle-group redirect-all-group';
-
-            const allHeader = document.createElement('div');
-            allHeader.className = 'redirect-all-header';
-
-            const allHeading = document.createElement('h2');
-            allHeading.textContent = 'All redirects';
-
-            const addBtn = document.createElement('button');
-            addBtn.type = 'button';
-            addBtn.id = 'redirect-add-btn';
-            addBtn.className = 'redirect-add-btn';
-            addBtn.innerHTML = '<span class="redirect-add-plus" aria-hidden="true">+</span> Add';
-            addBtn.addEventListener('click', addRedirectDraftRow);
-
-            allHeader.appendChild(allHeading);
-            allHeader.appendChild(addBtn);
-            allGroup.appendChild(allHeader);
-
-            const drafts = document.createElement('div');
-            drafts.id = 'redirect-drafts';
-            drafts.className = 'redirect-drafts';
-            allGroup.appendChild(drafts);
-
-            const list = document.createElement('div');
-            list.id = 'redirect-rules-list';
-            list.className = 'redirect-rules-list';
-            list.setAttribute('aria-label', 'All redirect rules');
-            allGroup.appendChild(list);
-
-            featuresMount.appendChild(allGroup);
+            const toggle = document.getElementById('redirectToggle');
+            const urlInput = document.getElementById('redirectUrl');
+            if (!toggle || !urlInput) return;
 
             const urlKey = `${siteIdentifier}RedirectUrl`;
             chrome.storage.sync.get(urlKey, function (result) {
-                thisPair._toInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
-                refreshRedirectRulesList();
+                urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+            });
+
+            toggle.addEventListener('change', function () {
+                const enabled = toggle.checked;
+                const protectKey = `${siteIdentifier}Redirect`;
+                if (isSettingsLocked && protectedHiddenAtLock.has(protectKey) && !enabled) {
+                    toggle.checked = true;
+                    updateRedirectDetailsVisibility();
+                    return;
+                }
+                updateRedirectDetailsVisibility();
+                applySettingChange(`${siteIdentifier}Redirect`, enabled);
                 updateLockProtectedUI();
             });
 
@@ -1791,27 +1427,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 return isSettingsLocked && protectedHiddenAtLock.has(`${siteIdentifier}RedirectUrl`);
             }
 
-            function commitThisSiteDestination() {
+            function commitRedirectUrl() {
                 if (isUrlProtected()) {
                     chrome.storage.sync.get(urlKey, function (result) {
-                        thisPair._toInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
+                        urlInput.value = typeof result[urlKey] === 'string' ? result[urlKey] : '';
                     });
                     return;
                 }
-                const value = thisPair._toInput.value.trim();
-                thisPair._toInput.value = value;
-                saveRedirectRule(siteIdentifier, value, function () {
-                    refreshRedirectRulesList();
-                    updateLockProtectedUI();
-                });
+                const value = urlInput.value.trim();
+                urlInput.value = value;
+                chrome.storage.sync.set({ [urlKey]: value });
+                updateLockProtectedUI();
             }
 
-            thisPair._toInput.addEventListener('change', commitThisSiteDestination);
-            thisPair._toInput.addEventListener('blur', commitThisSiteDestination);
-            thisPair._toInput.addEventListener('keydown', function (e) {
+            urlInput.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+            urlInput.addEventListener('change', commitRedirectUrl);
+            urlInput.addEventListener('blur', commitRedirectUrl);
+            urlInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    thisPair._toInput.blur();
+                    urlInput.blur();
                 }
             });
         }
@@ -2145,13 +1782,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const accessDelayToggle = document.getElementById('accessDelayToggle');
                 if (accessDelayToggle) {
                     accessDelayToggle.checked = overrides[accessDelayKey] === true;
-                }
-            }
-            const accessDelayMessageKey = `${currentSiteIdentifier}AccessDelayMessage`;
-            if (Object.prototype.hasOwnProperty.call(overrides, accessDelayMessageKey)) {
-                const accessDelayMessage = document.getElementById('accessDelayMessage');
-                if (accessDelayMessage && typeof overrides[accessDelayMessageKey] === 'string') {
-                    accessDelayMessage.value = overrides[accessDelayMessageKey];
+                    updateAccessDelaySuffixVisibility();
                 }
             }
             const redirectUrlKey = `${currentSiteIdentifier}RedirectUrl`;
@@ -2162,10 +1793,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             const redirectKey = `${currentSiteIdentifier}RedirectStatus`;
-            if (Object.prototype.hasOwnProperty.call(overrides, redirectKey) && overrides[redirectKey] !== true) {
-                const redirectUrlInput = document.getElementById('redirectUrl');
-                if (redirectUrlInput && !Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
-                    redirectUrlInput.value = '';
+            if (Object.prototype.hasOwnProperty.call(overrides, redirectKey)) {
+                const redirectToggle = document.getElementById('redirectToggle');
+                if (redirectToggle) {
+                    redirectToggle.checked = overrides[redirectKey] === true;
+                    updateRedirectDetailsVisibility();
+                }
+                if (overrides[redirectKey] !== true) {
+                    const redirectUrlInput = document.getElementById('redirectUrl');
+                    if (redirectUrlInput && !Object.prototype.hasOwnProperty.call(overrides, redirectUrlKey)) {
+                        redirectUrlInput.value = '';
+                    }
                 }
             }
             // Apply platform status override

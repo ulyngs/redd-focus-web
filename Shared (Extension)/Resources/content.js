@@ -792,16 +792,6 @@
             #${ACCESS_DELAY_OVERLAY_ID}.show {
                 opacity: 1;
             }
-            #${ACCESS_DELAY_OVERLAY_ID} .redd-focus-access-delay-message {
-                margin: 0 20px 10px 20px !important;
-                max-width: min(90vw, 40rem) !important;
-                color: ${REDD.body} !important;
-                font-size: clamp(1.75rem, 4.5vw, 2.6rem) !important;
-                font-style: italic !important;
-                font-weight: 400 !important;
-                line-height: 140% !important;
-                white-space: pre-wrap !important;
-            }
             #${ACCESS_DELAY_OVERLAY_ID} img {
                 width: min(40vw, 180px) !important;
                 height: auto !important;
@@ -833,10 +823,8 @@
         if (overlay) overlay.remove();
     }
 
-    function startAccessDelayGate(seconds, message) {
+    function startAccessDelayGate(seconds) {
         const countdownSeconds = Math.max(5, Math.min(600, parseInt(seconds, 10) || 10));
-        const customMessage = typeof message === 'string' ? message.trim() : '';
-        const delayMessage = customMessage || 'Take a deep breath';
         if (accessDelayActive) return;
         accessDelayActive = true;
         ensureAccessDelayCssInjected();
@@ -851,11 +839,6 @@
                 overlay.setAttribute('role', 'dialog');
                 overlay.setAttribute('aria-live', 'polite');
                 overlay.setAttribute('aria-label', 'Opening site after a short delay');
-
-                const messageEl = document.createElement('p');
-                messageEl.className = 'redd-focus-access-delay-message';
-                messageEl.textContent = delayMessage;
-                overlay.appendChild(messageEl);
 
                 const img = document.createElement('img');
                 img.src = chrome.runtime.getURL('images/calm.svg');
@@ -906,16 +889,14 @@
         if (!currentSiteIdentifier || accessDelayActive) return;
         const statusKey = `${currentSiteIdentifier}AccessDelayStatus`;
         const secondsKey = `${currentSiteIdentifier}AccessDelaySeconds`;
-        const messageKey = `${currentSiteIdentifier}AccessDelayMessage`;
-        chrome.storage.sync.get([statusKey, secondsKey, messageKey], function (result) {
+        chrome.storage.sync.get([statusKey, secondsKey], function (result) {
             let enabled = result[statusKey] === true;
             if (Object.prototype.hasOwnProperty.call(sessionOverrides, statusKey)) {
                 enabled = sessionOverrides[statusKey] === true;
             }
             if (!enabled) return;
             const seconds = result[secondsKey] !== undefined ? result[secondsKey] : 10;
-            const message = typeof result[messageKey] === 'string' ? result[messageKey] : '';
-            startAccessDelayGate(seconds, message);
+            startAccessDelayGate(seconds);
         });
     }
 
