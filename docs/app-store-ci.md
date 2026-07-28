@@ -57,7 +57,7 @@ What's new / notes come from [`changelog.md`](../changelog.md) via
 - [`Mac App Store submission`](../.github/workflows/mac-app-store-submit.yml) — retry from Release `.pkg`
 - [`iOS App Store submission`](../.github/workflows/ios-app-store-submit.yml) — retry from Release `.ipa`
 
-Packages: `redd-focus-vX.Y.Z.zip` (Chrome/Firefox), `redd-focus-edge-vX.Y.Z.zip` (Edge; strips `background.scripts`). Both attach to GitHub Releases.
+Packages: `redd-focus-vX.Y.Z.zip` (Chrome/Firefox), `redd-focus-edge-vX.Y.Z.zip` (Edge; strips `background.scripts`). Both attach to GitHub Releases on new Release builds (same names — not `*-chrome-firefox.zip`).
 
 Build Mac/iOS: `scripts/build-appstore.sh ios|macos`.  
 Submit Mac/iOS: `fastlane/Fastfile` lanes `submit_mac_app_store` / `submit_ios_app_store`.

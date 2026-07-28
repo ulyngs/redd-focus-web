@@ -9,7 +9,9 @@
 # Firefox AMO release-notes PATCH is non-fatal (continue-on-error).
 #
 # Standalone: Actions → "Submit to add-on stores (Chrome, Firefox, Edge)." →
-#   set release_tag (e.g. v6.8.0). Checks out that tag and rebuilds zips.
+#   set release_tag (e.g. v6.8.0). Uses packaging scripts from the branch you
+#   run the workflow on, and extension Resources from that release tag (so older
+#   tags still get an Edge zip even if the tag predates the Edge script).
 #
 # From Release build: optional checkbox submit_addon_stores (manual only;
 # tag pushes never auto-submit). Reuses extension artifacts from the same run.
@@ -106,14 +108,9 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout tag
-        if: steps.ref.outputs.from_artifacts != 'true'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.ref.outputs.tag }}
-
-      - name: Checkout (scripts only; artifacts already built)
-        if: steps.ref.outputs.from_artifacts == 'true'
+      # Always checkout the workflow ref (branch tip / Release caller) so packaging
+      # scripts exist. Standalone then overlays Resources from the release tag.
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -128,7 +125,17 @@ jobs:
           name: extension-zip
           path: for-distribution
 
-      - name: Build shared + Edge zips from tag
+      - name: Overlay Resources from release tag
+        if: steps.ref.outputs.from_artifacts != 'true'
+        env:
+          RELEASE_TAG: ${{ steps.ref.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --depth 1 origin "refs/tags/${RELEASE_TAG}:refs/tags/${RELEASE_TAG}"
+          git checkout "${RELEASE_TAG}" -- "Shared (Extension)/Resources"
+          echo "Using Resources from ${RELEASE_TAG} with packaging scripts from ${GITHUB_SHA}"
+
+      - name: Build shared + Edge zips
         if: steps.ref.outputs.from_artifacts != 'true'
         run: |
           set -euo pipefail
