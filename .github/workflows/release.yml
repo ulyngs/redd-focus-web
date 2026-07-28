@@ -1,0 +1,499 @@
+# Build extension zip + optional Mac/iOS App Store binaries, create a GitHub
+# Release, and optionally submit to Mac App Store and/or iOS App Store.
+#
+# One App Store Connect record (id1660218371, com.ulriklyngs.mind-shield) covers
+# both Mac and iOS. Submit jobs are independent of each other and of the GitHub
+# Release job (same independence model as redd-block / redd-todo).
+#
+# Trigger: Actions → "Release build" → Run workflow, or push tag v* (e.g. v6.7.0).
+# Manual inputs:
+#   create_github_release   — create GitHub Release from changelog.md (default: true)
+#   submit_mac_app_store    — submit .pkg to App Store Connect (default: false)
+#   submit_ios_app_store    — submit .ipa to App Store Connect (default: false)
+#   mas_build_number / ios_build_number — override CURRENT_PROJECT_VERSION to
+#                             re-upload the same marketing version
+#
+# Tag pushes always create a GitHub Release and attempt both store submits
+# (requires App Store Connect secrets — see docs).
+#
+# Before shipping: bump version (scripts/bump-version.sh), add ## vX.Y.Z to
+# changelog.md, commit to main.
+# Docs: docs/app-store-ci.md
+#
+# Chrome / Firefox / Edge store auto-submit is out of scope this pass; the
+# extension zip is attached for manual upload (and future automation).
+#
+# ── App Store Connect (build signing + submit) ──
+#   APP_STORE_CONNECT_API_KEY_ID
+#   APP_STORE_CONNECT_API_ISSUER_ID
+#   APP_STORE_CONNECT_API_KEY_P8          base64 of AuthKey_*.p8
+#   ASC_PRIMARY_LOCALE                    optional; defaults to en-GB
+
+name: Release build
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_github_release:
+        description: Create a GitHub Release (notes from changelog.md)
+        type: boolean
+        default: true
+      submit_mac_app_store:
+        description: Submit Mac App Store pkg to App Store Connect (What's new from changelog)
+        type: boolean
+        default: false
+      submit_ios_app_store:
+        description: Submit iOS IPA to App Store Connect (What's new from changelog)
+        type: boolean
+        default: false
+      mas_build_number:
+        description: Override MAS CURRENT_PROJECT_VERSION (only to re-upload the same version)
+        type: string
+        default: ''
+      ios_build_number:
+        description: Override iOS CURRENT_PROJECT_VERSION (only to re-upload the same version)
+        type: string
+        default: ''
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+
+jobs:
+  build-extension:
+    name: Extension (.zip)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Resolve version
+        id: meta
+        run: |
+          VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${{ github.ref_name }}"
+            if [[ "$TAG" != "v${VERSION}" ]]; then
+              echo "Tag ${TAG} does not match manifest.json version v${VERSION}" >&2
+              exit 1
+            fi
+          fi
+
+      - name: Build extension zip
+        run: bash ./scripts/build-extension-zip.sh "${{ steps.meta.outputs.version }}"
+
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: for-distribution/redd-focus-v*.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  build-macos:
+    name: Mac App Store (.pkg)
+    runs-on: macos-latest
+    timeout-minutes: 90
+    # Skip (do not fail the workflow) when ASC secrets are not configured yet,
+    # unless this run asked to submit to the Mac App Store.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.submit_mac_app_store) ||
+      (secrets.APP_STORE_CONNECT_API_KEY_ID != '' &&
+       secrets.APP_STORE_CONNECT_API_ISSUER_ID != '' &&
+       secrets.APP_STORE_CONNECT_API_KEY_P8 != '')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Require App Store Connect secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          missing=()
+          for name in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Mac App Store build: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Build Mac App Store package
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          MAS_BUILD_NUMBER: ${{ inputs.mas_build_number || '' }}
+        run: bash ./scripts/build-appstore.sh macos
+
+      - name: Upload Mac App Store artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-app-store-pkg
+          path: for-distribution/redd-focus_*.pkg
+          if-no-files-found: error
+          retention-days: 30
+
+  build-ios:
+    name: iOS (.ipa)
+    runs-on: macos-latest
+    timeout-minutes: 90
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.submit_ios_app_store) ||
+      (secrets.APP_STORE_CONNECT_API_KEY_ID != '' &&
+       secrets.APP_STORE_CONNECT_API_ISSUER_ID != '' &&
+       secrets.APP_STORE_CONNECT_API_KEY_P8 != '')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Require App Store Connect secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          missing=()
+          for name in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for iOS App Store build: ${missing[*]}. See docs/app-store-ci.md." >&2
+            exit 1
+          fi
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Build App Store IPA
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          IOS_BUILD_NUMBER: ${{ inputs.ios_build_number || '' }}
+        run: bash ./scripts/build-appstore.sh ios
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: for-distribution/redd-focus_*.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+  # Mac App Store submit — independent of GitHub Release / iOS submit.
+  publish-mac-app-store:
+    name: Publish (Mac App Store)
+    needs: [build-macos]
+    runs-on: macos-latest
+    timeout-minutes: 120
+    if: >-
+      needs.build-macos.result == 'success' &&
+      (
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.submit_mac_app_store)
+      )
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install fastlane
+        run: brew install fastlane
+
+      - name: Require App Store Connect secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          missing=()
+          for name in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for Mac App Store submit: ${missing[*]}. See docs/app-store-ci.md — set these once, or uncheck submit_mac_app_store on manual runs." >&2
+            exit 1
+          fi
+
+      - name: Download Mac App Store artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-app-store-pkg
+          path: store-packages-mas
+
+      - name: Resolve version
+        id: meta
+        run: |
+          VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build What's new from changelog (macOS)
+        id: notes
+        run: |
+          node scripts/changelog-to-store-whats-new.js "${{ steps.meta.outputs.version }}" --platform macos --empty-ok --out whats_new_mas.txt
+          if [[ -s whats_new_mas.txt ]]; then
+            echo "has_notes=true" >> "$GITHUB_OUTPUT"
+            echo "=== What's new (macOS) ==="
+            cat whats_new_mas.txt
+          else
+            echo "has_notes=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No macOS-facing changelog bullets for v${{ steps.meta.outputs.version }} — skipping Mac App Store submission."
+          fi
+
+      - name: Submit to App Store Connect
+        if: steps.notes.outputs.has_notes == 'true'
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          ASC_PRIMARY_LOCALE: ${{ secrets.ASC_PRIMARY_LOCALE }}
+          FASTLANE_SKIP_UPDATE_CHECK: '1'
+        run: |
+          PKG="$(find store-packages-mas -type f -name '*.pkg' | head -1)"
+          if [[ -z "$PKG" ]]; then
+            echo "No .pkg found in store-packages-mas" >&2
+            exit 1
+          fi
+          fastlane mac submit_mac_app_store \
+            "version:${{ steps.meta.outputs.version }}" \
+            "pkg:${PKG}" \
+            "notes:whats_new_mas.txt"
+
+  # iOS App Store submit — independent of GitHub Release / Mac submit.
+  publish-ios-app-store:
+    name: Publish (iOS App Store)
+    needs: [build-ios]
+    runs-on: macos-latest
+    timeout-minutes: 120
+    if: >-
+      needs.build-ios.result == 'success' &&
+      (
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.submit_ios_app_store)
+      )
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install fastlane
+        run: brew install fastlane
+
+      - name: Require App Store Connect secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          missing=()
+          for name in APP_STORE_CONNECT_API_KEY_ID APP_STORE_CONNECT_API_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "Missing GitHub secrets for iOS App Store submit: ${missing[*]}. See docs/app-store-ci.md — set these once, or uncheck submit_ios_app_store on manual runs." >&2
+            exit 1
+          fi
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+          path: store-packages-ios
+
+      - name: Resolve version
+        id: meta
+        run: |
+          VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build What's new from changelog (iOS)
+        id: notes
+        run: |
+          node scripts/changelog-to-store-whats-new.js "${{ steps.meta.outputs.version }}" --platform ios --empty-ok --out whats_new_ios.txt
+          if [[ -s whats_new_ios.txt ]]; then
+            echo "has_notes=true" >> "$GITHUB_OUTPUT"
+            echo "=== What's new (iOS) ==="
+            cat whats_new_ios.txt
+          else
+            echo "has_notes=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No iOS-facing changelog bullets for v${{ steps.meta.outputs.version }} — skipping iOS App Store submission."
+          fi
+
+      - name: Submit to App Store Connect
+        if: steps.notes.outputs.has_notes == 'true'
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          ASC_PRIMARY_LOCALE: ${{ secrets.ASC_PRIMARY_LOCALE }}
+          FASTLANE_SKIP_UPDATE_CHECK: '1'
+        run: |
+          IPA="$(find store-packages-ios -type f -name '*.ipa' | head -1)"
+          if [[ -z "$IPA" ]]; then
+            echo "No .ipa found in store-packages-ios" >&2
+            exit 1
+          fi
+          fastlane ios submit_ios_app_store \
+            "version:${{ steps.meta.outputs.version }}" \
+            "ipa:${IPA}" \
+            "notes:whats_new_ios.txt"
+
+  # GitHub Release — proceeds when the extension zip is ready. Mac/iOS
+  # artifacts are attached when those builds succeeded; store API outages do
+  # not block this job (store submits are separate jobs above).
+  publish-github-release:
+    name: Publish (GitHub Release)
+    needs: [build-extension, build-macos, build-ios]
+    runs-on: ubuntu-latest
+    if: >-
+      always() &&
+      needs.build-extension.result == 'success' &&
+      (
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.create_github_release)
+      )
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download extension artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-zip
+          path: artifacts/extension
+
+      - name: Download Mac App Store artifact
+        if: needs.build-macos.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-app-store-pkg
+          path: artifacts/mas
+
+      - name: Download iOS artifact
+        if: needs.build-ios.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+          path: artifacts/ios
+
+      - name: Stage release assets
+        run: |
+          set -euo pipefail
+          mkdir -p for-distribution
+          find artifacts/extension -type f -name 'redd-focus-v*.zip' -exec cp -n {} for-distribution/ \;
+          if [[ -d artifacts/mas ]]; then
+            find artifacts/mas -type f -name '*.pkg' -exec cp -n {} for-distribution/ \;
+          fi
+          if [[ -d artifacts/ios ]]; then
+            find artifacts/ios -type f -name '*.ipa' -exec cp -n {} for-distribution/ \;
+          fi
+          echo "Staged:"
+          ls -la for-distribution
+
+      - name: Resolve version and tag
+        id: meta
+        run: |
+          VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync('Shared (Extension)/Resources/manifest.json','utf8')).version)")"
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${{ github.ref_name }}"
+          else
+            TAG="v${VERSION}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" != "v${VERSION}" ]]; then
+            echo "Tag ${TAG} does not match manifest.json version v${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Write release notes
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.meta.outputs.version }}"
+          bash ./scripts/extract-changelog-section.sh "$VERSION" > /tmp/changelog-section.md
+          {
+            cat /tmp/changelog-section.md
+            echo ""
+            echo "---"
+            echo ""
+            echo "### Install"
+            echo ""
+            echo "- **Browser extension:** download \`redd-focus-v${VERSION}.zip\` for Chrome / Firefox / Edge sideload or manual store upload."
+            if [[ -f for-distribution/redd-focus_${VERSION}.pkg ]]; then
+              echo "- **Mac App Store package:** \`redd-focus_${VERSION}.pkg\` (App Store Connect / Transporter)."
+            fi
+            if [[ -f for-distribution/redd-focus_${VERSION}.ipa ]]; then
+              echo "- **iOS App Store package:** \`redd-focus_${VERSION}.ipa\` (App Store Connect / Transporter)."
+            fi
+            echo ""
+            echo "GitHub also attaches **Source code (zip)** and **Source code (tar.gz)** automatically for this tag."
+            echo ""
+            echo "**Full changelog:** https://github.com/${{ github.repository }}/blob/main/changelog.md"
+            echo ""
+            echo "Chrome Web Store / Firefox Add-ons / Edge Add-ons auto-submit is not wired yet — upload the zip manually for those stores."
+          } > release-notes.md
+          echo "Release notes:"
+          cat release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ReDD Focus ${{ steps.meta.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            for-distribution/redd-focus-v*.zip
+            for-distribution/redd-focus_*.pkg
+            for-distribution/redd-focus_*.ipa
+          draft: false
+          prerelease: false
+          make_latest: true
+          generate_release_notes: false
+          fail_on_unmatched_files: false

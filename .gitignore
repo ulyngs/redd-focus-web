@@ -1,3 +1,11 @@
 xcuserdata/
 .DS_Store
 icon-creation/resized/
+build/
+for-distribution/*.zip
+for-distribution/*.ipa
+for-distribution/*.pkg
+whats_new*.txt
+release-notes.md
+store-packages-*/
+*.xcarchive

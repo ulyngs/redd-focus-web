@@ -57,3 +57,9 @@ To run this locally:
 2. Clone or download the repository  
 3. Open the project in Xcode  
 4. Click the **Play** button  
+
+## Releasing
+
+See [`changelog.md`](changelog.md) for release notes format, and
+[`docs/app-store-ci.md`](docs/app-store-ci.md) for GitHub Release + App Store
+Connect CI (Mac and iOS).
