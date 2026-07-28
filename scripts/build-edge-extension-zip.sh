@@ -35,10 +35,10 @@ trap 'rm -rf "$TMP"' EXIT
 
 cp -R "$RESOURCES"/. "$TMP/"
 
-node <<EOF
+EDGE_TMP="$TMP" node <<'EOF'
 const fs = require('fs');
 const path = require('path');
-const manifestPath = path.join(${JSON.stringify("$TMP")}, 'manifest.json');
+const manifestPath = path.join(process.env.EDGE_TMP, 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
 if (!manifest.background || !manifest.background.service_worker) {
@@ -71,11 +71,9 @@ rm -f "$ZIP_PATH"
     -x "manifest-comments.md"
 )
 
-node <<EOF
-const fs = require('fs');
-const path = require('path');
+EDGE_ZIP_PATH="$ZIP_PATH" node <<'EOF'
 const { execFileSync } = require('child_process');
-const zipPath = ${JSON.stringify("$ZIP_PATH")};
+const zipPath = process.env.EDGE_ZIP_PATH;
 const listing = execFileSync('unzip', ['-p', zipPath, 'manifest.json'], { encoding: 'utf8' });
 const manifest = JSON.parse(listing);
 if (manifest.background && Object.prototype.hasOwnProperty.call(manifest.background, 'scripts')) {
