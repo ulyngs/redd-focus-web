@@ -378,6 +378,48 @@ textarea::placeholder {
     color: var(--text-muted);
 }
 
+.custom-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    width: 100%;
+    margin: 0 0 5px 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+}
+
+.custom-section-toggle h2 {
+    margin: 0;
+}
+
+.custom-section-chevron {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    font-size: 0.88em;
+    color: #4d4d57;
+    transform: rotate(0deg);
+    transform-origin: 50% 50%;
+    transition: transform 0.2s ease;
+}
+
+.custom-section.is-expanded .custom-section-chevron {
+    transform: rotate(90deg);
+}
+
+.dark-mode .custom-section-chevron {
+    color: var(--text-muted);
+}
+
+.custom-section.is-collapsed .custom-section-toggle {
+    margin-bottom: 0;
+}
+
 /* Site name + Settings / Add CSS Selector panel titles */
 #currentSiteInfo strong,
 #settings-modal-title,

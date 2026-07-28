@@ -1454,6 +1454,88 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        const CUSTOM_SECTION_CACHE_KEY = 'reddFocusCustomSectionExpanded';
+
+        function setupCustomSectionCollapse(siteIdentifier) {
+            const hasPreconfiguredOptions = !!currentPlatform || platformsWeTarget.includes(siteIdentifier);
+            const group = currentPlatform
+                ? document.querySelector('.dropdown.' + currentPlatform + ' > .toggle-group')
+                : document.querySelector('#generic-site-options > .toggle-group');
+            if (!group || group.dataset.customCollapseBound === 'true') return;
+
+            const heading = Array.prototype.find.call(group.children, function (el) {
+                return el.tagName === 'H2' && el.textContent.trim().toLowerCase() === 'custom';
+            });
+            if (!heading) return;
+
+            group.dataset.customCollapseBound = 'true';
+            group.classList.add('custom-section');
+
+            const headerBtn = document.createElement('button');
+            headerBtn.type = 'button';
+            headerBtn.className = 'custom-section-toggle';
+            headerBtn.setAttribute('aria-controls', 'custom-section-body');
+
+            const title = document.createElement('h2');
+            title.textContent = 'Custom';
+            headerBtn.appendChild(title);
+
+            const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            chevron.setAttribute('class', 'custom-section-chevron');
+            chevron.setAttribute('viewBox', '0 0 24 24');
+            chevron.setAttribute('fill', 'none');
+            chevron.setAttribute('stroke', 'currentColor');
+            chevron.setAttribute('stroke-width', '2.5');
+            chevron.setAttribute('stroke-linecap', 'round');
+            chevron.setAttribute('stroke-linejoin', 'round');
+            chevron.setAttribute('aria-hidden', 'true');
+            const chevronPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            chevronPath.setAttribute('d', 'm9 18 6-6-6-6');
+            chevron.appendChild(chevronPath);
+            headerBtn.appendChild(chevron);
+
+            heading.replaceWith(headerBtn);
+
+            const body = document.createElement('div');
+            body.id = 'custom-section-body';
+            body.className = 'custom-section-body';
+            while (headerBtn.nextSibling) {
+                body.appendChild(headerBtn.nextSibling);
+            }
+            group.appendChild(body);
+
+            function readCachedExpanded() {
+                try {
+                    const cached = sessionStorage.getItem(CUSTOM_SECTION_CACHE_KEY);
+                    if (cached === '1') return true;
+                    if (cached === '0') return false;
+                } catch (e) { /* ignore */ }
+                return null;
+            }
+
+            function writeCachedExpanded(isExpanded) {
+                try {
+                    sessionStorage.setItem(CUSTOM_SECTION_CACHE_KEY, isExpanded ? '1' : '0');
+                } catch (e) { /* ignore */ }
+            }
+
+            function applyExpanded(isExpanded, persist) {
+                group.classList.toggle('is-expanded', isExpanded);
+                group.classList.toggle('is-collapsed', !isExpanded);
+                headerBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+                body.hidden = !isExpanded;
+                if (persist) writeCachedExpanded(isExpanded);
+            }
+
+            headerBtn.addEventListener('click', function () {
+                applyExpanded(!group.classList.contains('is-expanded'), true);
+            });
+
+            const cached = readCachedExpanded();
+            const defaultExpanded = cached === null ? !hasPreconfiguredOptions : cached;
+            applyExpanded(defaultExpanded, false);
+        }
+
         function addCustomSelector(siteIdentifier, name, selector) {
             const storageKey = `${siteIdentifier}CustomHiddenElements`;
             chrome.storage.sync.get(storageKey, function (result) {
@@ -1682,6 +1764,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (currentSiteIdentifier) {
                 setupFrictionDelay(currentSiteIdentifier);
                 setupGrayscaleToggle(currentSiteIdentifier);
+                setupCustomSectionCollapse(currentSiteIdentifier);
                 setupSettingsLock(currentSiteIdentifier);
                 initializePopupUI();
             }
