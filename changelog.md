@@ -1,0 +1,90 @@
+# Changelog
+
+User-facing changes for each release. Every app upgrade adds a new entry here.
+
+Release sections can use a leading `> …` blockquote for the headline summary.
+List cross-platform changes first under `###` headings (e.g. POPUP & SETTINGS,
+SELECTORS), then platform-specific notes under:
+
+`### BY PLATFORM`
+
+- `#### Safari (Mac)` — Mac Safari extension + Mac companion / Mac App Store
+- `#### Safari (iOS)` — iOS Safari extension + iOS companion / iOS App Store
+- `#### Chrome`
+- `#### Firefox`
+- `#### Edge`
+
+Bullets use `- **Short title.** Longer description.`
+Omit empty platform buckets rather than leaving placeholders.
+
+Store What’s New generators (`scripts/changelog-to-store-whats-new.js`) include
+shared `###` sections plus the matching `####` platform bucket. They skip
+`- **Version:** …` lines and release-engineering notes.
+
+Canonical headings (aliases accepted by the generator: Safari (macOS), Safari
+macOS, iOS, macOS, etc.):
+
+| Heading | Meaning | Apple What’s New |
+| --- | --- | --- |
+| Shared `### …` | All browsers/apps | Mac + iOS App Store |
+| `#### Safari (Mac)` | Mac Safari + Mac App Store | Mac App Store only |
+| `#### Safari (iOS)` | iOS Safari + iOS App Store | iOS App Store only |
+| `#### Chrome` | Chrome Web Store | future |
+| `#### Firefox` | Firefox Add-ons | future |
+| `#### Edge` | Edge Add-ons | future |
+
+## v6.7.0
+
+> Bug fixes, popup polish, and ReDD Blocker allowlist alignment.
+
+### BRANDING & POPUP
+
+- **Centre for Digital Habits branding.** Updated branding copy to Centre for
+  Digital Habits, with footer attribution to digitalhabits.org.
+- **Review prompt and footer restyle.** Restyled the review prompt and footer,
+  and made the Add/Edit CSS selector editor a full-bleed panel like Settings.
+- **Stable popup width and typography.** Stabilized popup width and typography
+  across Chrome, Firefox, and Safari (fixed 310px width, consistent root font
+  size).
+- **Extension pages are not websites.** Extension and internal browser pages are
+  no longer treated as websites (avoids showing the Safari extension UUID as a
+  site name).
+
+### BY PLATFORM
+
+#### Safari (Mac)
+
+- **Popup scrolls when selectors overflow.** Main popup content now scrolls when
+  selectors overflow the popup height (previously clipped with no scroll).
+- **Scrollbar gutter for lock/settings.** Classic scrollbar gutter so the
+  lock/settings buttons no longer overlap the scrollbar.
+- **Leave a review opens the store reliably.** "Leave a review" ships
+  `review_store_url.js` in the extension bundle and opens the store via
+  `tabs.create` (fixes missing-script errors).
+- **Allowlist enforcement matches desktop.** Fixed inverted allowlist enforcement
+  for Safari users on the extension blocking method (allowed sites were blocked;
+  now matches desktop Automation / Rust host behaviour, including one-shot
+  schedules).
+
+#### Safari (iOS)
+
+- **Sticky footer in the popup sheet.** Popup sheet scrolls content with a sticky
+  footer that stays visible and does not grow when the sheet is expanded.
+- **Leave a review opens the store reliably.** "Leave a review" ships
+  `review_store_url.js` and opens the store via `tabs.create` (fixes
+  missing-script errors and iOS popup self-navigation / UUID glitch).
+- **Open Safari to get started stays in Safari.** iOS companion app always opens
+  `x-safari-https` instead of handing off to the YouTube app when installed.
+- **Allowlist enforcement matches desktop.** Fixed inverted allowlist enforcement
+  for Safari users on the extension blocking method (allowed sites were blocked;
+  now matches desktop Automation / Rust host behaviour, including one-shot
+  schedules).
+
+#### Chrome
+
+- **Scrollbar gutter for lock/settings.** Classic scrollbar gutter so the
+  lock/settings buttons no longer overlap the scrollbar.
+
+### RELEASE
+
+- **Version:** 6.7.0 (Safari Mac, Safari iOS, Chrome, Firefox, Edge).
