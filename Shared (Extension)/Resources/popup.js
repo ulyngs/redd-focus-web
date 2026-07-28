@@ -1231,49 +1231,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Updated container content for', containerId, ':', container.innerHTML);
         }
 
-        const POPUP_TAB_STORAGE_KEY = 'popupActiveTab';
-        const POPUP_TABS = ['hide', 'delay', 'redirect'];
-
-        function setActivePopupTab(tabId, persist) {
-            const nextTab = POPUP_TABS.includes(tabId) ? tabId : 'hide';
-            POPUP_TABS.forEach(function (id) {
-                const tabBtn = document.getElementById('tab-' + id);
-                const panel = document.getElementById('tab-panel-' + id);
-                const selected = id === nextTab;
-                if (tabBtn) {
-                    tabBtn.setAttribute('aria-selected', selected ? 'true' : 'false');
-                    tabBtn.tabIndex = selected ? 0 : -1;
-                }
-                if (panel) {
-                    if (selected) panel.removeAttribute('hidden');
-                    else panel.setAttribute('hidden', '');
-                }
-            });
-            if (nextTab === 'redirect') {
-                refreshRedirectRulesList();
-            }
-            if (persist !== false) {
-                chrome.storage.local.set({ [POPUP_TAB_STORAGE_KEY]: nextTab });
-            }
-        }
-
-        function setupPopupTabs() {
-            const tablist = document.getElementById('popup-tabs');
-            if (!tablist || tablist.dataset.bound === 'true') return;
-            tablist.dataset.bound = 'true';
-
-            tablist.addEventListener('click', function (event) {
-                const tabBtn = event.target.closest('.popup-tab');
-                if (!tabBtn || !tablist.contains(tabBtn)) return;
-                setActivePopupTab(tabBtn.getAttribute('data-tab'), true);
-            });
-
-            chrome.storage.local.get(POPUP_TAB_STORAGE_KEY, function (result) {
-                const saved = result && result[POPUP_TAB_STORAGE_KEY];
-                setActivePopupTab(POPUP_TABS.includes(saved) ? saved : 'hide', false);
-            });
-        }
-
         function setupGrayscaleToggle(siteIdentifier) {
             const platformSpecific = platformsWeTarget.includes(siteIdentifier);
             const anchorContainer = platformSpecific
@@ -1283,8 +1240,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const existing = document.getElementById('grayscale-toggle-row');
             if (existing) existing.remove();
-            const existingWrapper = document.querySelector('#tab-panel-hide .grayscale-controls');
+            const existingWrapper = anchorContainer.querySelector('.grayscale-controls');
             if (existingWrapper) existingWrapper.remove();
+            const existingFeatures = anchorContainer.querySelector('.site-feature-controls');
+            if (existingFeatures) existingFeatures.remove();
 
             const wrapper = document.createElement('div');
             wrapper.className = 'hide-checkboxes grayscale-controls';
@@ -1310,8 +1269,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            setupAccessDelayToggle(siteIdentifier);
-            setupRedirectToggle(siteIdentifier);
+            const features = document.createElement('div');
+            features.className = 'site-feature-controls';
+            wrapper.insertAdjacentElement('afterend', features);
+
+            setupAccessDelayToggle(siteIdentifier, wrapper, features);
+            setupRedirectToggle(siteIdentifier, features);
 
             const toggle = document.getElementById('grayscaleToggle');
             if (!toggle) return;
@@ -1345,13 +1308,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return name || currentSiteIdentifier || 'this site';
         }
 
-        function setupAccessDelayToggle(siteIdentifier) {
-            const mount = document.getElementById('delay-tab-mount');
-            if (!mount) return;
-            mount.innerHTML = '';
-
-            const enableGroup = document.createElement('div');
-            enableGroup.className = 'toggle-group hide-checkboxes grayscale-controls delay-enable-group';
+        function setupAccessDelayToggle(siteIdentifier, grayscaleWrapper, featuresMount) {
+            if (!grayscaleWrapper || !featuresMount) return;
 
             const row = document.createElement('div');
             row.id = 'access-delay-toggle-row';
@@ -1368,8 +1326,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             row.appendChild(toggle);
             row.appendChild(label);
-            enableGroup.appendChild(row);
-            mount.appendChild(enableGroup);
+            grayscaleWrapper.appendChild(row);
 
             const screenGroup = document.createElement('div');
             screenGroup.id = 'access-delay-screen-group';
@@ -1394,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <textarea id="accessDelayMessage" name="accessDelayMessage" rows="2" class="delay-message-input" placeholder="Take a deep breath"></textarea>
                 </div>`;
             screenGroup.appendChild(fields);
-            mount.appendChild(screenGroup);
+            featuresMount.appendChild(screenGroup);
 
             const secondsInput = document.getElementById('accessDelaySeconds');
             const messageInput = document.getElementById('accessDelayMessage');
@@ -1761,10 +1718,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (empty) empty.remove();
         }
 
-        function setupRedirectToggle(siteIdentifier) {
-            const mount = document.getElementById('redirect-tab-mount');
-            if (!mount) return;
-            mount.innerHTML = '';
+        function setupRedirectToggle(siteIdentifier, featuresMount) {
+            if (!featuresMount) return;
 
             const thisSiteGroup = document.createElement('div');
             thisSiteGroup.className = 'toggle-group redirect-this-site-group';
@@ -1788,9 +1743,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const help = document.createElement('p');
             help.className = 'how-to-description redirect-help';
-            help.innerHTML = 'Redirect to either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>). No need to type https://';
+            help.innerHTML = 'Redirect to either a page on this site (e.g. <code>/feed/subscriptions</code>) or another website (e.g. <code>wikipedia.org</code>).';
             thisSiteGroup.appendChild(help);
-            mount.appendChild(thisSiteGroup);
+            featuresMount.appendChild(thisSiteGroup);
 
             const allGroup = document.createElement('div');
             allGroup.className = 'toggle-group redirect-all-group';
@@ -1823,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', function () {
             list.setAttribute('aria-label', 'All redirect rules');
             allGroup.appendChild(list);
 
-            mount.appendChild(allGroup);
+            featuresMount.appendChild(allGroup);
 
             const urlKey = `${siteIdentifier}RedirectUrl`;
             chrome.storage.sync.get(urlKey, function (result) {
@@ -2090,7 +2045,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 setupFrictionDelay(currentSiteIdentifier);
                 setupGrayscaleToggle(currentSiteIdentifier);
                 setupSettingsLock(currentSiteIdentifier);
-                setupPopupTabs();
                 initializePopupUI();
             }
 
