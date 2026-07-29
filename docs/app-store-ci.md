@@ -62,6 +62,11 @@ Packages: `redd-focus-vX.Y.Z.zip` (Chrome/Firefox), `redd-focus-edge-vX.Y.Z.zip`
 Build Mac/iOS: `scripts/build-appstore.sh ios|macos`.  
 Submit Mac/iOS: `fastlane/Fastfile` lanes `submit_mac_app_store` / `submit_ios_app_store`.
 
+**Fail-fast before upload:** each Apple lane refuses to run if that platform
+already has a version waiting for review / in review / with unresolved review
+issues. It does **not** auto-withdraw — fix App Store Connect manually, then
+re-run. Mac and iOS are checked separately (same ASC app, different platforms).
+
 ## Local preview
 
 ```bash

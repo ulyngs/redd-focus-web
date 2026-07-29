@@ -52,6 +52,56 @@ def read_notes(options)
   notes
 end
 
+# Fail before deliver if this platform already has a version in review.
+# Auto-withdrawing is intentionally not done — fix App Store Connect manually.
+# Mac and iOS are checked separately (same ASC app record, different platforms).
+def fail_if_app_store_review_in_progress!(app_identifier:, platform:, version:)
+  app = Spaceship::ConnectAPI::App.find(app_identifier)
+  UI.user_error!("App Store Connect app not found: #{app_identifier}") unless app
+
+  platform_api = Spaceship::ConnectAPI::Platform.map(platform)
+  store_label = platform.to_s == "osx" ? "Mac App Store" : "iOS App Store"
+
+  submission = app.get_in_progress_review_submission(
+    platform: platform_api,
+    includes: "appStoreVersionForReview"
+  )
+  return if submission.nil?
+
+  blocked = submission.app_store_version_for_review
+  blocked_version = blocked&.version_string.to_s
+  blocked_version = "(unknown)" if blocked_version.empty?
+  state = submission.state.to_s
+
+  state_human =
+    case state
+    when "WAITING_FOR_REVIEW" then "waiting for review"
+    when "IN_REVIEW" then "in review"
+    when "UNRESOLVED_ISSUES" then "blocked by unresolved review issues"
+    else
+      state.empty? ? "in review" : state.downcase.tr("_", " ")
+    end
+
+  if blocked_version == version.to_s
+    UI.user_error!(
+      "v#{version} is already #{state_human} on the #{store_label}.\n" \
+      "Do not re-run auto-submit. In App Store Connect, verify the attached " \
+      "build and What's New are correct, or remove from review and fix " \
+      "manually, then re-run App Store submission with skip_binary_upload " \
+      "if needed."
+    )
+  end
+
+  UI.user_error!(
+    "v#{blocked_version} is already #{state_human} on the #{store_label}.\n" \
+    "Refusing to submit v#{version} automatically (would risk attaching the " \
+    "wrong build).\n" \
+    "In App Store Connect: remove v#{blocked_version} from review (or wait " \
+    "for approval), merge What's New into the v#{version} changelog if that " \
+    "version never shipped, then re-run this workflow."
+  )
+end
+
 platform :mac do
   desc "Upload MAS pkg + What's new to App Store Connect and submit for review"
   lane :submit_mac_app_store do |options|
@@ -64,6 +114,12 @@ platform :mac do
     UI.user_error!("PKG not found: #{options[:pkg]}") if !options[:pkg].to_s.strip.empty? && !File.exist?(pkg.to_s)
     build_number = options[:build_number].to_s.strip
     build_number = nil if build_number.empty?
+
+    fail_if_app_store_review_in_progress!(
+      app_identifier: APP_IDENTIFIER,
+      platform: "osx",
+      version: version
+    )
 
     # Never use locale "default" alone — stamp the real primary language.
     deliver(
@@ -102,6 +158,12 @@ platform :ios do
     UI.user_error!("IPA not found: #{options[:ipa]}") if !options[:ipa].to_s.strip.empty? && !File.exist?(ipa.to_s)
     build_number = options[:build_number].to_s.strip
     build_number = nil if build_number.empty?
+
+    fail_if_app_store_review_in_progress!(
+      app_identifier: APP_IDENTIFIER,
+      platform: "ios",
+      version: version
+    )
 
     deliver(
       api_key: api_key,
