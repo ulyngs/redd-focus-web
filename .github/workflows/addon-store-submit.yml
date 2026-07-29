@@ -237,15 +237,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Checkout for notes (standalone tag)
-        if: needs.prepare.outputs.notes_ref != ''
+      # Checkout the workflow ref (branch tip) so submit scripts exist even when
+      # submitting an older release tag that predates them. Overlay changelog
+      # from the tag for accurate AMO release notes.
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.notes_ref }}
 
-      - name: Checkout for notes (Release build commit)
-        if: needs.prepare.outputs.notes_ref == ''
-        uses: actions/checkout@v4
+      - name: Overlay changelog from release tag
+        if: needs.prepare.outputs.notes_ref != ''
+        env:
+          NOTES_REF: ${{ needs.prepare.outputs.notes_ref }}
+        run: |
+          set -euo pipefail
+          git fetch --depth 1 origin "refs/tags/${NOTES_REF}:refs/tags/${NOTES_REF}"
+          git checkout "${NOTES_REF}" -- changelog.md
+          echo "Using changelog.md from ${NOTES_REF} with scripts from ${GITHUB_SHA}"
 
       - name: Setup Node
         uses: actions/setup-node@v4
