@@ -49,8 +49,8 @@
 		D76921BC2756452E00EB4CEA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D76921BA2756452E00EB4CEA /* LaunchScreen.storyboard */; };
 		D76921BF2756452E00EB4CEA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D76921BD2756452E00EB4CEA /* Main.storyboard */; };
 		D76921C82756452E00EB4CEA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76921C72756452E00EB4CEA /* AppDelegate.swift */; };
-		D76921D22756452E00EB4CEA /* ReDD Focus Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D76921D12756452E00EB4CEA /* ReDD Focus Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D76921DC2756452E00EB4CEA /* ReDD Focus Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D76921DB2756452E00EB4CEA /* ReDD Focus Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D76921D22756452E00EB4CEA /* Digital Habits Focus Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D76921D12756452E00EB4CEA /* Digital Habits Focus Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D76921DC2756452E00EB4CEA /* Digital Habits Focus Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D76921DB2756452E00EB4CEA /* Digital Habits Focus Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D76921E22756452E00EB4CEA /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = D769219D2756452C00EB4CEA /* Main.html */; };
 		D76921E32756452E00EB4CEA /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = D769219D2756452C00EB4CEA /* Main.html */; };
 		D76921E62756452E00EB4CEA /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = D76921A02756452C00EB4CEA /* Style.css */; };
@@ -117,7 +117,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D76921D22756452E00EB4CEA /* ReDD Focus Extension.appex in Embed Foundation Extensions */,
+				D76921D22756452E00EB4CEA /* Digital Habits Focus Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -128,7 +128,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D76921DC2756452E00EB4CEA /* ReDD Focus Extension.appex in Embed Foundation Extensions */,
+				D76921DC2756452E00EB4CEA /* Digital Habits Focus Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -167,18 +167,18 @@
 		D76921AC2756452E00EB4CEA /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = popup.html; sourceTree = "<group>"; };
 		D76921AD2756452E00EB4CEA /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = popup.css; sourceTree = "<group>"; };
 		D76921AE2756452E00EB4CEA /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = popup.js; sourceTree = "<group>"; };
-		D76921B32756452E00EB4CEA /* ReDD Focus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReDD Focus.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D76921B32756452E00EB4CEA /* Digital Habits Focus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Habits Focus.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D76921B62756452E00EB4CEA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D76921B82756452E00EB4CEA /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		D76921BB2756452E00EB4CEA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D76921BE2756452E00EB4CEA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D76921C02756452E00EB4CEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D76921C52756452E00EB4CEA /* ReDD Focus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReDD Focus.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D76921C52756452E00EB4CEA /* Digital Habits Focus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Habits Focus.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D76921C72756452E00EB4CEA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D76921CA2756452E00EB4CEA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		D76921D12756452E00EB4CEA /* ReDD Focus Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ReDD Focus Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D76921D12756452E00EB4CEA /* Digital Habits Focus Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Digital Habits Focus Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D76921D62756452E00EB4CEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D76921DB2756452E00EB4CEA /* ReDD Focus Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ReDD Focus Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D76921DB2756452E00EB4CEA /* Digital Habits Focus Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Digital Habits Focus Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D76921E02756452E00EB4CEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D769221627564D8F00EB4CEA /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		D76E9F03294E487F0067C09D /* iPad_turn_on_two_annotated.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = iPad_turn_on_two_annotated.jpeg; sourceTree = "<group>"; };
@@ -314,10 +314,10 @@
 		D76921B42756452E00EB4CEA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D76921B32756452E00EB4CEA /* ReDD Focus.app */,
-				D76921C52756452E00EB4CEA /* ReDD Focus.app */,
-				D76921D12756452E00EB4CEA /* ReDD Focus Extension.appex */,
-				D76921DB2756452E00EB4CEA /* ReDD Focus Extension.appex */,
+				D76921B32756452E00EB4CEA /* Digital Habits Focus.app */,
+				D76921C52756452E00EB4CEA /* Digital Habits Focus.app */,
+				D76921D12756452E00EB4CEA /* Digital Habits Focus Extension.appex */,
+				D76921DB2756452E00EB4CEA /* Digital Habits Focus Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -385,7 +385,7 @@
 			);
 			name = "App (iOS)";
 			productName = "Hide distractions on YouTube (iOS)";
-			productReference = D76921B32756452E00EB4CEA /* ReDD Focus.app */;
+			productReference = D76921B32756452E00EB4CEA /* Digital Habits Focus.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D76921C42756452E00EB4CEA /* App (macOS) */ = {
@@ -404,7 +404,7 @@
 			);
 			name = "App (macOS)";
 			productName = "Hide distractions on YouTube (macOS)";
-			productReference = D76921C52756452E00EB4CEA /* ReDD Focus.app */;
+			productReference = D76921C52756452E00EB4CEA /* Digital Habits Focus.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D76921D02756452E00EB4CEA /* Extension (iOS) */ = {
@@ -421,7 +421,7 @@
 			);
 			name = "Extension (iOS)";
 			productName = "Hide distractions on YouTube Extension (iOS)";
-			productReference = D76921D12756452E00EB4CEA /* ReDD Focus Extension.appex */;
+			productReference = D76921D12756452E00EB4CEA /* Digital Habits Focus Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D76921DA2756452E00EB4CEA /* Extension (macOS) */ = {
@@ -438,7 +438,7 @@
 			);
 			name = "Extension (macOS)";
 			productName = "Hide distractions on YouTube Extension (macOS)";
-			productReference = D76921DB2756452E00EB4CEA /* ReDD Focus Extension.appex */;
+			productReference = D76921DB2756452E00EB4CEA /* Digital Habits Focus Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -821,7 +821,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
-				PRODUCT_NAME = "ReDD Focus Extension";
+				PRODUCT_NAME = "Digital Habits Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -854,7 +854,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
-				PRODUCT_NAME = "ReDD Focus Extension";
+				PRODUCT_NAME = "Digital Habits Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -896,7 +896,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
-				PRODUCT_NAME = "ReDD Focus";
+				PRODUCT_NAME = "Digital Habits Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -936,7 +936,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
-				PRODUCT_NAME = "ReDD Focus";
+				PRODUCT_NAME = "Digital Habits Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -974,7 +974,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
-				PRODUCT_NAME = "ReDD Focus Extension";
+				PRODUCT_NAME = "Digital Habits Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
@@ -1012,7 +1012,7 @@
 					SafariServices,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield.mind-shield";
-				PRODUCT_NAME = "ReDD Focus Extension";
+				PRODUCT_NAME = "Digital Habits Focus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
@@ -1055,7 +1055,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
-				PRODUCT_NAME = "ReDD Focus";
+				PRODUCT_NAME = "Digital Habits Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
@@ -1097,7 +1097,7 @@
 					WebKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ulriklyngs.mind-shield";
-				PRODUCT_NAME = "ReDD Focus";
+				PRODUCT_NAME = "Digital Habits Focus";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;

@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D76921C42756452E00EB4CEA"
-               BuildableName = "ReDD Focus.app"
+               BuildableName = "Digital Habits Focus.app"
                BlueprintName = "App (macOS)"
                ReferencedContainer = "container:ReDD Focus.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D76921C42756452E00EB4CEA"
-            BuildableName = "ReDD Focus.app"
+            BuildableName = "Digital Habits Focus.app"
             BlueprintName = "App (macOS)"
             ReferencedContainer = "container:ReDD Focus.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D76921C42756452E00EB4CEA"
-            BuildableName = "ReDD Focus.app"
+            BuildableName = "Digital Habits Focus.app"
             BlueprintName = "App (macOS)"
             ReferencedContainer = "container:ReDD Focus.xcodeproj">
          </BuildableReference>

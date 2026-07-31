@@ -2,7 +2,7 @@
 ** FACEBOOK **
 **************/
 /*
-/* hide feed by default, so it isn't flashing before ReDD Focus's CSS is injected */
+/* hide feed by default, so it isn't flashing before Digital Habits: Focus's CSS is injected */
 /*** feed ***/
 #ssrb_feed_start + div, div.x1hc1fzr.x1unhpq9.x6o7n8i { visibility: hidden; } #screen-root div > div[data-mcomponent="MContainer"] > div.m.displayed:nth-child(n+6) { display: none; }
 

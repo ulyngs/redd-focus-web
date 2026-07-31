@@ -37,7 +37,7 @@ This update comes with some helpful improvements!`;
 
 const SIGNOFF = `Please keep suggesting improvements to the app - you can do so at https://github.com/ulyngs/reddfocus-open-source
 
-We hope you're enjoying ReDD Focus!
+We hope you're enjoying Digital Habits: Focus!
 
 - Ulrik, Tiago, & the Centre for Digital Habits Team
 (digitalhabits.org)`;

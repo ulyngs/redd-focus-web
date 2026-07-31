@@ -1,16 +1,16 @@
-# ReDD Focus
+# Digital Habits: Focus
 
 **Plain sailing in the distracting digital world**
 
 <p align="center">
-  <img src="https://github.com/ulyngs/mindshield-open-source/blob/main/Shared%20(Extension)/Resources/images/icon-512.png?raw=true" alt="ReDD Focus Icon" width="120" />
+  <img src="https://github.com/ulyngs/reddfocus-open-source/blob/main/Shared%20(Extension)/Resources/images/icon-512.png?raw=true" alt="Digital Habits: Focus Icon" width="120" />
 </p>
 
-Source code for the Safari, Chrome, and Firefox extension **ReDD Focus**, available for Mac, iOS, and other devices.
+Source code for the Safari, Chrome, and Firefox extension **Digital Habits: Focus**, available for Mac, iOS, and other devices.
 
-**Hide distractions on any website** (e.g., YouTube, Instagram, LinkedIn, Google Search, etc.). Works on any website in any browser, with pre-configured options for popular platforms.
+**Hide distractions on any site** (e.g., YouTube, Instagram, LinkedIn, Google Search, etc.). Works on any website in any browser, with pre-configured options for popular platforms.
 
-ReDD Focus is **open source**, developed by the [Centre for Digital Habit](https://digitalhabits.org), and [backed by research](https://arxiv.org/pdf/2001.04180.pdf).
+Digital Habits: Focus is **open source**, developed by the [Centre for Digital Habits](https://digitalhabits.org), and [backed by research](https://arxiv.org/pdf/2001.04180.pdf).
 
 ## Features
 
@@ -26,12 +26,12 @@ ReDD Focus is **open source**, developed by the [Centre for Digital Habit](https
 ## Screenshots
 
 <p align="center">
-  <img src="./docs/screenshots/RF-git-1.2.png" alt="ReDD Focus — 1" width="49%" />
-  <img src="./docs/screenshots/RF-git-4.png" alt="ReDD Focus — 2" width="49%" />
+  <img src="./docs/screenshots/RF-git-1.2.png" alt="Digital Habits: Focus — 1" width="49%" />
+  <img src="./docs/screenshots/RF-git-4.png" alt="Digital Habits: Focus — 2" width="49%" />
 </p>
 <p align="center">
-  <img src="./docs/screenshots/RF-git-5.png" alt="ReDD Focus — 3" width="49%" />
-  <img src="./docs/screenshots/RF-git-6.png" alt="ReDD Focus — 4" width="49%" />
+  <img src="./docs/screenshots/RF-git-5.png" alt="Digital Habits: Focus — 3" width="49%" />
+  <img src="./docs/screenshots/RF-git-6.png" alt="Digital Habits: Focus — 4" width="49%" />
 </p>
 
 ## Installation

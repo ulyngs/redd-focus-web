@@ -1,4 +1,4 @@
-# Master prompt: ReDD Focus add-on store submissions
+# Master prompt: Digital Habits: Focus add-on store submissions
 
 Copy everything below the line into a new agent chat (or paste as the task brief). Fill in nothing first — the agent should stop and ask clarifying questions before implementing.
 
@@ -6,7 +6,7 @@ Copy everything below the line into a new agent chat (or paste as the task brief
 
 ## Role
 
-You are implementing **browser add-on store auto-submit** for **ReDD Focus** in the repo `ulyngs/reddfocus-open-source` (local path typically `reddfocus-open-source` under the Apps workspace).
+You are implementing **browser add-on store auto-submit** for **Digital Habits: Focus** in the repo `ulyngs/reddfocus-open-source` (local path typically `reddfocus-open-source` under the Apps workspace).
 
 **Do not implement until you have asked clarifying questions and received answers.** First: read this prompt + the existing repo workflows/scripts, then ask a short list of blocking questions. After answers, implement fully, with dry-run steps I can run locally, secret-sourcing guides, docs, and a suggested commit order.
 
@@ -201,7 +201,7 @@ Assume I start with **zero** secrets. Implement docs that walk through every sec
 **How to get them (document step-by-step in the repo docs):**
 
 1. Sign in to [Firefox Add-on Developer Hub](https://addons.mozilla.org/developers/).
-2. Open the ReDD Focus listing (or create API credentials at account level).
+2. Open the Digital Habits: Focus listing (or create API credentials at account level).
 3. Go to **API Keys** / **Generate new credentials** (AMO → tools / API credentials — current UI: https://addons.mozilla.org/en-US/developers/addon/api/key/ or account API keys page).
 4. Create a key → copy **JWT issuer** (`user:…:…`) and **JWT secret**.
 5. Confirm extension id matches `manifest.json` → `browser_specific_settings.gecko.id` (`mindshield@example.com`). If the AMO slug differs from the GUID id, use the id AMO’s API expects (same as 2fa: the extension id used in upload).
@@ -232,7 +232,7 @@ Those are for the **old** CWS API v1.1 refresh-token flow (sunset ~Oct 2026). We
 
 1. **Chrome Web Store Developer Dashboard**  
    - https://chrome.google.com/webstore/devconsole  
-   - Note the **Extension ID** of ReDD Focus.  
+   - Note the **Extension ID** of Digital Habits: Focus.  
    - Note the **Publisher ID** (account settings / dashboard URL / publisher profile — document where it appears in current UI).
 
 2. **Google Cloud project linked to the Web Store publisher**  
@@ -266,7 +266,7 @@ Those are for the **old** CWS API v1.1 refresh-token flow (sunset ~Oct 2026). We
 
 1. Sign in to [Partner Center](https://partner.microsoft.com/dashboard) with the account that owns the Edge extension.
 2. Open the **Microsoft Edge** program (Edge Add-ons), not the Windows apps / MSIX product.
-3. Open the existing ReDD Focus Edge product (already published — listing id `gmjfgjdh…`).
+3. Open the existing Digital Habits: Focus Edge product (already published — listing id `gmjfgjdh…`).
 4. Find the **Product ID** (GUID) on the product overview / identity page — store as `EDGE_PRODUCT_ID`.
 5. Go to **Publish API** (under Microsoft Edge):  
    - Enable the **new experience** / API keys (v1.1) if prompted.  

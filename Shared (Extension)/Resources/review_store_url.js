@@ -1,6 +1,6 @@
 /**
  * Review-store URLs for the popup prompt. Standalone: only uses
- * chrome.runtime + navigator (no ReDD Blocker, native messaging, or block pages).
+ * chrome.runtime + navigator (no Digital Habits: Blocker, native messaging, or block pages).
  */
 
 const APPLE_LISTING =

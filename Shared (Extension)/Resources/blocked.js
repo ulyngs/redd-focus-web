@@ -68,7 +68,7 @@
       const pill = document.getElementById("pill");
       pill.style.setProperty("--pill-bg", color);
       // Pick legible text color for the supplied background. Most
-      // blocklist colors in ReDD Blocker are pastel so black text is the
+      // blocklist colors in Digital Habits: Blocker are pastel so black text is the
       // safer default; we only force white when the color is genuinely
       // dark.
       pill.style.setProperty("--pill-text", textColorFor(color));

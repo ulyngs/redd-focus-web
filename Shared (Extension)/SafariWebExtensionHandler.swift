@@ -1,6 +1,6 @@
 // SafariWebExtensionHandler.swift
 //
-// Native messaging handler for the Safari target of the ReDD Focus
+// Native messaging handler for the Safari target of Digital Habits: Focus
 // extension. Safari routes `browser.runtime.sendNativeMessage` /
 // `browser.runtime.connectNative` to this class inside the
 // containing .app bundle (no separate native host binary like
@@ -28,16 +28,16 @@
 // invocation delivers exactly one message and we reply with one
 // response via `NSExtensionItem.userInfo`.
 //
-// --- Data sharing with ReDD Blocker ---
+// --- Data sharing with Digital Habits: Blocker ---
 //
 // Safari is sandboxed (App Store), so the user-home
 // `~/Library/Application Support/com.redd.block/redd-block-data.json`
 // path used by Chrome/Firefox isn't directly readable. We use a shared
-// App Group container instead. Both ReDD Blocker (Tauri) and ReDD Focus
-// (this bundle) declare the
+// App Group container instead. Both Digital Habits: Blocker (Tauri) and
+// Digital Habits: Focus (this bundle) declare the
 // `com.apple.security.application-groups = group.com.reddblock.shared`
-// entitlement; ReDD Blocker writes the JSON into the group container,
-// this handler reads it from there.
+// entitlement; Digital Habits: Blocker writes the JSON into the group
+// container, this handler reads it from there.
 //
 // Fallbacks (for non-sandbox or pre-App-Group builds): the legacy
 // shared `/var/lib/redd-block/redd-block-data.json` path, then the
@@ -61,7 +61,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         #if os(macOS)
         // Persist any self-reported extension state (e.g. private-browsing
-        // access) into the App Group container so ReDD Blocker can read it
+        // access) into the App Group container so Digital Habits: Blocker can read it
         // back without needing Full Disk Access on Safari's sandboxed
         // Extensions.plist. background.js sends this as
         // `{ type: "reddBlockRefresh", state: { privateBrowsing: bool } }`.
@@ -79,7 +79,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     #if os(macOS)
     /// Write the extension's self-reported state to
     /// `safari-extension-state.json` in the App Group container so
-    /// ReDD Blocker's profile_scan can read private-browsing access
+    /// Digital Habits: Blocker's profile_scan can read private-browsing access
     /// without needing FDA. Best-effort and atomic — a failed write
     /// leaves the previous file intact, and the Rust reader treats a
     /// missing or stale file as "unknown" and gracefully falls back
@@ -110,7 +110,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             "blocks": blocks,
         ]
         #else
-        // iOS ReDD Focus is standalone and does not link to ReDD Blocker.
+        // iOS Digital Habits: Focus is standalone and does not link to Digital Habits: Blocker.
         return [
             "blocklist": [],
             "blocks": [],
@@ -307,7 +307,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     ///   2. Legacy /var/lib/redd-block (helper-era, not written anymore but
     ///      kept for backwards compatibility on installs that still have it).
     ///   3. Per-user ~/Library/Application Support/com.redd.block (used
-    ///      when ReDD Blocker is running unsandboxed without an App Group).
+    ///      when Digital Habits: Blocker is running unsandboxed without an App Group).
     private func reddBlockDataURL() -> URL? {
         let fm = FileManager.default
         if let group = fm.containerURL(forSecurityApplicationGroupIdentifier: kAppGroupID) {

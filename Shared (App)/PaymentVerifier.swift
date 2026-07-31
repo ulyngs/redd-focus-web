@@ -2,7 +2,7 @@
 //  PaymentVerifier.swift
 //  Shared (App)
 //
-//  Created for ReDD Focus payment verification
+//  Created for Digital Habits: Focus payment verification
 //
 
 import Foundation

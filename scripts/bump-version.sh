@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bump ReDD Focus version across manifest.json and the Xcode project.
+# Bump Digital Habits: Focus version across manifest.json and the Xcode project.
 #
 # Usage:
 #   ./scripts/bump-version.sh 6.8.0

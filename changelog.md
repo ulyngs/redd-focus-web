@@ -90,7 +90,7 @@ macOS, iOS, macOS, etc.):
 
 ## v6.7.0
 
-> Bug fixes, popup polish, and ReDD Blocker allowlist alignment.
+> Bug fixes, popup polish, and Digital Habits: Blocker allowlist alignment.
 
 ### BRANDING & POPUP
 

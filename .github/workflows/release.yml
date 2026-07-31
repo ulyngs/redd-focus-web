@@ -488,7 +488,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
-          name: ReDD Focus ${{ steps.meta.outputs.version }}
+          name: Digital Habits: Focus ${{ steps.meta.outputs.version }}
           body_path: release-notes.md
           files: |
             for-distribution/redd-focus-v*.zip

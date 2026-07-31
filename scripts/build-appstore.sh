@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Archive + export ReDD Focus for App Store Connect (iOS IPA or Mac App Store pkg).
+# Archive + export Digital Habits: Focus for App Store Connect (iOS IPA or Mac App Store pkg).
 #
 # Requires App Store Connect API key env vars (Admin role recommended for
 # automatic provisioning updates):
