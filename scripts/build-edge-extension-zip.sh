@@ -12,7 +12,7 @@
 #   ./scripts/build-edge-extension-zip.sh
 #   ./scripts/build-edge-extension-zip.sh 6.8.0
 #
-# Output: for-distribution/redd-focus-edge-v<version>.zip
+# Output: for-distribution/digital-habits-focus-edge-v<version>.zip
 
 set -euo pipefail
 
@@ -27,7 +27,7 @@ fi
 VERSION="${VERSION#v}"
 
 mkdir -p "$OUT_DIR"
-ZIP_NAME="redd-focus-edge-v${VERSION}.zip"
+ZIP_NAME="digital-habits-focus-edge-v${VERSION}.zip"
 ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
 TMP="$(mktemp -d)"

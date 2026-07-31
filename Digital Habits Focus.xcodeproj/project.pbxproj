@@ -465,7 +465,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D769219A2756452C00EB4CEA /* Build configuration list for PBXProject "ReDD Focus" */;
+			buildConfigurationList = D769219A2756452C00EB4CEA /* Build configuration list for PBXProject "Digital Habits Focus" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -1109,7 +1109,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D769219A2756452C00EB4CEA /* Build configuration list for PBXProject "ReDD Focus" */ = {
+		D769219A2756452C00EB4CEA /* Build configuration list for PBXProject "Digital Habits Focus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D76922002756452E00EB4CEA /* Debug */,

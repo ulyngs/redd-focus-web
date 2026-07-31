@@ -153,8 +153,8 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${{ steps.ref.outputs.version }}"
-          SHARED="for-distribution/redd-focus-v${VERSION}.zip"
-          EDGE="for-distribution/redd-focus-edge-v${VERSION}.zip"
+          SHARED="for-distribution/digital-habits-focus-v${VERSION}.zip"
+          EDGE="for-distribution/digital-habits-focus-edge-v${VERSION}.zip"
           if [[ ! -f "$SHARED" ]]; then
             echo "Missing shared zip: $SHARED" >&2
             ls -la for-distribution || true
@@ -174,8 +174,8 @@ jobs:
         with:
           name: addon-store-packages
           path: |
-            for-distribution/redd-focus-v*.zip
-            for-distribution/redd-focus-edge-v*.zip
+            for-distribution/digital-habits-focus-v*.zip
+            for-distribution/digital-habits-focus-edge-v*.zip
           if-no-files-found: error
           retention-days: 5
 
@@ -226,7 +226,7 @@ jobs:
           CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          ZIP="for-distribution/redd-focus-v${{ needs.prepare.outputs.version }}.zip"
+          ZIP="for-distribution/digital-habits-focus-v${{ needs.prepare.outputs.version }}.zip"
           echo "Submitting ${ZIP} to Chrome Web Store (API v2)…"
           npx publish-browser-extension@5.1.0 --chrome-zip "$ZIP"
 
@@ -292,7 +292,7 @@ jobs:
           FIREFOX_CREATE_RETRIES: "6"
         run: |
           set -euo pipefail
-          ZIP="for-distribution/redd-focus-v${FIREFOX_EXPECTED_VERSION}.zip"
+          ZIP="for-distribution/digital-habits-focus-v${FIREFOX_EXPECTED_VERSION}.zip"
           echo "Submitting ${ZIP} to Firefox Add-ons…"
           # Custom AMO v5 submit: JSON create-version (not publish-browser-extension's
           # multipart/empty-source stream POST, which CI hits as undici
@@ -399,6 +399,6 @@ jobs:
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
         run: |
           set -euo pipefail
-          ZIP="for-distribution/redd-focus-edge-v${{ needs.prepare.outputs.version }}.zip"
+          ZIP="for-distribution/digital-habits-focus-edge-v${{ needs.prepare.outputs.version }}.zip"
           echo "Submitting ${ZIP} to Edge Add-ons (no cert notes)…"
           npx publish-browser-extension@5.1.0 --edge-zip "$ZIP"

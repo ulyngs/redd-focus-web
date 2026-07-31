@@ -114,8 +114,8 @@ jobs:
         with:
           name: extension-zip
           path: |
-            for-distribution/redd-focus-v*.zip
-            for-distribution/redd-focus-edge-v*.zip
+            for-distribution/digital-habits-focus-v*.zip
+            for-distribution/digital-habits-focus-edge-v*.zip
           if-no-files-found: error
           retention-days: 30
 
@@ -164,7 +164,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-app-store-pkg
-          path: for-distribution/redd-focus_*.pkg
+          path: for-distribution/digital-habits-focus_*.pkg
           if-no-files-found: error
           retention-days: 30
 
@@ -211,7 +211,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: for-distribution/redd-focus_*.ipa
+          path: for-distribution/digital-habits-focus_*.ipa
           if-no-files-found: error
           retention-days: 30
 
@@ -428,7 +428,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p for-distribution
-          find artifacts/extension -type f \( -name 'redd-focus-v*.zip' -o -name 'redd-focus-edge-v*.zip' \) -exec cp -n {} for-distribution/ \;
+          find artifacts/extension -type f \( -name 'digital-habits-focus-v*.zip' -o -name 'digital-habits-focus-edge-v*.zip' \) -exec cp -n {} for-distribution/ \;
           if [[ -d artifacts/mas ]]; then
             find artifacts/mas -type f -name '*.pkg' -exec cp -n {} for-distribution/ \;
           fi
@@ -466,13 +466,13 @@ jobs:
             echo ""
             echo "### Install"
             echo ""
-            echo "- **Browser extension (Chrome / Firefox):** download \`redd-focus-v${VERSION}.zip\` for store upload or sideload."
-            echo "- **Browser extension (Edge):** download \`redd-focus-edge-v${VERSION}.zip\` (Partner Center rejects the shared zip’s dual background keys)."
-            if [[ -f for-distribution/redd-focus_${VERSION}.pkg ]]; then
-              echo "- **Mac App Store package:** \`redd-focus_${VERSION}.pkg\` (App Store Connect / Transporter)."
+            echo "- **Browser extension (Chrome / Firefox):** download \`digital-habits-focus-v${VERSION}.zip\` for store upload or sideload."
+            echo "- **Browser extension (Edge):** download \`digital-habits-focus-edge-v${VERSION}.zip\` (Partner Center rejects the shared zip’s dual background keys)."
+            if [[ -f for-distribution/digital-habits-focus_${VERSION}.pkg ]]; then
+              echo "- **Mac App Store package:** \`digital-habits-focus_${VERSION}.pkg\` (App Store Connect / Transporter)."
             fi
-            if [[ -f for-distribution/redd-focus_${VERSION}.ipa ]]; then
-              echo "- **iOS App Store package:** \`redd-focus_${VERSION}.ipa\` (App Store Connect / Transporter)."
+            if [[ -f for-distribution/digital-habits-focus_${VERSION}.ipa ]]; then
+              echo "- **iOS App Store package:** \`digital-habits-focus_${VERSION}.ipa\` (App Store Connect / Transporter)."
             fi
             echo ""
             echo "GitHub also attaches **Source code (zip)** and **Source code (tar.gz)** automatically for this tag."
@@ -491,10 +491,10 @@ jobs:
           name: Digital Habits: Focus ${{ steps.meta.outputs.version }}
           body_path: release-notes.md
           files: |
-            for-distribution/redd-focus-v*.zip
-            for-distribution/redd-focus-edge-v*.zip
-            for-distribution/redd-focus_*.pkg
-            for-distribution/redd-focus_*.ipa
+            for-distribution/digital-habits-focus-v*.zip
+            for-distribution/digital-habits-focus-edge-v*.zip
+            for-distribution/digital-habits-focus_*.pkg
+            for-distribution/digital-habits-focus_*.ipa
           draft: false
           prerelease: false
           make_latest: true

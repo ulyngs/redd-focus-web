@@ -8,7 +8,7 @@
 #   ./scripts/build-extension-zip.sh
 #   ./scripts/build-extension-zip.sh 6.7.0
 #
-# Output: for-distribution/redd-focus-v<version>.zip
+# Output: for-distribution/digital-habits-focus-v<version>.zip
 
 set -euo pipefail
 
@@ -23,7 +23,7 @@ fi
 VERSION="${VERSION#v}"
 
 mkdir -p "$OUT_DIR"
-ZIP_NAME="redd-focus-v${VERSION}.zip"
+ZIP_NAME="digital-habits-focus-v${VERSION}.zip"
 ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
 rm -f "$ZIP_PATH"

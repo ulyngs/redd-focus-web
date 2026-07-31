@@ -7,7 +7,7 @@
 #
 # Primary source of truth after bump: Shared (Extension)/Resources/manifest.json
 # Also stamps MARKETING_VERSION / CURRENT_PROJECT_VERSION in
-# ReDD Focus.xcodeproj/project.pbxproj.
+# Digital Habits Focus.xcodeproj/project.pbxproj.
 #
 # If --build is omitted, CURRENT_PROJECT_VERSION is incremented by 1 from the
 # highest value currently in the pbxproj.
@@ -44,7 +44,7 @@ fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MANIFEST="$ROOT/Shared (Extension)/Resources/manifest.json"
-PBXPROJ="$ROOT/ReDD Focus.xcodeproj/project.pbxproj"
+PBXPROJ="$ROOT/Digital Habits Focus.xcodeproj/project.pbxproj"
 
 if [[ ! -f "$MANIFEST" ]]; then
   echo "Missing manifest: $MANIFEST" >&2
@@ -98,7 +98,7 @@ echo "✅ Version bumped to ${NEW_VERSION} (build ${NEW_BUILD})"
 echo ""
 echo "Files updated:"
 echo "  - Shared (Extension)/Resources/manifest.json"
-echo "  - ReDD Focus.xcodeproj/project.pbxproj"
+echo "  - Digital Habits Focus.xcodeproj/project.pbxproj"
 echo ""
 echo "Next: add ## v${NEW_VERSION} to changelog.md, commit, then tag v${NEW_VERSION}"
 echo "      or run Actions → Release build."

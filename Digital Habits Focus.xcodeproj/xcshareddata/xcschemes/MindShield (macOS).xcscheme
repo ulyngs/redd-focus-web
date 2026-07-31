@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D76921B22756452E00EB4CEA"
+               BlueprintIdentifier = "D76921C42756452E00EB4CEA"
                BuildableName = "Digital Habits Focus.app"
-               BlueprintName = "App (iOS)"
-               ReferencedContainer = "container:ReDD Focus.xcodeproj">
+               BlueprintName = "App (macOS)"
+               ReferencedContainer = "container:Digital Habits Focus.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,10 +44,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D76921B22756452E00EB4CEA"
+            BlueprintIdentifier = "D76921C42756452E00EB4CEA"
             BuildableName = "Digital Habits Focus.app"
-            BlueprintName = "App (iOS)"
-            ReferencedContainer = "container:ReDD Focus.xcodeproj">
+            BlueprintName = "App (macOS)"
+            ReferencedContainer = "container:Digital Habits Focus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,10 +61,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D76921B22756452E00EB4CEA"
+            BlueprintIdentifier = "D76921C42756452E00EB4CEA"
             BuildableName = "Digital Habits Focus.app"
-            BlueprintName = "App (iOS)"
-            ReferencedContainer = "container:ReDD Focus.xcodeproj">
+            BlueprintName = "App (macOS)"
+            ReferencedContainer = "container:Digital Habits Focus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

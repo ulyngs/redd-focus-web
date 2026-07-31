@@ -15,8 +15,8 @@
 #   MAS_BUILD_NUMBER=86 ./scripts/build-appstore.sh macos
 #
 # Outputs:
-#   for-distribution/redd-focus_<version>.ipa
-#   for-distribution/redd-focus_<version>.pkg
+#   for-distribution/digital-habits-focus_<version>.ipa
+#   for-distribution/digital-habits-focus_<version>.pkg
 
 set -euo pipefail
 
@@ -32,7 +32,7 @@ fi
 MANIFEST="$ROOT/Shared (Extension)/Resources/manifest.json"
 VERSION="$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).version)" "$MANIFEST")"
 TEAM_ID="${APPLE_DEVELOPMENT_TEAM:-JD647S9RT6}"
-PROJECT="ReDD Focus.xcodeproj"
+PROJECT="Digital Habits Focus.xcodeproj"
 BUILD_DIR="$ROOT/build/appstore"
 OUT_DIR="$ROOT/for-distribution"
 EXPORT_OPTIONS="$ROOT/ci/ExportOptions-AppStore.plist"
@@ -84,17 +84,17 @@ fi
 if [[ "$PLATFORM" == "ios" ]]; then
   SCHEME="MindShield (iOS)"
   DESTINATION="generic/platform=iOS"
-  ARCHIVE="$BUILD_DIR/ReDDFocus-iOS.xcarchive"
+  ARCHIVE="$BUILD_DIR/DigitalHabitsFocus-iOS.xcarchive"
   EXPORT_DIR="$BUILD_DIR/export-ios"
   ARTIFACT_GLOB="*.ipa"
-  STAGED="redd-focus_${VERSION}.ipa"
+  STAGED="digital-habits-focus_${VERSION}.ipa"
 else
   SCHEME="MindShield (macOS)"
   DESTINATION="generic/platform=macOS"
-  ARCHIVE="$BUILD_DIR/ReDDFocus-macOS.xcarchive"
+  ARCHIVE="$BUILD_DIR/DigitalHabitsFocus-macOS.xcarchive"
   EXPORT_DIR="$BUILD_DIR/export-macos"
   ARTIFACT_GLOB="*.pkg"
-  STAGED="redd-focus_${VERSION}.pkg"
+  STAGED="digital-habits-focus_${VERSION}.pkg"
 fi
 
 echo "=== Archiving ${SCHEME} (v${VERSION}) ==="

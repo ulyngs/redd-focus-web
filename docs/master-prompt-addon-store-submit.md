@@ -28,7 +28,7 @@ You are implementing **browser add-on store auto-submit** for **Digital Habits: 
 
 ### Release build (`\.github\workflows\release.yml`)
 
-- Builds extension zip via `scripts/build-extension-zip.sh` → `for-distribution/redd-focus-v<version>.zip`.
+- Builds extension zip via `scripts/build-extension-zip.sh` → `for-distribution/digital-habits-focus-v<version>.zip`.
 - Optional Mac / iOS App Store submits (checkboxes).
 - Optional GitHub Release.
 - Comment today: Chrome / Firefox / Edge auto-submit is **out of scope**; zip is for manual upload.
@@ -115,7 +115,7 @@ For Edge: API supports **notes for certification** (reviewer-facing only), not a
 
 When run standalone with `release_tag=v6.8.0`:
 
-- Checkout that tag (or checkout default branch and verify `manifest.json` version matches the tag), **or** download `redd-focus-v6.8.0.zip` from the GitHub Release and derive Edge zip by unpack → transform manifest → rezip.
+- Checkout that tag (or checkout default branch and verify `manifest.json` version matches the tag), **or** download `digital-habits-focus-v6.8.0.zip` from the GitHub Release and derive Edge zip by unpack → transform manifest → rezip.
 - Prefer a path that always applies the **Edge manifest transform** correctly.
 - Version must match `manifest.json` / Release asset naming.
 
@@ -137,8 +137,8 @@ When run standalone with `release_tag=v6.8.0`:
 
 | Artifact | Used by |
 | --- | --- |
-| `redd-focus-vX.Y.Z.zip` | Chrome + Firefox (unchanged dual-background manifest) |
-| `redd-focus-edge-vX.Y.Z.zip` (or equivalent clear name) | Edge only |
+| `digital-habits-focus-vX.Y.Z.zip` | Chrome + Firefox (unchanged dual-background manifest) |
+| `digital-habits-focus-edge-vX.Y.Z.zip` (or equivalent clear name) | Edge only |
 
 Update GitHub Release notes blurb in `release.yml` once wired (remove “auto-submit is not wired yet” when true). Optionally attach both zips to the Release.
 
@@ -152,7 +152,7 @@ Implement something like `scripts/build-edge-extension-zip.sh` (or extend `build
 2. Rewrite `manifest.json`:
    - Keep `"background": { "service_worker": "background.js" }` only — **remove `scripts`**.
    - Optionally remove `browser_specific_settings` (Firefox-only).
-3. Zip to `for-distribution/redd-focus-edge-v<version>.zip`.
+3. Zip to `for-distribution/digital-habits-focus-edge-v<version>.zip`.
 4. Validate with a small Node assert that Edge zip’s manifest has no `background.scripts`.
 5. **Never** commit the transformed manifest as the source of truth.
 
