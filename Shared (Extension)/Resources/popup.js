@@ -2372,7 +2372,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const frame = document.createElement('iframe');
             frame.className = 'blocked-page-frame';
-            frame.title = 'Blocked by ReDD Blocker';
+            frame.title = 'Blocked by Digital Habits: Blocker';
             try {
                 const frameUrl = new URL(normalizeBlockedPageUrl(blockedPageUrl));
                 frameUrl.searchParams.set('popup', '1');
