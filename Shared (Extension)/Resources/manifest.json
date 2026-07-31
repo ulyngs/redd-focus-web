@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "default_locale": "en",
-  "name": "ReDD Focus: Hide Distractions",
-  "description": "Open-source attention saver for the web (YouTube, Instagram, ... or any other site!).",
+  "name": "Digital Habits: Focus",
+  "description": "Hide distractions on any site (YouTube, Instagram, LinkedIn, and more).",
   "version": "6.8.0",
   "icons": {
     "48": "images/icon-48.png",

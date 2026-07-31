@@ -1,12 +1,11 @@
+/* Class = "NSMenuItem"; title = "Digital Habits: Focus"; ObjectID = "1Xt-HY-uBw"; */
+"1Xt-HY-uBw.title" = "Digital Habits: Focus";
 
-/* Class = "NSMenuItem"; title = "Viking Focus"; ObjectID = "1Xt-HY-uBw"; */
-"1Xt-HY-uBw.title" = "Viking Focus";
+/* Class = "NSMenuItem"; title = "Quit Digital Habits: Focus"; ObjectID = "4sb-4s-VLi"; */
+"4sb-4s-VLi.title" = "Quit Digital Habits: Focus";
 
-/* Class = "NSMenuItem"; title = "Quit Viking Focus"; ObjectID = "4sb-4s-VLi"; */
-"4sb-4s-VLi.title" = "Quit Viking Focus";
-
-/* Class = "NSMenuItem"; title = "About Viking Focus"; ObjectID = "5kV-Vb-QxS"; */
-"5kV-Vb-QxS.title" = "About Viking Focus";
+/* Class = "NSMenuItem"; title = "About Digital Habits: Focus"; ObjectID = "5kV-Vb-QxS"; */
+"5kV-Vb-QxS.title" = "About Digital Habits: Focus";
 
 /* Class = "NSMenu"; title = "Main Menu"; ObjectID = "AYu-sK-qS6"; */
 "AYu-sK-qS6.title" = "Main Menu";
@@ -14,23 +13,23 @@
 /* Class = "NSMenu"; title = "Help"; ObjectID = "F2S-fz-NVQ"; */
 "F2S-fz-NVQ.title" = "Help";
 
-/* Class = "NSMenuItem"; title = "Viking Focus Help"; ObjectID = "FKE-Sm-Kum"; */
-"FKE-Sm-Kum.title" = "Viking Focus Help";
+/* Class = "NSMenuItem"; title = "Digital Habits: Focus Help"; ObjectID = "FKE-Sm-Kum"; */
+"FKE-Sm-Kum.title" = "Digital Habits: Focus Help";
 
-/* Class = "NSWindow"; title = "Viking Focus"; ObjectID = "IQv-IB-iLA"; */
-"IQv-IB-iLA.title" = "Viking Focus";
+/* Class = "NSWindow"; title = "Digital Habits: Focus"; ObjectID = "IQv-IB-iLA"; */
+"IQv-IB-iLA.title" = "Digital Habits: Focus";
 
 /* Class = "NSMenuItem"; title = "Show All"; ObjectID = "Kd2-mp-pUS"; */
 "Kd2-mp-pUS.title" = "Show All";
 
-/* Class = "NSMenuItem"; title = "Hide Viking Focus"; ObjectID = "Olw-nP-bQN"; */
-"Olw-nP-bQN.title" = "Hide Viking Focus";
+/* Class = "NSMenuItem"; title = "Hide Digital Habits: Focus"; ObjectID = "Olw-nP-bQN"; */
+"Olw-nP-bQN.title" = "Hide Digital Habits: Focus";
 
 /* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "Vdr-fp-XzO"; */
 "Vdr-fp-XzO.title" = "Hide Others";
 
-/* Class = "NSMenu"; title = "Viking Focus"; ObjectID = "uQy-DD-JDr"; */
-"uQy-DD-JDr.title" = "Viking Focus";
+/* Class = "NSMenu"; title = "Digital Habits: Focus"; ObjectID = "uQy-DD-JDr"; */
+"uQy-DD-JDr.title" = "Digital Habits: Focus";
 
 /* Class = "NSMenuItem"; title = "Help"; ObjectID = "wpr-3q-Mcd"; */
 "wpr-3q-Mcd.title" = "Help";

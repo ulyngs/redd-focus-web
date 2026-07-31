@@ -162,7 +162,7 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
                 DispatchQueue.main.async {
                     let alert = NSAlert()
                     alert.messageText = "Open Safari → Settings → Extensions"
-                    alert.informativeText = "We couldn't open the Extensions pane automatically. Safari has been launched — please choose Safari → Settings → Extensions and enable ReDD Focus."
+                    alert.informativeText = "We couldn't open the Extensions pane automatically. Safari has been launched — please choose Safari → Settings → Extensions and enable Digital Habits: Focus."
                     alert.alertStyle = .informational
                     alert.addButton(withTitle: "OK")
                     alert.runModal()

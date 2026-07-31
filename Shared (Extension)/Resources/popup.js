@@ -2421,7 +2421,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Extension pages aren't sites (Safari uses the extension UUID as hostname).
             if (/^(chrome|chrome-extension|moz-extension|safari-web-extension|about):/.test(currentURL.protocol)) {
-                showUnsupportedPageMessage('Open a website tab to use ReDD Focus.');
+                showUnsupportedPageMessage('Open a website tab to use Digital Habits: Focus.');
                 return;
             }
 
