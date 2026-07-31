@@ -33,6 +33,25 @@ macOS, iOS, macOS, etc.):
 | `#### Firefox` | Firefox Add-ons | AMO `release_notes` (`en-GB`) |
 | `#### Edge` | Edge Add-ons | Edge package upload only (cert notes skipped) |
 
+## v6.9.0
+
+> Renamed to Digital Habits: Focus under the Centre for Digital Habits.
+
+### BRANDING
+
+- **Meet Digital Habits: Focus!** Renamed from **ReDD Focus** (also formerly
+  Viking Focus / MindShield) as part of the move from the Reduce Digital
+  Distraction (ReDD) Project to
+  **Centre for Digital Habits** ([digitalhabits.org](https://digitalhabits.org)).
+- **Digital Habits: Blocker.** In-app references to the companion desktop
+  blocker now use its new Digital Habits: Blocker name.
+- **digitalhabits.org protected.** The Centre for Digital Habits site is
+  treated as a protected host so Focus does not hide or redirect it.
+
+### RELEASE
+
+- **Version:** 6.9.0 (Safari Mac, Safari iOS, Chrome, Firefox, Edge).
+
 ## v6.8.0
 
 > Delay before opening sites, redirect rules, accessibility polish, and popup
