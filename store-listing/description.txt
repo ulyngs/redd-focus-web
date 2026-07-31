@@ -1,0 +1,19 @@
+*NOTE: WORKS WITHIN SAFARI, NOT THE APPS*: This app lets you control how YouTube, LinkedIn, etc. appears in the Safari browser. It does NOT change the apps, as this is not possible.
+
+To make using e.g. Instagram in the browser as convenient as the app, create an icon on your home screen to take you directly to the site in the browser. You can find instructions for how to do so when you open the app.
+
+----
+
+Digital Habits: Focus (formerly known as 'ReDD Focus', 'Viking Focus' and 'MindShield') is a browser extension for Safari we built to help ourselves be less distracted online.
+
+It primarily lets you hide distracting elements on any website, with ready-made options for YouTube, Facebook, Twitter, Instagram, LinkedIn, Reddit, Google Search, and WhatsApp Web. For example, on YouTube you might want to hide recommended videos, on Facebook you might hide the newsfeed, and on Google Search you might want to hide AI summaries.
+
+You have full control over what is hidden. Simply click the extension icon in the browser toolbar to select elements to hide, and save your preferred settings. To help hold yourself accountable, you can also add a delay time to change the settings.
+
+You can also delay opening of distracting websites, make any website greyscale to reduce its allure, and set up redirects from one website to somewhere else to keep your online use intentional.
+
+Everywhere you go on the internet, something tries to grab your attention. This extension gives you back control. Enjoy!
+
+- Ulrik, Konrad, Tiago, and the Centre for Digital Habits Team (see what we're up to at digitalhabits.org)
+
+NOTE: the extension is open source and collects zero user data. See the source code, flag bugs, or submit suggestions for improvement at https://github.com/ulyngs/reddfocus-open-source

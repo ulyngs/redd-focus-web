@@ -16,12 +16,6 @@
 
 APP_IDENTIFIER = "com.ulriklyngs.mind-shield"
 
-# Confirm live promotional text in App Store Connect before first CI ship
-# (≤170 chars, single line). Does not reliably persist across versions.
-PROMOTIONAL_TEXT =
-  "Hide distractions on any website (YouTube, Instagram, Reddit, etc.), " \
-  "and take back control of your attention!"
-
 def resolve_path(raw)
   p = raw.to_s.strip
   return nil if p.empty?
@@ -50,6 +44,22 @@ def read_notes(options)
   notes = File.read(notes_path).strip
   UI.user_error!("What's new file is empty — nothing platform-facing to submit") if notes.empty?
   notes
+end
+
+# Listing copy lives in store-listing/ so CI does not depend on leftover
+# App Store Connect text. Promo text also does not reliably persist across
+# versions — stamp both every Mac / iOS submit.
+def load_listing_copy
+  listing_root = File.expand_path("../store-listing", __dir__)
+  description_path = File.join(listing_root, "description.txt")
+  promo_path = File.join(listing_root, "promotional_text.txt")
+  UI.user_error!("Missing #{description_path}") unless File.exist?(description_path)
+  UI.user_error!("Missing #{promo_path}") unless File.exist?(promo_path)
+  description = File.read(description_path).strip
+  promotional_text = File.read(promo_path).strip
+  UI.user_error!("store-listing/description.txt is empty") if description.empty?
+  UI.user_error!("store-listing/promotional_text.txt is empty") if promotional_text.empty?
+  { description: description, promotional_text: promotional_text }
 end
 
 # Fail before deliver if this platform already has a version in review.
@@ -107,6 +117,7 @@ platform :mac do
   lane :submit_mac_app_store do |options|
     api_key = load_api_key
     notes = read_notes(options)
+    listing = load_listing_copy
     version = options.fetch(:version)
     locale = asc_locale
 
@@ -131,8 +142,9 @@ platform :mac do
       skip_binary_upload: pkg.nil?,
       build_number: build_number,
       languages: [locale],
+      description: { locale => listing[:description] },
       release_notes: { locale => notes },
-      promotional_text: { locale => PROMOTIONAL_TEXT },
+      promotional_text: { locale => listing[:promotional_text] },
       submit_for_review: true,
       automatic_release: true,
       skip_screenshots: true,
@@ -151,6 +163,7 @@ platform :ios do
   lane :submit_ios_app_store do |options|
     api_key = load_api_key
     notes = read_notes(options)
+    listing = load_listing_copy
     version = options.fetch(:version)
     locale = asc_locale
 
@@ -174,8 +187,9 @@ platform :ios do
       skip_binary_upload: ipa.nil?,
       build_number: build_number,
       languages: [locale],
+      description: { locale => listing[:description] },
       release_notes: { locale => notes },
-      promotional_text: { locale => PROMOTIONAL_TEXT },
+      promotional_text: { locale => listing[:promotional_text] },
       submit_for_review: true,
       automatic_release: true,
       skip_screenshots: true,

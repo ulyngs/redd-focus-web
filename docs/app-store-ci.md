@@ -14,6 +14,9 @@ What's new / notes come from [`changelog.md`](../changelog.md) via
 - `--platform firefox` → shared + `#### Firefox` → AMO `release_notes` (`en-GB`)
 - `--platform chrome` / `--platform edge` → preview only (no public What’s New via our APIs)
 
+Mac / iOS listing description and promotional text live in
+[`store-listing/`](../store-listing/) and are stamped on every Apple submit.
+
 ## Secrets (`ulyngs/reddfocus-open-source`)
 
 ### App Store Connect (Mac + iOS)
