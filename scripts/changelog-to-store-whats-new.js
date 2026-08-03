@@ -35,7 +35,7 @@ const INTRO = `Hi folks,
 
 This update comes with some helpful improvements!`;
 
-const SIGNOFF = `Please keep suggesting improvements to the app - you can do so at https://github.com/ulyngs/reddfocus-open-source
+const SIGNOFF = `Please keep suggesting improvements to the app - you can do so at https://github.com/ulyngs/digital-habits-focus
 
 We hope you're enjoying Digital Habits: Focus!
 

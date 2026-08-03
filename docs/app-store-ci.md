@@ -17,7 +17,7 @@ What's new / notes come from [`changelog.md`](../changelog.md) via
 Mac / iOS listing description and promotional text live in
 [`store-listing/`](../store-listing/) and are stamped on every Apple submit.
 
-## Secrets (`ulyngs/reddfocus-open-source`)
+## Secrets (`ulyngs/digital-habits-focus`)
 
 ### App Store Connect (Mac + iOS)
 

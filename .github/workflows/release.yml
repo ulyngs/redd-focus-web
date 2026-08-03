@@ -3,7 +3,7 @@
 #
 # One App Store Connect record (id1660218371, com.ulriklyngs.mind-shield) covers
 # both Mac and iOS. Submit jobs are independent of each other and of the GitHub
-# Release job (same independence model as redd-block / redd-todo).
+# Release job (same independence model as digital-habits-blocker / digital-habits-to-do).
 #
 # Trigger: Actions → "Release build" → Run workflow, or push tag v* (e.g. v6.8.0).
 # Manual inputs:
@@ -119,7 +119,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Builds always run (same graph shape as redd-block). Secrets are checked
+  # Builds always run (same graph shape as digital-habits-blocker). Secrets are checked
   # inside the job — GitHub forbids referencing `secrets` in job-level `if:`.
   build-macos:
     name: Mac App Store (.pkg)
