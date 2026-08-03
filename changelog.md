@@ -33,6 +33,28 @@ macOS, iOS, macOS, etc.):
 | `#### Firefox` | Firefox Add-ons | AMO `release_notes` (`en-GB`) |
 | `#### Edge` | Edge Add-ons | Edge package upload only (cert notes skipped) |
 
+## v6.9.1
+
+### BY PLATFORM
+
+#### Safari (Mac)
+
+- **A proper hello from Centre for Digital Habits.** Existing users now get a
+  one-time announcement on first launch explaining the new app name and that
+  the Reduce Digital Distraction Project is now
+  **Centre for Digital Habits** ([digitalhabits.org](https://digitalhabits.org)).
+
+#### Safari (iOS)
+
+- **A proper hello from Centre for Digital Habits.** Existing users now get a
+  one-time announcement on first launch explaining the new app name and that
+  the Reduce Digital Distraction Project is now
+  **Centre for Digital Habits** ([digitalhabits.org](https://digitalhabits.org)).
+
+### RELEASE
+
+- **Version:** 6.9.1 (Safari Mac, Safari iOS, Chrome, Firefox, Edge).
+
 ## v6.9.0
 
 > Renamed to Digital Habits: Focus under the Centre for Digital Habits.
