@@ -53,10 +53,6 @@ enum AppVersionHistory {
     }
 
     static var shouldShowRebrandNotice: Bool {
-#if DEBUG
-        // Dev builds always show it, so the screen stays easy to preview.
-        return true
-#else
         guard !hasSeenRebrandNotice else { return false }
 
         if let lastSeen = lastSeenVersion {
@@ -64,7 +60,6 @@ enum AppVersionHistory {
         }
 
         return isUpgradeFromUntrackedVersion
-#endif
     }
 
     /// Bootstrap for the single launch where no version has been recorded yet.
