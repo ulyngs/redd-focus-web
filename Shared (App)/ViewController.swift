@@ -108,6 +108,15 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
 #endif
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // Ahead of the setup steps. While the notice is pending this launch's
+        // version is deliberately not recorded yet — quitting without
+        // acknowledging it should leave it to reappear next launch.
+        if AppVersionHistory.shouldShowRebrandNotice {
+            webView.evaluateJavaScript("showRebrandNotice()")
+        } else {
+            AppVersionHistory.recordCurrentVersion()
+        }
+
 #if os(iOS)
         webView.evaluateJavaScript("show('ios')")
 #elseif os(macOS)
@@ -197,6 +206,12 @@ class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMess
         }
 
         NSLog("ReDD Focus: received message from web view: \(messageBody)")
+
+        if messageBody == "rebrand-notice-dismissed" {
+            AppVersionHistory.markRebrandNoticeShown()
+            AppVersionHistory.recordCurrentVersion()
+            return
+        }
 
 #if os(macOS)
         if (messageBody != "open-preferences") {

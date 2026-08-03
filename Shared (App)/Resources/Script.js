@@ -22,6 +22,18 @@ function show(platform, enabled) {
     }
 }
 
+/// Called from the native side when the rename notice should be shown; see
+/// RebrandNotice.swift for the gating. Dismissal is one-way — the native side
+/// records it so the notice never appears again.
+function showRebrandNotice() {
+    document.body.classList.add("show-rebrand-notice");
+}
+
+function dismissRebrandNotice() {
+    document.body.classList.remove("show-rebrand-notice");
+    postToController("rebrand-notice-dismissed");
+}
+
 function postToController(message) {
     if (typeof webkit === "undefined" ||
         !webkit.messageHandlers ||
@@ -54,6 +66,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const openPreferencesBtn = document.querySelector("button.open-preferences");
     if (openPreferencesBtn) {
         openPreferencesBtn.addEventListener("click", openPreferences);
+    }
+
+    // Rename notice continue button
+    const rebrandContinueBtn = document.getElementById("rebrand-notice-continue-btn");
+    if (rebrandContinueBtn) {
+        rebrandContinueBtn.addEventListener("click", dismissRebrandNotice);
     }
 
     // Optional section toggle

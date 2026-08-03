@@ -10,6 +10,23 @@
     <script src="../Script.js" defer></script>
 </head>
 <body>
+
+  <!-- One-time rename announcement for users upgrading from ReDD Focus.
+       Covers the setup steps until dismissed; shown only when the native side
+       calls showRebrandNotice() (see RebrandNotice.swift for the gating).
+       Fresh installs never see it. -->
+  <div class="rebrand-notice" id="rebrand-notice">
+    <div class="rebrand-notice-content">
+      <img class="rebrand-notice-logo" src="../icon-512.png" alt="Digital Habits: Focus Icon">
+      <h1 class="rebrand-notice-title">ReDD Focus is now <span class="rebrand-notice-brand">Digital Habits: Focus</span></h1>
+      <p class="rebrand-notice-subtitle">Same extension, new name. Your settings and hidden elements are all unchanged.</p>
+      <div class="rebrand-notice-card">
+        <p class="rebrand-notice-body">We’ve renamed the app because our team — previously the <strong>Reduce Digital Distraction Project</strong> — is now known as <strong>Centre for Digital Habits</strong> (digitalhabits.org).</p>
+      </div>
+      <button class="rebrand-notice-continue-btn" id="rebrand-notice-continue-btn" type="button">Continue</button>
+    </div>
+  </div>
+
   <div class="scrollable-content platform-ios">
 
     <!-- Sticky safe-area strip (status bar clearance); no title text -->

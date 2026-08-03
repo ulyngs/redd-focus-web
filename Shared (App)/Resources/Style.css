@@ -970,3 +970,105 @@ button.platform-mac.open-safari-btn:focus {
         font-size: 13px;
     }
 }
+
+/* ============================================
+   Rename notice (ReDD Focus -> Digital Habits: Focus)
+   Full-screen one-time announcement shown ahead of the setup steps.
+   Toggled by showRebrandNotice() in Script.js; gated in RebrandNotice.swift.
+   ============================================ */
+
+.rebrand-notice {
+    display: none;
+}
+
+body.show-rebrand-notice .rebrand-notice {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: var(--bg-primary);
+}
+
+/* The notice owns the window while it is up. */
+body.show-rebrand-notice .scrollable-content,
+body.show-rebrand-notice footer.app-entrance-footer {
+    display: none;
+}
+
+.rebrand-notice-content {
+    max-width: 460px;
+    text-align: center;
+}
+
+.rebrand-notice-logo {
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    margin-bottom: 22px;
+}
+
+.rebrand-notice-title {
+    margin: 0 0 10px;
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text-dark);
+}
+
+.rebrand-notice-brand {
+    color: var(--accent);
+}
+
+.rebrand-notice-subtitle {
+    max-width: 26em;
+    margin: 0 auto 28px;
+    color: var(--text-light);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.rebrand-notice-card {
+    margin-bottom: 24px;
+    padding: 18px 20px 16px;
+    border-left: 4px solid var(--redd-navy);
+    border-radius: var(--radius-card);
+    background-color: var(--redd-teal-soft);
+    text-align: left;
+}
+
+.rebrand-notice-body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--text-dark);
+}
+
+.rebrand-notice-continue-btn {
+    width: 100%;
+    min-width: var(--mac-cta-min-width);
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--accent);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rebrand-notice-continue-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+/* iOS windows are narrower than the Mac CTA floor. */
+body.platform-ios .rebrand-notice-continue-btn {
+    min-width: 0;
+}

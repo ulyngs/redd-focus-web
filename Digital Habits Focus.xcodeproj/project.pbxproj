@@ -21,6 +21,8 @@
 		5CD766792EBBAD0E0089C56F /* ios-5.png in Resources */ = {isa = PBXBuildFile; fileRef = 5CD766772EBBAD0E0089C56F /* ios-5.png */; };
 		71CCE4CB2E4F258A002FE508 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 71CCE4CA2E4F2585002FE508 /* background.js */; };
 		71CCE4CC2E4F258A002FE508 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 71CCE4CA2E4F2585002FE508 /* background.js */; };
+		7A1B2C3D2F0000010000AA02 /* RebrandNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1B2C3D2F0000010000AA01 /* RebrandNotice.swift */; };
+		7A1B2C3D2F0000010000AA03 /* RebrandNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1B2C3D2F0000010000AA01 /* RebrandNotice.swift */; };
 		71CCE4CE2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
 		71CCE4CF2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
 		71CCE4D02E4F29B3002FE508 /* PaymentVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */; };
@@ -143,6 +145,7 @@
 		5CD7666B2EBBAC870089C56F /* ios-4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-4.png"; sourceTree = "<group>"; };
 		5CD766772EBBAD0E0089C56F /* ios-5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ios-5.png"; sourceTree = "<group>"; };
 		71CCE4CA2E4F2585002FE508 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
+		7A1B2C3D2F0000010000AA01 /* RebrandNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RebrandNotice.swift; sourceTree = "<group>"; };
 		71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentVerifier.swift; sourceTree = "<group>"; };
 		AF05410A2FA0A49E00007AEA /* blocked.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = blocked.html; sourceTree = "<group>"; };
 		AF05410B2FA0A49E00007AEA /* blocked.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = blocked.js; sourceTree = "<group>"; };
@@ -246,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				71CCE4CD2E4F27FB002FE508 /* PaymentVerifier.swift */,
+				7A1B2C3D2F0000010000AA01 /* RebrandNotice.swift */,
 				D76921A22756452C00EB4CEA /* ViewController.swift */,
 				D76921A32756452E00EB4CEA /* Assets.xcassets */,
 				D769219C2756452C00EB4CEA /* Resources */,
@@ -596,6 +600,7 @@
 				D76921EA2756452E00EB4CEA /* ViewController.swift in Sources */,
 				D76921B72756452E00EB4CEA /* AppDelegate.swift in Sources */,
 				71CCE4CF2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */,
+				7A1B2C3D2F0000010000AA02 /* RebrandNotice.swift in Sources */,
 				D76921B92756452E00EB4CEA /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -605,6 +610,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				71CCE4CE2E4F27FB002FE508 /* PaymentVerifier.swift in Sources */,
+				7A1B2C3D2F0000010000AA03 /* RebrandNotice.swift in Sources */,
 				D76921EB2756452E00EB4CEA /* ViewController.swift in Sources */,
 				D76921C82756452E00EB4CEA /* AppDelegate.swift in Sources */,
 			);
