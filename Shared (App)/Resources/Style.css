@@ -1001,7 +1001,7 @@ body.show-rebrand-notice footer.app-entrance-footer {
 }
 
 .rebrand-notice-content {
-    max-width: 460px;
+    max-width: 520px;
     text-align: center;
 }
 
@@ -1032,14 +1032,17 @@ body.show-rebrand-notice footer.app-entrance-footer {
     color: var(--text-light);
     font-size: 15px;
     line-height: 1.5;
+    text-wrap: balance;
 }
 
 .rebrand-notice-card {
-    margin-bottom: 24px;
+    margin-top: 12px;
+    margin-bottom: 18px;
     padding: 18px 20px 16px;
-    border-left: 4px solid var(--redd-navy);
-    border-radius: var(--radius-card);
-    background-color: var(--redd-teal-soft);
+    border: none;
+    border-left: 4px solid #1a3c34;
+    border-radius: 14px;
+    background: #f2efe8;
     text-align: left;
 }
 
@@ -1048,6 +1051,21 @@ body.show-rebrand-notice footer.app-entrance-footer {
     font-size: 15px;
     line-height: 1.45;
     color: var(--text-dark);
+    text-wrap: pretty;
+}
+
+.rebrand-notice-divider {
+    margin: 14px 0 12px;
+    border: 0;
+    border-top: 1px solid rgba(26, 60, 52, 0.12);
+}
+
+.rebrand-notice-footnote {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-light);
+    text-wrap: pretty;
 }
 
 .rebrand-notice-continue-btn {
