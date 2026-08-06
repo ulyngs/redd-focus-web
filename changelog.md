@@ -14,6 +14,27 @@ This update comes with some design improvements.
 
 ### Branding
 
+- [macos] Existing users now get a one-time announcement on first launch
+  explaining the new app name and that the Reduce Digital Distraction Project
+  is now **Centre for Digital Habits**
+  ([digitalhabits.org](https://digitalhabits.org)).
+- [ios] Existing users now get a one-time announcement on first launch
+  explaining the new app name and that the Reduce Digital Distraction Project
+  is now **Centre for Digital Habits**
+  ([digitalhabits.org](https://digitalhabits.org)).
+
+### Internal
+
+- Development builds no longer force the Digital Habits rename notice on every
+  launch.
+- Updated documentation and links to the current repository and product names.
+
+## v6.9.1 (previous format)
+
+This update comes with some design improvements.
+
+### Branding
+
 - [macos] **A proper hello from Centre for Digital Habits.** Existing users
   now get a one-time announcement on first launch explaining the new app name
   and that the Reduce Digital Distraction Project is now

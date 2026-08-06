@@ -43,7 +43,7 @@ Public store What’s New / notes are generated for **macOS** (Mac App Store),
 Chrome and Edge; tag those when a change is browser-specific so GitHub notes
 stay accurate.
 
-Optional tags go at the start of the bullet (before the bold lead-in):
+Optional tags go at the start of the bullet:
 
 | Tag | Meaning |
 | --- | --- |
@@ -55,6 +55,11 @@ Optional tags go at the start of the bullet (before the bold lead-in):
 
 Rules:
 
+- Before tagging, **read the extension architecture** (README / store matrix:
+  Safari Mac, Safari iOS, Firefox, Chrome, Edge). Tag from where users
+  experience the change — not from the PR machine, a single browser test, or
+  where the code file lives. Same Mac+iOS Safari change needs `[macos]` and
+  `[ios]` bullets, not one invented Safari tag.
 - Tags describe **where users experience the change**, not where the code lives.
 - Omit the tag when the change applies on every supported browser/app.
 - Prefer the narrowest accurate tag.
@@ -63,12 +68,11 @@ Rules:
 - Do not duplicate the same change under multiple sections.
 
 ```markdown
-- [macos] **A proper hello from Centre for Digital Habits.** Existing Mac
-  users now get a one-time announcement on first launch…
-- [ios] **A proper hello from Centre for Digital Habits.** Existing iPhone and
-  iPad users now get a one-time announcement on first launch…
-- [firefox] **Leave a review opens the store reliably.** "Leave a review"
-  opens the Firefox Add-ons page correctly.
+- [macos] Existing Mac users now get a one-time announcement on first launch
+  explaining the new app name.
+- [ios] Existing iPhone and iPad users now get a one-time announcement on first
+  launch explaining the new app name.
+- [firefox] "Leave a review" opens the Firefox Add-ons page correctly.
 ```
 
 Untagged bullets apply everywhere.
@@ -77,23 +81,23 @@ Untagged bullets apply everywhere.
 
 ## Writing style
 
-### Branding, Hide Distracting Elements, Delay Opening Websites, Redirects, Accountability, Digital Habits: Blocker Integration, Internal
+Write **plain sentences** for every section — including Branding, Hide
+Distracting Elements, Delay Opening Websites, Redirects, Accountability,
+Digital Habits: Blocker Integration, Fixes & Polish, and Internal. Do **not**
+use a bold lead-in (`**Short title.** …`). Bold is only for product names or UI
+labels inside the sentence when needed.
 
-Use a **short bold lead-in**, then one or two plain sentences:
+One or two short sentences per bullet. State the change actively and clearly.
+Keep it specific enough that people recognise the change, but not so detailed
+that store notes become repetitive or run over character limits.
 
 ```markdown
-- **Delay before a site opens.** Take a breath before certain websites open
-  by turning on delay from the Custom section.
-- [macos] **A proper hello from Centre for Digital Habits.** Existing users
-  now get a one-time announcement on first launch explaining the new app name.
+- Take a breath before certain websites open by turning on delay from the
+  Custom section.
+- [macos] Existing users now get a one-time announcement on first launch
+  explaining the new app name.
+- The design of the Settings screen has been improved.
 ```
-
-The bold lead-in is a short summary (a few words). The sentence after it must
-still make sense on its own — do not repeat the same idea twice.
-
-### Fixes & Polish
-
-**No bold lead-in.** Write one plain sentence that states the fix or UI change.
 
 For UI/layout polish on a screen, prefer **one short screen-level bullet** over
 listing each control move or label tweak:
@@ -140,6 +144,8 @@ Use consistently: **Digital Habits: Focus**, **Digital Habits: Blocker**,
 
 ### Avoid
 
+- Bold lead-ins (`**Short title.** Body…`) — they waste store character budget
+  and read as repetitive once markdown is stripped.
 - Developer jargon: selectors as implementation detail unless users configure
   them, content scripts, native messaging, “under the hood”.
 - Hype or filler: “goes harder”, “enhancements”, “various improvements”,
@@ -147,8 +153,6 @@ Use consistently: **Digital Habits: Focus**, **Digital Habits: Blocker**,
 - Technical paths or IDs unless users need them.
 - Putting Settings layout under **Accountability** or **Delay Opening
   Websites** just because a label mentions unlock or delay.
-- Bold lead-ins under **Fixes & Polish**, or lead-ins that only restate the
-  body under other sections.
 
 Optional release summary: a leading `> …` blockquote under `## vX.Y.Z` is
 allowed. Store automation uses the author-written update intro line instead.
@@ -195,7 +199,7 @@ allowed. Store automation uses the author-written update intro line instead.
 | **iOS App Store** | Untagged + `[ios]` |
 | **Firefox AMO** | Untagged + `[firefox]` |
 | **Chrome / Edge** | Script supports `--platform chrome\|edge` for preview; no public What’s New API in our CI |
-| **Platform-specific store text** | Platform tags removed; bold lead-ins kept as plain text (no `*` / other markdown) |
+| **Platform-specific store text** | Platform tags removed; plain sentences (no `*` / other markdown) |
 
 ### Update intro line (required in `changelog.md`)
 
@@ -228,7 +232,7 @@ Hi folks,
 This update comes with some design improvements and under-the-hood improvements.
 
 Branding
-- A proper hello from Centre for Digital Habits. Existing users now get a one-time announcement…
+- Existing users now get a one-time announcement on first launch explaining the new app name…
 
 Fixes & Polish
 - The design of the Settings screen has been improved.
@@ -245,8 +249,7 @@ Rules for that body:
 - No blank line between a heading and its first bullet
 - No blank line between `Cheers,` and the signature
 - Empty sections omitted; **Internal** omitted
-- Product sections keep the lead-in as plain text after stripping `**`
-- **Fixes & Polish** bullets stay plain sentences
+- Bullets are plain sentences (no bold lead-ins in the source changelog)
 
 When several versions are combined into one submission:
 
@@ -269,23 +272,21 @@ This update comes with some useful new features, design improvements, and under-
 
 ### Branding
 
-- **digitalhabits.org protected.** The Centre for Digital Habits site is not
-  hidden or redirected by Focus.
+- The Centre for Digital Habits site is not hidden or redirected by Focus.
 
 ### Hide Distracting Elements
 
-- **Clearer Custom hide options.** Per-site Custom options explain what will
-  stay hidden before you turn them on.
+- Per-site Custom options explain what will stay hidden before you turn them
+  on.
 
 ### Delay Opening Websites
 
-- **Configurable delay length.** Choose a delay between 5 and 600 seconds
-  (default 10).
+- Choose a delay between 5 and 600 seconds (default 10).
 
 ### Redirects
 
-- **Infinite redirect protection.** A redirect from site A to site B is not
-  allowed if site B already redirects back to site A.
+- A redirect from site A to site B is not allowed if site B already redirects
+  back to site A.
 
 ### Fixes & Polish
 
@@ -294,8 +295,7 @@ This update comes with some useful new features, design improvements, and under-
 
 ### Internal
 
-- **Docs and links.** Updated documentation and links to the current
-  repository and product names.
+- Updated documentation and links to the current repository and product names.
 ```
 
 ---
@@ -305,8 +305,7 @@ This update comes with some useful new features, design improvements, and under-
 - [ ] Update intro line under `## vX.Y.Z` — only the parts that apply; **new features** only for genuinely new capabilities
 - [ ] Only approved headings; empty ones omitted
 - [ ] Most specific heading used; **Internal** only when truly invisible
-- [ ] Platform tags only where needed (`[macos]` / `[ios]` / `[firefox]` …); no `BY PLATFORM` nesting; no combined Safari tag
-- [ ] Bold lead-in + plain sentence(s) for product sections; **Fixes & Polish** uses plain sentences only
-- [ ] Related UI tweaks on one screen are one screen-level bullet; behavioural changes stay specific
+- [ ] Platform tags only where needed (`[macos]` / `[ios]` / `[firefox]` …); no `BY PLATFORM` nesting; no combined Safari tag; tags checked against extension architecture (README / store matrix)
+- [ ] Plain sentences only — no bold lead-ins; related UI tweaks on one screen are one screen-level bullet
 - [ ] Product terminology matches the extension
 - [ ] Entries are already fit for public release notes
