@@ -234,7 +234,7 @@ function buildWhatsNew(updateIntro, sections, maxChars, emptyOk) {
   }
 
   const head = `Hi folks,\n\n${updateIntro}\n\n`;
-  const foot = `\n\nRemember that the app is open source -- keep your feedback and suggestions coming at ${GITHUB_REPO_URL}\n\nCheers,\nUlrik & all of us at Centre for Digital Habits`;
+  const foot = `\n\nRemember that the app is open source — keep your feedback and suggestions coming at ${GITHUB_REPO_URL}\n\nCheers,\nUlrik & all of us at Centre for Digital Habits`;
   let list = formatSectionBlocks(sections);
   const full = `${head}${list}${foot}`;
   if (full.length <= maxChars) return full.trim();
