@@ -60,6 +60,7 @@ To run this locally:
 
 ## Releasing
 
-See [`changelog.md`](changelog.md) for release notes format, and
+See [`changelog-style.md`](changelog-style.md) for how to write release notes,
+[`changelog.md`](changelog.md) for the notes themselves, and
 [`docs/app-store-ci.md`](docs/app-store-ci.md) for GitHub Release + App Store
-Connect CI (Mac and iOS).
+Connect / add-on store CI (Mac, iOS, Firefox, and optional Chrome/Edge).

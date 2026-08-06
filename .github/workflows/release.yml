@@ -19,7 +19,10 @@
 # run, or the standalone submit workflows (see docs/app-store-ci.md).
 #
 # Before shipping: bump version (scripts/bump-version.sh), add ## vX.Y.Z to
-# changelog.md, commit to main.
+# changelog.md per changelog-style.md, commit to main.
+# GitHub Release body = extract-changelog-section.sh (full markdown including
+# Internal + platform tags). Store / AMO notes =
+# changelog-to-store-whats-new.js (filtered plain text).
 # Docs: docs/app-store-ci.md
 #
 # ── App Store Connect (build signing + submit) ──
@@ -459,6 +462,8 @@ jobs:
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.version }}"
           bash ./scripts/extract-changelog-section.sh "$VERSION" > /tmp/changelog-section.md
+          # Full markdown section (including Internal + [platform] tags).
+          # Store / AMO notes are built separately by changelog-to-store-whats-new.js.
           {
             cat /tmp/changelog-section.md
             echo ""

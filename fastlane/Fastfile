@@ -2,7 +2,9 @@
 #
 # One App Store Connect app record (id1660218371) covers both Mac and iOS
 # (bundle id com.ulriklyngs.mind-shield). Separate lanes upload platform
-# binaries and stamp platform-filtered What's new.
+# binaries and stamp platform-filtered What's new from
+# scripts/changelog-to-store-whats-new.js (untagged + [macos]/[ios]; see
+# changelog-style.md).
 #
 # Auth (see docs/app-store-ci.md):
 #   APP_STORE_CONNECT_API_KEY_ID

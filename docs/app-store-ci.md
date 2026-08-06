@@ -7,12 +7,16 @@ covers Mac and iPhone/iPad. Browser add-on stores use separate secrets below.
 manual checkboxes on **Release build**, or the standalone submit workflows.
 
 What's new / notes come from [`changelog.md`](../changelog.md) via
-`scripts/changelog-to-store-whats-new.js`:
+`scripts/changelog-to-store-whats-new.js` (see [`changelog-style.md`](../changelog-style.md)):
 
-- `--platform macos` → shared `###` sections + `#### Safari (Mac)`
-- `--platform ios` → shared + `#### Safari (iOS)`
-- `--platform firefox` → shared + `#### Firefox` → AMO `release_notes` (`en-GB`)
+- `--platform macos` → untagged + `[macos]`
+- `--platform ios` → untagged + `[ios]`
+- `--platform firefox` → untagged + `[firefox]` → AMO `release_notes` (`en-GB`)
 - `--platform chrome` / `--platform edge` → preview only (no public What’s New via our APIs)
+
+Excludes **Internal**. Copies the author-written “This update comes with…” line,
+keeps section headings, strips markdown and platform tags. Legacy
+`### BY PLATFORM` nesting is still understood for older entries.
 
 Mac / iOS listing description and promotional text live in
 [`store-listing/`](../store-listing/) and are stamped on every Apple submit.
