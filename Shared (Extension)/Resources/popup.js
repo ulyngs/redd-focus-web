@@ -2798,6 +2798,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Listen for session-only selector changes from content script
         // This handles the case when auto-save is disabled but elements are being hidden
         chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+            if (sender.id !== chrome.runtime.id) { return; }
             if (message && message.type === 'sessionSelectorsChanged') {
                 // Only update if the message is for the current site
                 if (currentSiteIdentifier && message.siteIdentifier === currentSiteIdentifier) {
